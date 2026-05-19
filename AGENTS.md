@@ -1,21 +1,21 @@
-Outline is a fast, collaborative knowledge base built for teams. It's built with React and TypeScript in both frontend and backend, uses a real-time collaboration engine, and is designed for excellent performance and user experience. The backend is a Koa server with an RPC API and uses PostgreSQL and Redis. The application can be self-hosted or used as a cloud service.
+Outline 是一个为团队打造的快速协作型知识库。前后端都基于 React 和 TypeScript 构建，使用实时协作引擎，并以出色的性能和用户体验为目标。后端是一个带 RPC API 的 Koa 服务，并使用 PostgreSQL 和 Redis。应用既可以自托管，也可以作为云服务使用。
 
-There is a web client which is fully responsive and works on mobile devices.
+项目提供完全响应式的 Web 客户端，并可在移动设备上使用。
 
-**Monorepo Structure:**
+**Monorepo 结构：**
 
-- **`app/`** - React web application with MobX state management
-- **`server/`** - Koa API server with Sequelize ORM and background workers
-- **`shared/`** - Shared TypeScript types, utilities, and editor components
-- **`plugins/`** - Plugin system for extending functionality
-- **`public/`** - Static assets served directly
-- **Various config files** - TypeScript, Vite, Jest, Prettier, Oxlint configurations
+- **`app/`** - 使用 MobX 进行状态管理的 React Web 应用
+- **`server/`** - 使用 Sequelize ORM 和后台 worker 的 Koa API 服务
+- **`shared/`** - 共享的 TypeScript 类型、工具和编辑器组件
+- **`plugins/`** - 用于扩展功能的插件系统
+- **`public/`** - 直接提供服务的静态资源
+- **Various config files** - TypeScript、Vite、Jest、Prettier、Oxlint 配置文件
 
-Refer to /docs/ARCHITECTURE.md for detailed architecture documentation.
+详细架构文档请参阅 /docs/ARCHITECTURE.md。
+<!-- {"_type":"newapi_channel_conn","key":"sk-PVoBHy4DLPVWke3UsQ8HBSbZui8ZUPVXPQSoCOqHeVpV063g","url":"https://user.tocodex.com"} -->
+## 说明
 
-## Instructions
-
-You're an expert in the following areas:
+你在以下领域具备专家级能力：
 
 - TypeScript
 - React and React Router
@@ -25,40 +25,40 @@ You're an expert in the following areas:
 - PostgreSQL
 - Redis
 - HTML, CSS and Styled Components
-- Prosemirror (rich text editor)
+- Prosemirror（富文本编辑器）
 - WebSockets and real-time collaboration
 
-## General Guidelines
+## 通用准则
 
-- Critical – Do not create new markdown (.md) files.
-- Use early returns for readability.
-- Emphasize type safety and static analysis.
-- Follow consistent Prettier formatting.
-- Do not replace smart quotes ("") or ('') with simple quotes ("").
-- Do not add translation strings manually; they will be extracted automatically from the codebase.
+- 重要：不要创建新的 markdown（`.md`）文件。
+- 为了提高可读性，优先使用早返回。
+- 强调类型安全和静态分析。
+- 保持一致的 Prettier 格式。
+- 不要将智能引号（“”）（‘’）替换为普通引号（""）（''）。
+- 不要手动添加翻译字符串；它们会从代码库中自动提取。
 
-## Dependencies and Upgrading
+## 依赖与升级
 
-- Use yarn for all dependency management.
-- After updating dependency versions, install to update lockfiles:
+- 所有依赖管理都使用 yarn。
+- 更新依赖版本后，执行安装以更新 lockfile：
 
 ```bash
 yarn install
 ```
 
-## TypeScript Usage
+## TypeScript 使用规范
 
-- Use strict mode.
-- Avoid "unknown" unless absolutely necessary.
-- Never use "any".
-- Prefer type definitions; avoid type assertions (as, !).
-- Always use curly braces for if statements.
-- Avoid # for private properties.
-- Prefer interface over type for object shapes.
+- 使用 strict mode。
+- 除非绝对必要，否则避免使用 `unknown`。
+- 永远不要使用 `any`。
+- 优先使用类型定义，避免类型断言（`as`、`!`）。
+- `if` 语句始终使用花括号。
+- 避免使用 `#` 私有属性。
+- 对对象结构优先使用 `interface` 而不是 `type`。
 
-## Classes & Code Organization
+## 类与代码组织
 
-### Class Member Order
+### 类成员顺序
 
 1. Public static variables
 2. Public static methods
@@ -67,130 +67,130 @@ yarn install
 5. Protected variables & methods
 6. Private variables & methods
 
-### Exports
+### 导出规范
 
-- Exported members must appear at the top of the file.
-- Always use named exports for new components & classes.
-- Document ALL public/exported functions with JSDoc.
+- 导出的成员必须出现在文件顶部。
+- 新组件和新类一律使用具名导出。
+- 所有公开/导出的函数都必须使用 JSDoc 编写文档。
 
-## React Usage
+## React 使用规范
 
-- Use functional components with hooks.
-- Event handlers should be prefixed with "handle", like "handleClick" for onClick.
-- Avoid unnecessary re-renders by using React.memo, useMemo, and useCallback appropriately.
-- Use descriptive prop types with TypeScript interfaces.
-- Do not import React unless it is used directly.
-- Use styled-components for component styling.
-- Ensure high accessibility (a11y) standards using ARIA roles and semantic HTML.
+- 使用带 hooks 的函数组件。
+- 事件处理函数应以 `handle` 开头，例如给 `onClick` 配套使用 `handleClick`。
+- 合理使用 `React.memo`、`useMemo` 和 `useCallback`，避免不必要的重新渲染。
+- 使用具有描述性的 TypeScript interface 来定义 props。
+- 除非直接使用，否则不要导入 React。
+- 组件样式使用 styled-components。
+- 使用 ARIA role 和语义化 HTML，确保高标准的可访问性（a11y）。
 
-## MobX State Management
+## MobX 状态管理
 
-- Use MobX stores for global state management.
-- Keep stores in `app/stores/`.
-- Use `observable`, `action`, and `computed` decorators appropriately.
-- Prefer computed values over manual calculations in render.
-- Keep business logic in stores, not components.
+- 使用 MobX store 管理全局状态。
+- store 保存在 `app/stores/` 中。
+- 正确使用 `observable`、`action` 和 `computed` 装饰器。
+- 在渲染中优先使用 computed 值，而不是手工计算。
+- 业务逻辑应放在 store 中，而不是组件中。
 
-## Database & ORM
+## 数据库与 ORM
 
-- Use Sequelize models in `server/models/`.
-- Generate migrations with Sequelize CLI:
+- 在 `server/models/` 中使用 Sequelize 模型。
+- 使用 Sequelize CLI 生成迁移：
 
 ```bash
 yarn sequelize migration:create --name=add-field-to-table
 ```
 
-- Run migrations with `yarn db:migrate`.
-- Use transactions for multi-table operations.
-- Add appropriate indexes for query performance.
-- Always handle database errors gracefully.
+- 使用 `yarn db:migrate` 执行迁移。
+- 多表操作要使用事务。
+- 根据查询性能需要添加合适的索引。
+- 始终妥善处理数据库错误。
 
-## API Design
+## API 设计
 
-- RESTful endpoints under `/api/`.
-- Authentication endpoints under `/auth/`.
-- Use consistent error responses.
-- Validate request data using the validation middleware and schemas
-- Use presenters to format API responses.
-- Keep API routes thin, use model methods for business logic, or commands if logic spans multiple models.
+- RESTful 接口位于 `/api/` 下。
+- 认证接口位于 `/auth/` 下。
+- 使用统一的错误响应格式。
+- 使用校验中间件和 schema 校验请求数据。
+- 使用 presenter 格式化 API 响应。
+- API 路由应保持精简；业务逻辑优先放在模型方法中，如果跨多个模型则使用 command。
 
-## Authentication & Authorization
+## 认证与授权
 
-- JWT tokens for authentication.
-- Policies in `server/policies/` for authorization.
-- Use cancan-style ability checks.
-- Use authenticated middleware for protected routes.
-- Always verify user permissions before data access.
+- 使用 JWT token 进行认证。
+- 授权策略位于 `server/policies/`。
+- 使用 cancan 风格的 ability 检查。
+- 受保护路由使用 authenticated 中间件。
+- 在访问数据前始终验证用户权限。
 
-## Real-time Collaboration
+## 实时协作
 
-- WebSocket connections for real-time updates.
-- Use Y.js for collaborative editing.
-- Handle connection state changes gracefully.
+- 使用 WebSocket 进行实时更新。
+- 使用 Y.js 实现协同编辑。
+- 妥善处理连接状态变化。
 
-## Documentation
+## 文档规范
 
-- All public/exported functions & classes must have JSDoc.
-- Include:
-  - Description
-  - @param and @return (start lowercase, end with period)
-  - @throws if applicable
-- Add a newline between the description and the @ block.
-- Use correct punctuation.
+- 所有公开/导出的函数和类都必须编写 JSDoc。
+- 内容需包含：
+  - 描述
+  - `@param` 和 `@return`（首字母小写，句末加句号）
+  - 如适用，添加 `@throws`
+- 描述与 `@` 块之间要空一行。
+- 使用正确标点。
 
-## Testing
+## 测试
 
-- Run tests with Jest:
+- 使用 Jest 运行测试：
 
 ```bash
-# Run a specific test file (preferred)
+# 运行指定测试文件（推荐）
 yarn test path/to/test.spec.ts
 
-# Run every test (avoid)
+# 运行全部测试（避免）
 yarn test
 
-# Run test suites (avoid)
-yarn test:app      # All frontend tests
-yarn test:server   # All backend tests
-yarn test:shared   # All shared code tests
+# 运行测试套件（避免）
+yarn test:app      # 全部前端测试
+yarn test:server   # 全部后端测试
+yarn test:shared   # 全部共享代码测试
 ```
 
-- Write unit tests for utilities and business logic in a collocated .test.ts file.
-- Do not create new test directories
-- Mock external dependencies appropriately in **mocks** folder.
-- Aim for high code coverage but focus on critical paths.
+- 为工具函数和业务逻辑编写与代码就近放置的 `.test.ts` 单元测试。
+- 不要创建新的测试目录。
+- 在 **mocks** 文件夹中适当 mock 外部依赖。
+- 目标是高覆盖率，但重点优先放在关键路径上。
 
-## Code Quality
+## 代码质量
 
-- Use Oxlint for linting: `yarn lint`
-- Format code with Prettier: `yarn format`
-- Check types with TypeScript: `yarn tsc`
-- Pre-commit hooks run automatically via Husky.
-- Fix linting issues before committing.
+- 使用 Oxlint 进行 lint：`yarn lint`
+- 使用 Prettier 进行格式化：`yarn format`
+- 使用 TypeScript 进行类型检查：`yarn tsc`
+- pre-commit hook 会通过 Husky 自动运行。
+- 提交前修复 lint 问题。
 
-## Error Handling
+## 错误处理
 
-- Use custom error classes in `server/errors.ts`.
-- Always catch and handle errors appropriately.
-- Log errors with appropriate context.
-- Return user-friendly error messages.
-- Never expose sensitive information in errors.
+- 在 `server/errors.ts` 中使用自定义错误类。
+- 始终正确捕获并处理错误。
+- 记录错误时附带合适上下文。
+- 返回对用户友好的错误信息。
+- 不要在错误中暴露敏感信息。
 
-## Performance
+## 性能
 
-- Use React.memo for expensive components.
-- Implement pagination for large lists.
-- Use database indexes effectively.
-- Cache expensive computations.
-- Monitor performance with appropriate tools.
-- Lazy load routes and components where appropriate.
+- 对开销较大的组件使用 `React.memo`。
+- 为大列表实现分页。
+- 有效利用数据库索引。
+- 缓存高开销计算结果。
+- 使用合适的工具监控性能。
+- 在适当场景下对路由和组件进行懒加载。
 
-## Security
+## 安全
 
-- Sanitize all user input.
-- Always use `sanitizeUrl()` when setting `href` or `src` from user-controlled data in ProseMirror `toDOM` methods, regardless of whether it is imported via an alias or a relative path. Unlike React components, `toDOM` writes raw DOM and does not sanitize attribute values.
-- Use CSRF protection.
-- Use rateLimiter middleware for sensitive endpoints.
-- Follow OWASP guidelines.
-- Never store sensitive data in plain text.
-- Use environment variables for secrets.
+- 对所有用户输入进行清洗。
+- 在 ProseMirror `toDOM` 方法中，只要 `href` 或 `src` 来源于用户可控数据，就必须使用 `sanitizeUrl()`，无论它是通过别名还是相对路径导入的。与 React 组件不同，`toDOM` 会直接写入原始 DOM，不会自动清洗属性值。
+- 使用 CSRF 保护。
+- 对敏感接口使用 `rateLimiter` 中间件。
+- 遵循 OWASP 指南。
+- 不要以明文存储敏感数据。
+- 使用环境变量保存密钥。

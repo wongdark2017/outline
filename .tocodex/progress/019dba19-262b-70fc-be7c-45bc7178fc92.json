@@ -1,0 +1,22 @@
+{
+  "taskId": "019dba19-262b-70fc-be7c-45bc7178fc92",
+  "todos": [
+    {
+      "id": "870645c674a1c0b0a2c3fd89b6c12d26",
+      "content": "识别用户当前请求为一个简单算术问题",
+      "status": "completed"
+    },
+    {
+      "id": "1b4b26444b5d3d2e20908a1889acd3c1",
+      "content": "确认用户是要直接答案还是测试规划流程",
+      "status": "in_progress"
+    },
+    {
+      "id": "84097dd17a7aed47b0dde8fe16a8abb1",
+      "content": "根据用户确认给出最终结果或调整后续模式",
+      "status": "pending"
+    }
+  ],
+  "lastUpdated": 1776943860437,
+  "status": "active"
+}

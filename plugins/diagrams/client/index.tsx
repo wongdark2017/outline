@@ -12,7 +12,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Configure a custom Diagrams.net installation URL to use your own hosted instance for embedding diagrams in your documents.",
+        "配置自定义的 Diagrams.net 安装 URL，以使用你自托管的实例在文档中嵌入图表。",
       component: createLazyComponent(() => import("./Settings")),
       enabled: (_, user) => user.role === UserRole.Admin,
     },

@@ -11,7 +11,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Connect your Outline workspace to Zapier to automate workflows and integrate with thousands of other tools.",
+        "将你的 Outline 工作区连接到 Zapier，以自动化工作流并集成成千上万的其他工具。",
       component: createLazyComponent(() => import("./Settings")),
     },
   },

@@ -11,7 +11,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Search your knowledge base directly in Slack, get /outline search, rich link previews, and notifications on new or updated docs.",
+        "直接在 Slack 中搜索你的知识库，使用 /outline 搜索命令，查看丰富的链接预览，并接收新建或更新文档的通知。",
       component: createLazyComponent(() => import("./Settings")),
       enabled: () => true,
     },

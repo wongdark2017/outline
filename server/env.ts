@@ -315,7 +315,7 @@ export class Environment {
    */
   @Public
   @IsIn(languages)
-  public DEFAULT_LANGUAGE = environment.DEFAULT_LANGUAGE ?? "en_US";
+  public DEFAULT_LANGUAGE = environment.DEFAULT_LANGUAGE ?? "zh_CN";
 
   /**
    * A comma list of which services should be enabled on this instance – defaults to all.

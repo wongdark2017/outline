@@ -17,9 +17,10 @@ export default function LanguagePrompt() {
   const { t } = useTranslation();
   const user = useCurrentUser();
   const language = detectLanguage();
+  const defaultLanguage = env.DEFAULT_LANGUAGE ?? "zh_CN";
 
   if (
-    language === "en_US" ||
+    language === defaultLanguage ||
     language === user.language ||
     !languages.includes(language)
   ) {
@@ -40,8 +41,13 @@ export default function LanguagePrompt() {
         <LanguageIcon />
         <span>
           <Text>
-            {appName} is available in your language – {optionLabel}, would you
-            like to change?
+            {t(
+              "{{ appName }} is available in your language – {{ optionLabel }}, would you like to change?",
+              {
+                appName,
+                optionLabel,
+              }
+            )}
           </Text>
           <br />
           <Link

@@ -11,7 +11,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Measure adoption and engagement by sending view and event analytics directly to your GA4 dashboard.",
+        "将浏览和事件分析直接发送到你的 GA4 仪表板，以衡量使用情况和参与度。",
       component: createLazyComponent(() => import("./Settings")),
     },
   },

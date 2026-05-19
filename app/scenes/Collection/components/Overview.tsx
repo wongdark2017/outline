@@ -88,7 +88,7 @@ function Overview({ collection, readOnly }: Props) {
     <>
       {collections.isSaving && <LoadingIndicator />}
       {(can.update || readOnly) && (
-        <Suspense fallback={<Placeholder>Loading…</Placeholder>}>
+        <Suspense fallback={<Placeholder>{`${t("Loading")}…`}</Placeholder>}>
           <MeasuredContainer name="document">
             <Editor
               defaultValue={collection.data}

@@ -15,7 +15,7 @@ import Logger from "./Logger";
  * is not supported.
  * @returns A promise resolving to the i18n instance
  */
-export function initI18n(defaultLanguage = "en_US") {
+export function initI18n(defaultLanguage = "zh_CN") {
   const lng = unicodeCLDRtoBCP47(defaultLanguage);
 
   if (typeof document !== "undefined") {

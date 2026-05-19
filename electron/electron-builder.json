@@ -1,0 +1,30 @@
+{
+  "appId": "com.getoutline.desktop",
+  "asar": true,
+  "artifactName": "Outline-${version}-${os}-${arch}.${ext}",
+  "directories": {
+    "output": "../../dist/electron"
+  },
+  "electronVersion": "42.1.0",
+  "files": ["**/*"],
+  "npmRebuild": false,
+  "icon": "assets/icon.png",
+  "linux": {
+    "category": "Office",
+    "target": ["AppImage", "deb"]
+  },
+  "mac": {
+    "category": "public.app-category.productivity",
+    "target": ["dmg", "zip"]
+  },
+  "productName": "Outline",
+  "protocols": [
+    {
+      "name": "Outline",
+      "schemes": ["outline"]
+    }
+  ],
+  "win": {
+    "target": ["nsis"]
+  }
+}

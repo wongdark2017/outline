@@ -12,7 +12,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Track your docs with a self-hosted, open-source analytics platform, link Outline to Matomo for 100% data ownership, GDPR compliance, and deep usage insights on your own servers.",
+        "通过自托管的开源分析平台跟踪你的文档，将 Outline 连接到 Matomo，在你自己的服务器上实现 100% 数据掌控、GDPR 合规以及深入的使用洞察。",
       component: createLazyComponent(() => import("./Settings")),
       enabled: (_, user) => user.role === UserRole.Admin,
     },

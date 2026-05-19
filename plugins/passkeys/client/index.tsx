@@ -17,7 +17,7 @@ PluginManager.add([
       after: "Notifications",
       icon: KeyIcon,
       description:
-        "Manage your passkeys for passwordless authentication using biometrics or security keys.",
+        "管理你的通行密钥，使用生物识别或安全密钥进行无密码认证。",
       component: createLazyComponent(() => import("./Settings")),
       enabled: () => true,
     },

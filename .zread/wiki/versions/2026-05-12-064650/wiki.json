@@ -1,0 +1,260 @@
+{
+  "id": "2026-05-12-064650",
+  "generated_at": "2026-05-12T06:46:50.949087553Z",
+  "language": "zh",
+  "pages": [
+    {
+      "slug": "1-xiang-mu-gai-shu-outline-zhi-shi-ku-de-he-xin-ding-wei-yu-jie-zhi",
+      "title": "项目概述：Outline 知识库的核心定位与价值",
+      "file": "1-xiang-mu-gai-shu-outline-zhi-shi-ku-de-he-xin-ding-wei-yu-jie-zhi.md",
+      "section": "快速入门",
+      "level": "Beginner"
+    },
+    {
+      "slug": "2-ben-di-kai-fa-huan-jing-da-jian-zhi-nan",
+      "title": "本地开发环境搭建指南",
+      "file": "2-ben-di-kai-fa-huan-jing-da-jian-zhi-nan.md",
+      "section": "快速入门",
+      "level": "Beginner"
+    },
+    {
+      "slug": "3-xiang-mu-mu-lu-jie-gou-yu-dai-ma-zu-zhi-zong-lan",
+      "title": "项目目录结构与代码组织总览",
+      "file": "3-xiang-mu-mu-lu-jie-gou-yu-dai-ma-zu-zhi-zong-lan.md",
+      "section": "快速入门",
+      "level": "Beginner"
+    },
+    {
+      "slug": "4-qian-duan-ji-zhu-zhan-react-mobx-styled-components-yu-vite",
+      "title": "前端技术栈：React、MobX、Styled Components 与 Vite",
+      "file": "4-qian-duan-ji-zhu-zhan-react-mobx-styled-components-yu-vite.md",
+      "section": "快速入门",
+      "group": "技术栈概览",
+      "level": "Beginner"
+    },
+    {
+      "slug": "5-hou-duan-ji-zhu-zhan-koa-sequelize-redis-yu-bull-dui-lie",
+      "title": "后端技术栈：Koa、Sequelize、Redis 与 Bull 队列",
+      "file": "5-hou-duan-ji-zhu-zhan-koa-sequelize-redis-yu-bull-dui-lie.md",
+      "section": "快速入门",
+      "group": "技术栈概览",
+      "level": "Beginner"
+    },
+    {
+      "slug": "6-zheng-ti-jia-gou-qian-hou-duan-monorepo-yu-gong-xiang-mo-kuai-she-ji",
+      "title": "整体架构：前后端 Monorepo 与共享模块设计",
+      "file": "6-zheng-ti-jia-gou-qian-hou-duan-monorepo-yu-gong-xiang-mo-kuai-she-ji.md",
+      "section": "深入剖析",
+      "group": "架构与设计",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "7-hou-duan-fu-wu-chai-fen-web-collaboration-websockets-worker-yu-cron",
+      "title": "后端服务拆分：Web、Collaboration、Websockets、Worker 与 Cron",
+      "file": "7-hou-duan-fu-wu-chai-fen-web-collaboration-websockets-worker-yu-cron.md",
+      "section": "深入剖析",
+      "group": "架构与设计",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "8-cha-jian-xi-tong-ke-hu-duan-yu-fu-wu-duan-de-kuo-zhan-ji-zhi",
+      "title": "插件系统：客户端与服务端的扩展机制",
+      "file": "8-cha-jian-xi-tong-ke-hu-duan-yu-fu-wu-duan-de-kuo-zhan-ji-zhi.md",
+      "section": "深入剖析",
+      "group": "架构与设计",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "9-zhuang-tai-guan-li-mobx-model-store-yu-rootstore-jia-gou",
+      "title": "状态管理：MobX Model、Store 与 RootStore 架构",
+      "file": "9-zhuang-tai-guan-li-mobx-model-store-yu-rootstore-jia-gou.md",
+      "section": "深入剖析",
+      "group": "前端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "10-lu-you-xi-tong-yu-ye-mian-chang-jing-scenes-zu-zhi-fang-shi",
+      "title": "路由系统与页面场景（Scenes）组织方式",
+      "file": "10-lu-you-xi-tong-yu-ye-mian-chang-jing-scenes-zu-zhi-fang-shi.md",
+      "section": "深入剖析",
+      "group": "前端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "11-api-ke-hu-duan-qing-qiu-feng-zhuang-cuo-wu-chu-li-yu-csrf-fang-hu",
+      "title": "API 客户端：请求封装、错误处理与 CSRF 防护",
+      "file": "11-api-ke-hu-duan-qing-qiu-feng-zhuang-cuo-wu-chu-li-yu-csrf-fang-hu.md",
+      "section": "深入剖析",
+      "group": "前端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "12-zhu-ti-xi-tong-yu-quan-ju-yang-shi-she-ji",
+      "title": "主题系统与全局样式设计",
+      "file": "12-zhu-ti-xi-tong-yu-quan-ju-yang-shi-she-ji.md",
+      "section": "深入剖析",
+      "group": "前端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "13-react-hooks-gong-ju-ku-chang-yong-zi-ding-yi-hooks-xiang-jie",
+      "title": "React Hooks 工具库：常用自定义 Hooks 详解",
+      "file": "13-react-hooks-gong-ju-ku-chang-yong-zi-ding-yi-hooks-xiang-jie.md",
+      "section": "深入剖析",
+      "group": "前端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "14-bian-ji-qi-jia-gou-ji-yu-prosemirror-de-jie-dian-biao-ji-yu-kuo-zhan-ti-xi",
+      "title": "编辑器架构：基于 Prosemirror 的节点、标记与扩展体系",
+      "file": "14-bian-ji-qi-jia-gou-ji-yu-prosemirror-de-jie-dian-biao-ji-yu-kuo-zhan-ti-xi.md",
+      "section": "深入剖析",
+      "group": "富文本编辑器",
+      "level": "Advanced"
+    },
+    {
+      "slug": "15-shi-shi-xie-zuo-bian-ji-hocuspocus-y-js-crdt-yu-websocket-chi-jiu-hua",
+      "title": "实时协作编辑：Hocuspocus、Y.js CRDT 与 WebSocket 持久化",
+      "file": "15-shi-shi-xie-zuo-bian-ji-hocuspocus-y-js-crdt-yu-websocket-chi-jiu-hua.md",
+      "section": "深入剖析",
+      "group": "富文本编辑器",
+      "level": "Advanced"
+    },
+    {
+      "slug": "16-bian-ji-qi-kuo-zhan-dai-ma-gao-liang-shu-xue-gong-shi-mermaid-tu-biao-yu-qian-ru-zu-jian",
+      "title": "编辑器扩展：代码高亮、数学公式、Mermaid 图表与嵌入组件",
+      "file": "16-bian-ji-qi-kuo-zhan-dai-ma-gao-liang-shu-xue-gong-shi-mermaid-tu-biao-yu-qian-ru-zu-jian.md",
+      "section": "深入剖析",
+      "group": "富文本编辑器",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "17-api-lu-you-she-ji-schema-yan-zheng-zhong-jian-jian-yu-cuo-wu-chu-li",
+      "title": "API 路由设计：Schema 验证、中间件与错误处理",
+      "file": "17-api-lu-you-she-ji-schema-yan-zheng-zhong-jian-jian-yu-cuo-wu-chu-li.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "18-shu-ju-mo-xing-ceng-sequelize-mo-xing-ding-yi-guan-lian-yu-sheng-ming-zhou-qi-gou-zi",
+      "title": "数据模型层：Sequelize 模型定义、关联与生命周期钩子",
+      "file": "18-shu-ju-mo-xing-ceng-sequelize-mo-xing-ding-yi-guan-lian-yu-sheng-ming-zhou-qi-gou-zi.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "19-command-mo-shi-kua-mo-xing-de-fu-za-ye-wu-cao-zuo-feng-zhuang",
+      "title": "Command 模式：跨模型的复杂业务操作封装",
+      "file": "19-command-mo-shi-kua-mo-xing-de-fu-za-ye-wu-cao-zuo-feng-zhuang.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "20-quan-xian-xi-tong-ji-yu-cancan-de-ce-lue-policies-yu-shou-quan-ji-zhi",
+      "title": "权限系统：基于 CanCan 的策略（Policies）与授权机制",
+      "file": "20-quan-xian-xi-tong-ji-yu-cancan-de-ce-lue-policies-yu-shou-quan-ji-zhi.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Advanced"
+    },
+    {
+      "slug": "21-shu-ju-presenter-ceng-mo-xing-xu-lie-hua-yu-qian-hou-duan-shu-ju-qi-yue",
+      "title": "数据 Presenter 层：模型序列化与前后端数据契约",
+      "file": "21-shu-ju-presenter-ceng-mo-xing-xu-lie-hua-yu-qian-hou-duan-shu-ju-qi-yue.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "22-yi-bu-ren-wu-yu-shi-jian-qu-dong-bull-dui-lie-processor-yu-task-ti-xi",
+      "title": "异步任务与事件驱动：Bull 队列、Processor 与 Task 体系",
+      "file": "22-yi-bu-ren-wu-yu-shi-jian-qu-dong-bull-dui-lie-processor-yu-task-ti-xi.md",
+      "section": "深入剖析",
+      "group": "后端开发",
+      "level": "Advanced"
+    },
+    {
+      "slug": "23-shu-ju-ku-qian-yi-guan-li-sequelize-qian-yi-yu-shu-ju-hui-tian-jiao-ben",
+      "title": "数据库迁移管理：Sequelize 迁移与数据回填脚本",
+      "file": "23-shu-ju-ku-qian-yi-guan-li-sequelize-qian-yi-yu-shu-ju-hui-tian-jiao-ben.md",
+      "section": "深入剖析",
+      "group": "数据与存储",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "24-wen-jian-cun-chu-s3-jian-rong-cun-chu-yu-fu-jian-guan-li",
+      "title": "文件存储：S3 兼容存储与附件管理",
+      "file": "24-wen-jian-cun-chu-s3-jian-rong-cun-chu-yu-fu-jian-guan-li.md",
+      "section": "深入剖析",
+      "group": "数据与存储",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "25-redis-huan-cun-ce-lue-yu-hui-hua-guan-li",
+      "title": "Redis 缓存策略与会话管理",
+      "file": "25-redis-huan-cun-ce-lue-yu-hui-hua-guan-li.md",
+      "section": "深入剖析",
+      "group": "数据与存储",
+      "level": "Advanced"
+    },
+    {
+      "slug": "26-ren-zheng-ji-cheng-google-oidc-azure-slack-yu-passkeys",
+      "title": "认证集成：Google、OIDC、Azure、Slack 与 Passkeys",
+      "file": "26-ren-zheng-ji-cheng-google-oidc-azure-slack-yu-passkeys.md",
+      "section": "深入剖析",
+      "group": "集成与扩展",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "27-mcp-model-context-protocol-fu-wu-yu-ai-gong-ju-ji-cheng",
+      "title": "MCP（Model Context Protocol）服务与 AI 工具集成",
+      "file": "27-mcp-model-context-protocol-fu-wu-yu-ai-gong-ju-ji-cheng.md",
+      "section": "深入剖析",
+      "group": "集成与扩展",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "28-oauth-2-0-fu-wu-duan-shi-xian-ke-hu-duan-zhu-ce-yu-shou-quan-liu-cheng",
+      "title": "OAuth 2.0 服务端实现：客户端注册与授权流程",
+      "file": "28-oauth-2-0-fu-wu-duan-shi-xian-ke-hu-duan-zhu-ce-yu-shou-quan-liu-cheng.md",
+      "section": "深入剖析",
+      "group": "集成与扩展",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "29-ce-shi-ce-lue-jest-pei-zhi-gong-han-han-shu-yu-ce-shi-fu-zhu-gong-ju",
+      "title": "测试策略：Jest 配置、工厂函数与测试辅助工具",
+      "file": "29-ce-shi-ce-lue-jest-pei-zhi-gong-han-han-shu-yu-ce-shi-fu-zhu-gong-ju.md",
+      "section": "深入剖析",
+      "group": "测试与质量保障",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "30-guo-ji-hua-i18n-duo-yu-yan-pei-zhi-yu-fan-yi-gong-zuo-liu",
+      "title": "国际化（i18n）：多语言配置与翻译工作流",
+      "file": "30-guo-ji-hua-i18n-duo-yu-yan-pei-zhi-yu-fan-yi-gong-zuo-liu.md",
+      "section": "深入剖析",
+      "group": "测试与质量保障",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "31-docker-bu-shu-jing-xiang-gou-jian-yu-docker-compose-pei-zhi",
+      "title": "Docker 部署：镜像构建与 docker-compose 配置",
+      "file": "31-docker-bu-shu-jing-xiang-gou-jian-yu-docker-compose-pei-zhi.md",
+      "section": "深入剖析",
+      "group": "部署与运维",
+      "level": "Intermediate"
+    },
+    {
+      "slug": "32-sheng-chan-huan-jing-pei-zhi-huan-jing-bian-liang-ri-zhi-jian-kong-yu-you-ya-guan-bi",
+      "title": "生产环境配置：环境变量、日志、监控与优雅关闭",
+      "file": "32-sheng-chan-huan-jing-pei-zhi-huan-jing-bian-liang-ri-zhi-jian-kong-yu-you-ya-guan-bi.md",
+      "section": "深入剖析",
+      "group": "部署与运维",
+      "level": "Advanced"
+    }
+  ]
+}

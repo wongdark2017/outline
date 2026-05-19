@@ -12,7 +12,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Gain privacy-first insights into how your team consumes docs, inject your self-hosted Umami script across Outline pages to track views and engagement while retaining full control of your data.",
+        "使用以隐私优先的方式了解团队如何使用文档，在 Outline 页面中注入你自托管的 Umami 脚本来追踪浏览和参与度，同时完全掌控你的数据。",
       component: createLazyComponent(() => import("./Settings")),
       enabled: (_, user) => user.role === UserRole.Admin,
     },

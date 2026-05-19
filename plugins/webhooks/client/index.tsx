@@ -12,7 +12,7 @@ PluginManager.add([
       after: "Shared Links",
       icon: Icon,
       description:
-        "Automate downstream workflows with real-time JSON POSTs, subscribe to events in Outline so external systems can react instantly.",
+        "通过实时 JSON POST 自动化下游工作流，订阅 Outline 中的事件，使外部系统能够即时响应。",
       component: createLazyComponent(() => import("./Settings")),
     },
   },

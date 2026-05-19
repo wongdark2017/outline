@@ -11,7 +11,7 @@ PluginManager.add([
       group: "Integrations",
       icon: Icon,
       description:
-        "Connect your Figma account to Outline to enable rich design file previews inside documents.",
+        "连接你的 Figma 账号到 Outline，以便在文档中启用丰富的设计文件预览。",
       component: createLazyComponent(() => import("./Settings")),
     },
   },

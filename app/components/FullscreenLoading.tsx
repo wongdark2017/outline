@@ -1,13 +1,16 @@
 import styled from "styled-components";
+import { useTranslation } from "react-i18next";
 import Empty from "~/components/Empty";
 import Fade from "~/components/Fade";
 import Flex from "~/components/Flex";
 
 export default function FullscreenLoading() {
+  const { t } = useTranslation();
+
   return (
     <Fade timing={500}>
       <Centered>
-        <Empty>Loading…</Empty>
+        <Empty>{`${t("Loading")}…`}</Empty>
       </Centered>
     </Fade>
   );
