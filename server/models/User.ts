@@ -1,4 +1,5 @@
 import crypto from "node:crypto";
+import argon2 from "argon2";
 import { addHours, addMinutes, subMinutes } from "date-fns";
 import JWT from "jsonwebtoken";
 import type { Context } from "koa";
@@ -72,6 +73,9 @@ import IsUrlOrRelativePath from "./validators/IsUrlOrRelativePath";
 import Length from "./validators/Length";
 import NotContainsUrl from "./validators/NotContainsUrl";
 import { SkipChangeset } from "./decorators/Changeset";
+
+const DUMMY_HASH =
+  "$argon2id$v=19$m=65536,t=3,p=4$vUglF8uLyczzmkn81TaujQ$THW3xCIa8gW3n4OSjqyKEQhKxJboYQ09B9emT5eepqg";
 
 /**
  * Flags that are available for setting on the user.
@@ -187,6 +191,21 @@ class User extends ParanoidModel<
   @Column
   @SkipChangeset
   lastSigninEmailSentAt: Date | null;
+
+  @Column(DataType.TEXT)
+  @SkipChangeset
+  passwordHash: string | null;
+
+  @AllowNull(false)
+  @Default(0)
+  @Column(DataType.INTEGER)
+  @SkipChangeset
+  failedSignInAttempts: number;
+
+  @IsDate
+  @Column
+  @SkipChangeset
+  lockedUntil: Date | null;
 
   @IsDate
   @Column
@@ -674,6 +693,75 @@ class User extends ParanoidModel<
     );
 
   /**
+   * Set the user's password by hashing the provided plaintext with argon2id.
+   *
+   * @param plain plaintext password to hash.
+   * @returns promise that resolves when the hash is computed and assigned.
+   * @throws if argon2 hashing encounters a runtime error.
+   */
+  setPassword = async (plain: string) => {
+    this.passwordHash = await User.hashPassword(plain);
+  };
+
+  /**
+   * Verify the user's password against the stored hash.
+   *
+   * @param plain plaintext password to verify.
+   * @returns whether the password matches.
+   * @throws if argon2 verification encounters a runtime error.
+   */
+  verifyPassword = async (plain: string): Promise<boolean> => {
+    if (!this.passwordHash) {
+      await argon2.verify(DUMMY_HASH, plain);
+      return false;
+    }
+
+    return argon2.verify(this.passwordHash, plain);
+  };
+
+  /**
+   * Generate a one-time password reset token and return its jti.
+   *
+   * @returns the signed token and matching jti.
+   */
+  getPasswordResetToken = (): { token: string; jti: string } => {
+    const jti = crypto.randomUUID();
+    const token = JWT.sign(
+      {
+        id: this.id,
+        teamId: this.teamId,
+        type: "password-reset",
+        createdAt: new Date().toISOString(),
+        jti,
+      },
+      this.jwtSecret
+    );
+
+    return { token, jti };
+  };
+
+  /**
+   * Generate a one-time password activation token and return its jti.
+   *
+   * @returns the signed token and matching jti.
+   */
+  getPasswordActivationToken = (): { token: string; jti: string } => {
+    const jti = crypto.randomUUID();
+    const token = JWT.sign(
+      {
+        id: this.id,
+        teamId: this.teamId,
+        type: "password-activation",
+        createdAt: new Date().toISOString(),
+        jti,
+      },
+      this.jwtSecret
+    );
+
+    return { token, jti };
+  };
+
+  /**
    * Generate a 6-digit verification code for email authentication
    * and store it in Redis with a 10-minute TTL.
    *
@@ -688,6 +776,16 @@ class User extends ParanoidModel<
     await VerificationCode.store(this.teamId, this.email, code);
     return code;
   };
+
+  /**
+   * Hash a plaintext password with argon2id without mutating the instance.
+   *
+   * @param plain plaintext password to hash.
+   * @returns the argon2id hash string.
+   * @throws if argon2 hashing encounters a runtime error.
+   */
+  static hashPassword = async (plain: string): Promise<string> =>
+    argon2.hash(plain, { type: argon2.argon2id });
 
   /**
    * Returns a temporary token that can be used to update the users

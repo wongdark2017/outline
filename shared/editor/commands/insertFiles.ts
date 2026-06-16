@@ -8,6 +8,18 @@ import uploadPlaceholderPlugin, {
   findPlaceholder,
 } from "../lib/uploadPlaceholder";
 
+/**
+ * Result returned by an upload callback when attachment metadata is available.
+ */
+export interface UploadResult {
+  /** The attachment ID, if the upload created an Outline attachment. */
+  id?: string;
+  /** The URL to insert into the editor node. */
+  url: string;
+}
+
+export type UploadFileResult = string | UploadResult;
+
 export type Options = {
   /** Set to true to force images and videos to become file attachments */
   isAttachment?: boolean;
@@ -20,7 +32,7 @@ export type Options = {
       id?: string;
       onProgress?: (fractionComplete: number) => void;
     }
-  ) => Promise<string>;
+  ) => Promise<UploadFileResult>;
   /** Callback fired when the user starts a file upload */
   onFileUploadStart?: () => void;
   /** Callback fired when the user completes a file upload */
@@ -41,6 +53,49 @@ export type Options = {
     preview?: boolean;
   };
 };
+
+/**
+ * Returns the editor node URL from an upload callback result.
+ *
+ * @param uploadResult - the upload callback result.
+ * @returns the URL to insert into the editor.
+ */
+export function getUploadResultUrl(uploadResult: UploadFileResult) {
+  return typeof uploadResult === "string" ? uploadResult : uploadResult.url;
+}
+
+function getAttachmentIdFromUrl(src: string) {
+  try {
+    const url = new URL(src, window.location.origin);
+
+    if (
+      url.origin === window.location.origin &&
+      url.pathname === "/api/attachments.redirect"
+    ) {
+      return url.searchParams.get("id") ?? undefined;
+    }
+  } catch (_err) {
+    return;
+  }
+
+  return;
+}
+
+function normalizeUploadResult(uploadResult: UploadFileResult): UploadResult {
+  const url = getUploadResultUrl(uploadResult);
+
+  if (typeof uploadResult !== "string") {
+    return {
+      id: uploadResult.id ?? getAttachmentIdFromUrl(url),
+      url,
+    };
+  }
+
+  return {
+    id: getAttachmentIdFromUrl(url),
+    url,
+  };
+}
 
 const insertFiles = async function (
   view: EditorView,
@@ -119,10 +174,12 @@ const insertFiles = async function (
       onProgress: (progress) => onFileUploadProgress?.(upload.id, progress),
     })
       // then this should be able to get the full URL as well
-      .then(async (src) => {
+      .then(async (uploadResult) => {
         if (view.isDestroyed) {
           return;
         }
+        const { id: attachmentId, url: src } =
+          normalizeUploadResult(uploadResult);
         if (upload.isImage) {
           const newImg = new Image();
           newImg.onload = async () => {
@@ -197,6 +254,7 @@ const insertFiles = async function (
                 from,
                 to || from,
                 schema.nodes.attachment.create({
+                  id: attachmentId,
                   href: src,
                   title: upload.file.name ?? t("Untitled"),
                   size: upload.file.size,

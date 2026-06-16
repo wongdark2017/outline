@@ -5,9 +5,12 @@ import env from "@server/env";
 import Logger from "@server/logging/Logger";
 import { User, Team } from "@server/models";
 import { UserFlag } from "@server/models/User";
+import Redis from "@server/storage/redis";
 import type { APIContext } from "@server/types";
 import { DomainNotAllowedError } from "@server/errors";
 import { can } from "@server/policies";
+import passwordEnv from "../../plugins/password/server/env";
+import InvitePasswordActivationEmail from "@server/emails/templates/InvitePasswordActivationEmail";
 
 export type Invite = {
   name: string;
@@ -97,15 +100,43 @@ export default async function userInviter(
     users.push(newUser);
 
     if (!suppressEmail) {
-      await new InviteEmail({
-        to: invite.email,
-        language: newUser.language,
-        name: invite.name,
-        actorName: user.name,
-        actorEmail: user.email,
-        teamName: team.name,
-        teamUrl: team.url,
-      }).schedule();
+      if (passwordEnv.PASSWORD_AUTH_ENABLED) {
+        const { token, jti } = newUser.getPasswordActivationToken();
+        const resetUrl = `${team.url}/reset-password?activationToken=${encodeURIComponent(
+          token
+        )}`;
+
+        await Redis.defaultClient.set(
+          `password-activation:jti:${jti}`,
+          JSON.stringify({
+            userId: newUser.id,
+            teamId: newUser.teamId,
+          }),
+          "EX",
+          900
+        );
+
+        await new InvitePasswordActivationEmail({
+          to: invite.email,
+          language: newUser.language,
+          name: invite.name,
+          actorName: user.name,
+          actorEmail: user.email,
+          teamName: team.name,
+          activationUrl: resetUrl,
+          teamUrl: team.url,
+        }).schedule();
+      } else {
+        await new InviteEmail({
+          to: invite.email,
+          language: newUser.language,
+          name: invite.name,
+          actorName: user.name,
+          actorEmail: user.email,
+          teamName: team.name,
+          teamUrl: team.url,
+        }).schedule();
+      }
     }
 
     if (env.isDevelopment) {

@@ -46,6 +46,10 @@ import { InvalidRequestError } from "@server/errors";
 
 const router = new Router();
 
+function isReservedCollectionName(name: string | undefined) {
+  return name?.trim().startsWith("__") ?? false;
+}
+
 router.post(
   "collections.create",
   rateLimiter(RateLimiterStrategy.TwentyFivePerMinute),
@@ -69,6 +73,10 @@ router.post(
     } = ctx.input.body;
 
     const { user } = ctx.state.auth;
+    if (isReservedCollectionName(name)) {
+      throw InvalidRequestError("Collection name is reserved");
+    }
+
     authorize(user, "createCollection", user.team);
 
     const collection = Collection.build({
@@ -583,6 +591,10 @@ router.post(
     } = ctx.input.body;
 
     const { user } = ctx.state.auth;
+    if (isReservedCollectionName(name)) {
+      throw InvalidRequestError("Collection name is reserved");
+    }
+
     const collection = await Collection.findByPk(id, {
       userId: user.id,
       transaction,

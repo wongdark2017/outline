@@ -79,7 +79,7 @@ function Editor(props: Props, ref: React.RefObject<SharedEditor> | null) {
         file instanceof File
           ? await uploadFile(file, options)
           : await uploadFileFromUrl(file, options);
-      return result.url;
+      return result;
     },
     [id]
   );

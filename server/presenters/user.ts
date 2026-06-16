@@ -9,6 +9,7 @@ import type { User } from "@server/models";
 type Options = {
   includeDetails?: boolean;
   includeEmail?: boolean;
+  includePasswordState?: boolean;
 };
 
 type UserPresentation = {
@@ -27,6 +28,7 @@ type UserPresentation = {
   preferences?: UserPreferences | null;
   notificationSettings?: NotificationSettings;
   timezone?: string | null;
+  hasPassword?: boolean;
 };
 
 export default function presentUser(
@@ -56,6 +58,10 @@ export default function presentUser(
 
   if (options.includeEmail) {
     userData.email = user.email;
+  }
+
+  if (options.includePasswordState) {
+    userData.hasPassword = !!user.passwordHash;
   }
 
   return userData;

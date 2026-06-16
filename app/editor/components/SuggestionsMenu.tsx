@@ -1,3 +1,18 @@
+/**
+ * 建议菜单组件
+ *
+ * 这是一个通用的建议菜单组件，用于在编辑器中显示各种类型的建议项。
+ * 支持键盘导航、搜索过滤、子菜单、文件上传等功能。
+ * 在移动端显示为抽屉（Drawer），在桌面端显示为弹出框（Popover）。
+ *
+ * 主要功能：
+ * - 支持键盘导航（上下箭头、Tab、Enter、Escape）
+ * - 支持搜索和过滤菜单项
+ * - 支持嵌套子菜单
+ * - 支持文件上传（图片、视频、附件）
+ * - 支持嵌入链接输入
+ * - 响应式设计（移动端和桌面端不同的 UI）
+ */
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import commandScore from "command-score";
 import { capitalize, orderBy } from "es-toolkit/compat";
@@ -7,6 +22,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import styled, { keyframes } from "styled-components";
 import insertFiles from "@shared/editor/commands/insertFiles";
+import type { UploadFileResult } from "@shared/editor/commands/insertFiles";
 import { EmbedDescriptor } from "@shared/editor/embeds";
 import filterExcessSeparators from "@shared/editor/lib/filterExcessSeparators";
 import { findParentNode } from "@shared/editor/queries/findParentNode";
@@ -32,20 +48,35 @@ import { useEditor } from "./EditorContext";
 import Input from "./Input";
 import { MenuHeader } from "~/components/primitives/components/Menu";
 
+/**
+ * 建议菜单组件的属性类型
+ *
+ * @template T - 菜单项类型，必须继承自 MenuItem
+ */
 export type Props<T extends MenuItem = MenuItem> = {
+  /** 是否为从右到左的文本方向 */
   rtl: boolean;
+  /** 菜单是否处于激活状态 */
   isActive: boolean;
+  /** 当前的搜索文本 */
   search: string;
+  /** 触发菜单的字符（或字符列表） */
   trigger: string | string[];
-  uploadFile?: (file: File) => Promise<string>;
+  /** 文件上传函数，返回上传结果 */
+  uploadFile?: (file: File) => Promise<UploadFileResult>;
+  /** 文件上传开始时的回调 */
   onFileUploadStart?: () => void;
+  /** 文件上传结束时的回调 */
   onFileUploadStop?: () => void;
+  /** 文件上传进度回调 */
   onFileUploadProgress?: (id: string, fractionComplete: number) => void;
-  /** Callback when the menu is closed */
+  /** 菜单关闭时的回调 */
   onClose: (insertNewLine?: boolean) => void;
-  /** Optional callback when a suggestion is selected */
+  /** 选择建议项时的可选回调 */
   onSelect?: (item: MenuItem) => void;
+  /** 可嵌入的服务描述符列表 */
   embeds?: EmbedDescriptor[];
+  /** 渲染单个菜单项的函数 */
   renderMenuItem: (
     item: T,
     index: number,
@@ -55,44 +86,76 @@ export type Props<T extends MenuItem = MenuItem> = {
       onClick: (event: React.SyntheticEvent) => void;
     }
   ) => React.ReactNode;
+  /** 是否可以过滤菜单项 */
   filterable?: boolean;
+  /** 菜单项列表 */
   items: T[];
 };
 
+/**
+ * 建议菜单组件
+ *
+ * 渲染一个可搜索、可导航的建议菜单，支持嵌套子菜单和文件上传。
+ *
+ * @template T - 菜单项类型
+ * @param props - 组件属性.
+ * @returns 渲染的建议菜单组件.
+ */
 function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
   const { view, commands, props: editorProps } = useEditor();
   const { t } = useTranslation();
   const isMobile = useMobile();
+
+  // 跟踪鼠标指针位置，用于检测真实的鼠标移动（避免 Safari 的虚假 pointermove 事件）
   const pointerRef = React.useRef<{ clientX: number; clientY: number }>({
     clientX: 0,
     clientY: 0,
   });
+
+  // 文件输入元素的引用，用于触发文件选择器
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // 标记文件选择器是否已打开，防止重复触发
+  const filePickerOpenRef = React.useRef(false);
+
+  // 保存编辑器选择位置，用于在移动端恢复选择
   const selectionRef = React.useRef<{ from: number; to: number } | null>(null);
+
+  // 当前要插入的项（用于嵌入链接输入）
   const [insertItem, setInsertItem] = React.useState<
     MenuItem | EmbedDescriptor
   >();
+
+  // 当前选中的菜单项索引
   const [selectedIndex, setSelectedIndex] = React.useState(0);
+
+  // 子菜单状态：包含父项索引、子项列表和选中的子项索引
   const [submenu, setSubmenu] = React.useState<{
     index: number;
     items: MenuItem[];
     selectedIndex: number;
   } | null>(null);
+
+  // 存储每个菜单项的 DOM 元素引用，用于定位子菜单
   const itemRefs = React.useRef<Map<number, HTMLElement>>(new Map());
+
+  // 子菜单内容的引用
   const submenuContentRef = React.useRef<HTMLDivElement>(null);
+
+  // 悬停定时器，用于延迟打开子菜单
   const hoverTimerRef = React.useRef<ReturnType<typeof setTimeout>>();
 
-  // Stores the caret bounding rect, snapshotted when the menu opens
+  // 存储光标位置的矩形区域，在菜单打开时快照
   const caretRectRef = React.useRef(new DOMRect());
 
-  // Stable virtual element for Radix PopoverAnchor – never replaced so the
-  // popper does not trigger unnecessary anchor-change cycles.
+  // 稳定的虚拟元素，用于 Radix PopoverAnchor
+  // 永不替换，避免 popper 触发不必要的锚点变化循环
   const caretRef = React.useRef({
     getBoundingClientRect: () => caretRectRef.current,
   });
 
-  // Compute and store the caret rect during render so it is available before
-  // the Radix popper effect runs for the first time.
+  // 计算并存储光标矩形区域
+  // 在渲染期间计算，以便在 Radix popper 效果首次运行之前可用
   const caretRect = React.useMemo(() => {
     if (!props.isActive) {
       return new DOMRect();
@@ -115,18 +178,24 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
 
   caretRectRef.current = caretRect;
 
+  /**
+   * 解析菜单项的子项
+   *
+   * 子项可以是数组或返回数组的函数，此函数统一处理这两种情况。
+   *
+   * @param children - 子项数组或返回子项数组的函数.
+   * @returns 解析后的子项数组.
+   */
   const resolveChildren = (
     children: MenuItem["children"]
   ): MenuItem[] | undefined =>
     typeof children === "function" ? children() : children;
 
+  // 当菜单激活时，保存选择位置
+  // 在移动端，点击菜单项时编辑器可能会失去焦点/选择，因此需要恢复
+  // 位置必须随着搜索文本的增长保持最新，否则 handleClearSearch 中计算的删除范围会出错
   React.useEffect(() => {
     if (props.isActive) {
-      // Save the selection position when the menu opens and as the user types.
-      // On mobile, the editor may lose focus/selection when tapping on menu
-      // items, so we restore it. The position must stay current as the search
-      // text grows, otherwise the deletion range calculated in handleClearSearch
-      // will be wrong.
       requestAnimationFrame(() => {
         const { from, to } = view.state.selection;
         selectionRef.current = { from, to };
@@ -137,6 +206,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isActive, props.search]);
 
+  // 当菜单激活状态改变时，重置状态
   React.useEffect(() => {
     setSubmenu(null);
 
@@ -148,11 +218,17 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     setInsertItem(undefined);
   }, [props.isActive]);
 
+  // 当搜索文本改变时，重置选中索引和子菜单
   React.useEffect(() => {
     setSelectedIndex(0);
     setSubmenu(null);
   }, [props.search]);
 
+  /**
+   * 清除搜索文本
+   *
+   * 从编辑器中删除触发字符和搜索文本。
+   */
   const handleClearSearch = React.useCallback(() => {
     const { state, dispatch } = view;
     const selection =
@@ -171,7 +247,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
       return;
     }
 
-    // clear search input
+    // 清除搜索输入
     dispatch(
       state.tr.insertText(
         "",
@@ -186,24 +262,35 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     );
   }, [props.search, props.trigger, view, isMobile]);
 
+  /**
+   * 恢复编辑器选择
+   *
+   * 在移动端，当抽屉打开或点击菜单项时，编辑器选择可能会丢失。
+   * 此函数恢复保存的选择位置。
+   */
   const restoreSelection = React.useCallback(() => {
     if (!isMobile) {
       return;
     }
 
-    // Restore the saved selection position. On mobile, the editor selection may be
-    // lost when the drawer opens or when tapping on menu items.
     if (selectionRef.current) {
       const { from, to } = selectionRef.current;
       const { tr, doc } = view.state;
       const selection = TextSelection.create(doc, from, to);
       view.dispatch(tr.setSelection(selection));
 
-      // Re-focus the editor post-click
+      // 点击后重新聚焦编辑器
       requestAnimationFrame(() => view.focus());
     }
   }, [isMobile, view]);
 
+  /**
+   * 插入节点到编辑器
+   *
+   * 根据菜单项类型执行相应的命令，将内容插入到编辑器中。
+   *
+   * @param item - 要插入的菜单项或嵌入描述符.
+   */
   const insertNode = React.useCallback(
     (item: MenuItem | EmbedDescriptor) => {
       restoreSelection();
@@ -232,8 +319,20 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     [commands, handleClearSearch, props, restoreSelection, view]
   );
 
+  /**
+   * 处理菜单项点击事件
+   *
+   * 根据菜单项类型执行不同的操作：
+   * - link: 创建提及并触发链接创建
+   * - image/video/attachment: 触发文件选择器
+   * - embed: 触发链接输入
+   * - 其他: 直接插入节点
+   *
+   * @param item - 被点击的菜单项.
+   * @param event - 可选的事件对象.
+   */
   const handleClickItem = React.useCallback(
-    (item) => {
+    (item, event?: Event | React.SyntheticEvent) => {
       if (item.disabled) {
         return;
       }
@@ -255,13 +354,19 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           );
           return;
         case "image":
+          event?.preventDefault();
+          event?.stopPropagation();
           return triggerFilePick(
             AttachmentValidation.imageContentTypes.join(", "),
             item.attrs
           );
         case "video":
+          event?.preventDefault();
+          event?.stopPropagation();
           return triggerFilePick("video/*", item.attrs);
         case "attachment":
+          event?.preventDefault();
+          event?.stopPropagation();
           return triggerFilePick(item.attrs?.accept ?? "*", item.attrs);
         case "embed":
           return triggerLinkInput(item);
@@ -272,11 +377,22 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     [editorProps, props, insertNode]
   );
 
+  /**
+   * 关闭菜单并重新聚焦编辑器
+   */
   const close = React.useCallback(() => {
     props.onClose();
     view.focus();
   }, [props, view]);
 
+  /**
+   * 处理链接输入框的键盘事件
+   *
+   * - Enter: 验证并插入嵌入链接
+   * - Escape: 关闭菜单
+   *
+   * @param event - 键盘事件.
+   */
   const handleLinkInputKeydown = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -316,6 +432,13 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     }
   };
 
+  /**
+   * 处理链接输入框的粘贴事件
+   *
+   * 如果粘贴的链接匹配嵌入类型，自动插入。
+   *
+   * @param event - 粘贴事件.
+   */
   const handleLinkInputPaste = (
     event: React.ClipboardEvent<HTMLInputElement>
   ) => {
@@ -342,25 +465,57 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     }
   };
 
+  /**
+   * 触发文件选择器
+   *
+   * 打开系统文件选择对话框，允许用户选择文件上传。
+   *
+   * @param accept - 接受的文件类型（MIME 类型）.
+   * @param attrs - 附加到文件的属性.
+   */
   const triggerFilePick = (accept: string, attrs?: Record<string, unknown>) => {
+    if (filePickerOpenRef.current) {
+      return;
+    }
+
     if (inputRef.current) {
-      if (accept) {
-        inputRef.current.accept = accept;
-      }
-      if (attrs) {
-        inputRef.current.dataset.attrs = JSON.stringify(attrs);
-      }
+      window.addEventListener(
+        "focus",
+        () => {
+          filePickerOpenRef.current = false;
+        },
+        { once: true }
+      );
+
+      filePickerOpenRef.current = true;
+      inputRef.current.accept = accept || "*";
+      inputRef.current.dataset.attrs = attrs ? JSON.stringify(attrs) : "";
       inputRef.current.click();
     }
   };
 
+  /**
+   * 触发链接输入模式
+   *
+   * 切换到链接输入界面，允许用户输入嵌入链接。
+   *
+   * @param item - 要插入的菜单项.
+   */
   const triggerLinkInput = (item: MenuItem) => {
     setInsertItem(item);
   };
 
+  /**
+   * 处理文件选择事件
+   *
+   * 当用户通过文件选择器选择文件后，将文件上传并插入到编辑器中。
+   *
+   * @param event - 文件输入变化事件.
+   */
   const handleFilesPicked = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    filePickerOpenRef.current = false;
     restoreSelection();
 
     const {
@@ -370,6 +525,15 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
       onFileUploadProgress,
     } = props;
     const files = getEventFiles(event);
+    if (!files.length) {
+      if (inputRef.current) {
+        inputRef.current.value = "";
+        inputRef.current.dataset.attrs = "";
+      }
+      props.onClose();
+      return;
+    }
+
     const parent = findParentNode((node) => !!node)(view.state.selection);
     const attrs = event.currentTarget.dataset.attrs
       ? JSON.parse(event.currentTarget.dataset.attrs)
@@ -394,16 +558,26 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
 
     if (inputRef.current) {
       inputRef.current.value = "";
+      inputRef.current.dataset.attrs = "";
     }
 
     props.onClose();
   };
 
+  /**
+   * 过滤和排序菜单项
+   *
+   * 根据搜索文本过滤菜单项，并按优先级和匹配分数排序。
+   * 处理嵌入项、子菜单展开、隐藏项等逻辑。
+   *
+   * @returns 过滤和排序后的菜单项列表.
+   */
   const filtered = React.useMemo(() => {
     const { embeds = [], search = "", uploadFile, filterable = true } = props;
     let items: (EmbedDescriptor | MenuItem)[] = [...props.items];
     const embedItems: EmbedDescriptor[] = [];
 
+    // 添加嵌入项到菜单
     for (const embed of embeds) {
       if (embed.title && embed.visible !== false && !embed.disabled) {
         embedItems.push(
@@ -423,14 +597,14 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
 
     const searchInput = search.toLowerCase();
 
+    // 检查菜单项是否匹配搜索文本
     const matchesSearch = (item: MenuItem | EmbedDescriptor) =>
       (item.name || "").toLocaleLowerCase().includes(searchInput) ||
       (item.title || "").toLocaleLowerCase().includes(searchInput) ||
       (item.keywords || "").toLocaleLowerCase().includes(searchInput);
 
-    // When searching, flatten matching children into the top-level list so
-    // they are directly navigable with the keyboard. If all children match,
-    // exclude the parent item since it would be redundant.
+    // 搜索时，将匹配的子项展平到顶层列表，以便可以直接用键盘导航
+    // 如果所有子项都匹配，则排除父项，因为它是冗余的
     const fullyFlattenedParents = new Set<MenuItem | EmbedDescriptor>();
     if (search && filterable) {
       const flattened: (EmbedDescriptor | MenuItem)[] = [];
@@ -454,6 +628,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
       items = items.concat(flattened);
     }
 
+    // 过滤菜单项
     const filtered = items.filter((item) => {
       if (item.name === "separator") {
         return true;
@@ -467,7 +642,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         return false;
       }
 
-      // Some extensions may be disabled, remove corresponding menu items
+      // 某些扩展可能被禁用，移除相应的菜单项
       if (
         item.name &&
         !commands[item.name] &&
@@ -477,12 +652,12 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         return false;
       }
 
-      // If no image upload callback has been passed, filter the image block out
+      // 如果没有传递图片上传回调，过滤掉图片块
       if (!uploadFile && item.name === "image") {
         return false;
       }
 
-      // some items (defaultHidden) are not visible until a search query exists
+      // 某些项（defaultHidden）在没有搜索查询时不可见
       if (!search) {
         return !item.defaultHidden;
       }
@@ -494,6 +669,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
       return matchesSearch(item);
     });
 
+    // 按分区、优先级和匹配分数排序，并移除多余的分隔符
     return filterExcessSeparators(
       orderBy(
         filtered.map((item) => ({
@@ -514,6 +690,13 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     );
   }, [commands, props]);
 
+  /**
+   * 打开子菜单
+   *
+   * 显示指定菜单项的子菜单，并选中第一个可选择的子项。
+   *
+   * @param index - 父菜单项的索引.
+   */
   const openSubmenu = React.useCallback(
     (index: number) => {
       const item = filtered[index];
@@ -527,9 +710,11 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         return;
       }
 
+      // 过滤掉不可见的子项和多余的分隔符
       const normalized = filterExcessSeparators(
         children.filter((child) => child.visible !== false)
       );
+      // 找到第一个可选择的子项（非分隔符且未禁用）
       const firstSelectable = normalized.findIndex(
         (child) =>
           child.name !== "separator" && !("disabled" in child && child.disabled)
@@ -547,6 +732,16 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     [filtered]
   );
 
+  /**
+   * 键盘导航事件处理
+   *
+   * 处理所有键盘快捷键：
+   * - 上下箭头/Tab: 在菜单项之间导航
+   * - Enter: 选择当前项或打开子菜单
+   * - 左右箭头: 打开/关闭子菜单
+   * - Escape: 关闭菜单或子菜单
+   * - Ctrl+N/P: Emacs 风格的上下导航
+   */
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing) {
@@ -556,18 +751,19 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         return;
       }
 
-      // Let the link input's own handlers manage navigation keys
+      // 让链接输入框自己的处理器管理导航键
       if (insertItem) {
         return;
       }
 
-      // --- Submenu open: route keys into it ---
+      // --- 子菜单打开时：将按键路由到子菜单 ---
       if (submenu) {
         if (event.key === "ArrowDown" || (event.ctrlKey && event.key === "n")) {
           event.preventDefault();
           event.stopPropagation();
           const total = submenu.items.length - 1;
           let next = submenu.selectedIndex + 1;
+          // 跳过分隔符和禁用项
           while (next <= total) {
             const child = submenu.items[next];
             if (
@@ -588,6 +784,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           event.preventDefault();
           event.stopPropagation();
           let prev = submenu.selectedIndex - 1;
+          // 跳过分隔符和禁用项
           while (prev >= 0) {
             const child = submenu.items[prev];
             if (
@@ -616,7 +813,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           event.stopPropagation();
           const child = submenu.items[submenu.selectedIndex];
           if (child) {
-            handleClickItem(child);
+            handleClickItem(child, event);
             setSubmenu(null);
           }
           return;
@@ -624,7 +821,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         return;
       }
 
-      // --- Normal (no submenu) ---
+      // --- 正常模式（无子菜单） ---
       if (event.key === "Enter") {
         event.preventDefault();
 
@@ -637,7 +834,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           if (children?.length) {
             openSubmenu(selectedIndex);
           } else {
-            handleClickItem(item);
+            handleClickItem(item, event);
           }
         } else {
           props.onClose(true);
@@ -669,6 +866,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
 
         if (filtered.length) {
           let prevIndex = selectedIndex - 1;
+          // 跳过分隔符和禁用项
           while (prevIndex >= 0) {
             const item = filtered[prevIndex];
             if (
@@ -698,6 +896,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
         if (filtered.length) {
           const total = filtered.length - 1;
           let nextIndex = selectedIndex + 1;
+          // 跳过分隔符和禁用项
           while (nextIndex <= total) {
             const item = filtered[nextIndex];
             if (
@@ -745,6 +944,11 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
   const { isActive, uploadFile } = props;
   const items = filtered;
 
+  /**
+   * 处理弹出框打开状态变化
+   *
+   * @param open - 是否打开.
+   */
   const handleOpenChange = React.useCallback(
     (open: boolean) => {
       if (!open) {
@@ -754,6 +958,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     [close]
   );
 
+  // 文件上传输入元素（视觉上隐藏）
   const fileInput = uploadFile && (
     <VisuallyHidden.Root>
       <label>
@@ -768,29 +973,38 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     </VisuallyHidden.Root>
   );
 
-  // Close submenu when parent selection moves away from the trigger
+  // 当父选择移开触发器时关闭子菜单
   React.useEffect(() => {
     if (submenu && submenu.index !== selectedIndex) {
       setSubmenu(null);
     }
   }, [selectedIndex, submenu]);
 
-  // Cleanup hover timer on unmount
+  // 卸载时清理悬停定时器
   React.useEffect(
     () => () => {
       if (hoverTimerRef.current) {
         clearTimeout(hoverTimerRef.current);
       }
+      filePickerOpenRef.current = false;
     },
     []
   );
 
+  /**
+   * 渲染菜单项列表
+   *
+   * 处理分隔符、分组标题、子菜单指示器和空状态。
+   *
+   * @returns 渲染的菜单项列表.
+   */
   const renderItems = () => {
     let prevHeading: string | undefined;
 
     return (
       <>
         {items.map((item, index) => {
+          // 渲染分隔符
           if (item.name === "separator") {
             return (
               <ListItem key={index}>
@@ -807,12 +1021,13 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
             "children" in item && resolveChildren(item.children)?.length
           );
 
+          // 处理鼠标移动事件
           const handlePointerMove = (ev: React.PointerEvent) => {
             if (
               !("disabled" in item && item.disabled) &&
               selectedIndex !== index &&
-              // Safari triggers pointermove with identical coordinates when the pointer has not moved.
-              // This causes the menu selection to flicker when the pointer is over the menu but not moving.
+              // Safari 在指针未移动时会触发相同坐标的 pointermove
+              // 这会导致菜单选择在指针悬停但未移动时闪烁
               (pointerRef.current.clientX !== ev.clientX ||
                 pointerRef.current.clientY !== ev.clientY)
             ) {
@@ -823,7 +1038,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
               clientY: ev.clientY,
             };
 
-            // Hover to open submenu with delay
+            // 悬停延迟打开子菜单
             if (hasChildren) {
               if (hoverTimerRef.current) {
                 clearTimeout(hoverTimerRef.current);
@@ -832,7 +1047,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
                 openSubmenu(index);
               }, 150);
             } else {
-              // Close submenu when hovering a regular item
+              // 悬停普通项时关闭子菜单
               if (hoverTimerRef.current) {
                 clearTimeout(hoverTimerRef.current);
               }
@@ -855,7 +1070,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
             if (hasChildren) {
               openSubmenu(index);
             } else {
-              handleClickItem(item);
+              handleClickItem(item, ev);
             }
           };
 
@@ -872,6 +1087,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
 
           const response = (
             <React.Fragment key={`${index}-${item.name}`}>
+              {/* 渲染分组标题 */}
               {currentHeading !== prevHeading && (
                 <MenuHeader key={currentHeading}>{currentHeading}</MenuHeader>
               )}
@@ -892,6 +1108,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           prevHeading = currentHeading;
           return response;
         })}
+        {/* 空状态 */}
         {items.length === 0 && (
           <ListItem>
             <Empty>{t("No results")}</Empty>
@@ -901,6 +1118,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     );
   };
 
+  // 移动端渲染：使用抽屉（Drawer）
   if (isMobile) {
     return (
       <>
@@ -911,6 +1129,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
             </DrawerTitle>
             <MobileScrollable hiddenScrollbars>
               {insertItem ? (
+                // 链接输入模式
                 <LinkInputWrapper>
                   <LinkInput
                     type="text"
@@ -929,6 +1148,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
                   />
                 </LinkInputWrapper>
               ) : (
+                // 菜单列表模式
                 <List>{renderItems()}</List>
               )}
             </MobileScrollable>
@@ -939,6 +1159,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
     );
   }
 
+  // 桌面端渲染：使用弹出框（Popover）
   return (
     <>
       <Popover open={isActive} onOpenChange={handleOpenChange} modal={false}>
@@ -957,12 +1178,14 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
           onCloseAutoFocus={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
           onInteractOutside={(e) => {
+            // 防止点击子菜单时关闭主菜单
             if (submenuContentRef.current?.contains(e.target as Node)) {
               e.preventDefault();
             }
           }}
         >
           {insertItem ? (
+            // 链接输入模式
             <LinkInputWrapper>
               <LinkInput
                 type="text"
@@ -981,11 +1204,13 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
               />
             </LinkInputWrapper>
           ) : (
+            // 菜单列表模式
             <List>{renderItems()}</List>
           )}
         </BouncyPopoverContent>
       </Popover>
       {fileInput}
+      {/* 子菜单弹出框 */}
       {submenu && itemRefs.current.get(submenu.index) && (
         <Popover open modal={false}>
           <PopoverAnchor
@@ -1008,6 +1233,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
             onCloseAutoFocus={(e) => e.preventDefault()}
             onPointerLeave={() => setSubmenu(null)}
           >
+            {/* 鼠标安全区域：防止鼠标移动到子菜单时意外关闭 */}
             <MouseSafeArea parentRef={submenuContentRef} />
             <List>
               {submenu.items.map((child, childIndex) => {
@@ -1041,7 +1267,7 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
                 const handleChildClick = (ev: React.MouseEvent) => {
                   ev.preventDefault();
                   ev.stopPropagation();
-                  handleClickItem(child);
+                  handleClickItem(child, ev);
                   setSubmenu(null);
                 };
 
@@ -1065,6 +1291,11 @@ function SuggestionsMenu<T extends MenuItem>(props: Props<T>) {
   );
 }
 
+/**
+ * 弹跳淡入动画
+ *
+ * 菜单打开时的动画效果，从缩小状态弹跳到正常大小。
+ */
 const bouncyFadeIn = keyframes`
   from {
     opacity: 0;
@@ -1072,26 +1303,51 @@ const bouncyFadeIn = keyframes`
   }
 `;
 
+/**
+ * 带弹跳动画的弹出框内容
+ *
+ * 在打开时应用弹跳淡入动画。
+ */
 const BouncyPopoverContent = styled(PopoverContent)`
   &[data-state="open"] {
     animation: ${bouncyFadeIn} 150ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
 `;
 
+/**
+ * 子菜单弹出框内容
+ *
+ * 限制最大高度以适应可用空间。
+ */
 const SubmenuPopoverContent = styled(PopoverContent)`
   max-height: min(324px, var(--radix-popover-content-available-height));
 `;
 
+/**
+ * 链接输入包装器
+ *
+ * 为链接输入框提供外边距。
+ */
 const LinkInputWrapper = styled.div`
   margin: 8px;
 `;
 
+/**
+ * 链接输入框
+ *
+ * 用于输入嵌入链接的输入框。
+ */
 const LinkInput = styled(Input)`
   height: 32px;
   width: 100%;
   color: ${s("textSecondary")};
 `;
 
+/**
+ * 菜单列表
+ *
+ * 无序列表样式，用于显示菜单项。
+ */
 const List = styled.ol`
   list-style: none;
   text-align: left;
@@ -1107,11 +1363,21 @@ const List = styled.ol`
   }
 `;
 
+/**
+ * 列表项
+ *
+ * 单个菜单项的容器。
+ */
 const ListItem = styled.li`
   padding: 0;
   margin: 0;
 `;
 
+/**
+ * 空状态
+ *
+ * 当没有匹配的菜单项时显示。
+ */
 const Empty = styled.div`
   display: flex;
   align-items: center;
@@ -1122,6 +1388,11 @@ const Empty = styled.div`
   padding: 0 16px;
 `;
 
+/**
+ * 移动端可滚动容器
+ *
+ * 限制移动端菜单的最大高度。
+ */
 const MobileScrollable = styled(Scrollable)`
   max-height: 75vh;
 `;

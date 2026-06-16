@@ -14,6 +14,8 @@ import Desktop from "~/utils/Desktop";
 import { getRedirectUrl } from "~/utils/urls";
 import { CSRF } from "@shared/constants";
 import { getCookie } from "tiny-cookie";
+import env from "~/env";
+import { ServiceUnavailableError } from "~/utils/errors";
 
 type Props = React.ComponentProps<typeof ButtonLarge> & {
   id: string;
@@ -24,13 +26,16 @@ type Props = React.ComponentProps<typeof ButtonLarge> & {
   preferOTP: boolean;
 };
 
-type AuthState = "initial" | "email" | "code";
+type AuthState = "initial" | "email" | "code" | "password" | "forgotPassword";
 
 function AuthenticationProvider(props: Props) {
   const { t } = useTranslation();
   const [authState, setAuthState] = React.useState<AuthState>("initial");
   const [isSubmitting, setSubmitting] = React.useState(false);
   const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [message, setMessage] = React.useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const formRef = React.useRef<HTMLFormElement>(null);
   const { isCreate, id, name, authUrl, onEmailSuccess, preferOTP, ...rest } =
     props;
@@ -38,6 +43,12 @@ function AuthenticationProvider(props: Props) {
 
   const handleChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
+  };
+
+  const handleChangePassword = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setPassword(event.target.value);
   };
 
   const handleSubmitEmail = async (
@@ -66,6 +77,45 @@ function AuthenticationProvider(props: Props) {
       }
     } else {
       setAuthState("email");
+    }
+  };
+
+  const handleResetPassword = async (
+    event: React.SyntheticEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    if (!email) {
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage(null);
+    setMessage(null);
+
+    try {
+      await client.post(
+        "/password/reset",
+        {
+          email,
+        },
+        {
+          baseUrl: "/auth",
+        }
+      );
+      setMessage(
+        t("If an account exists for that email, a reset link has been sent.")
+      );
+    } catch (err) {
+      if (err instanceof ServiceUnavailableError) {
+        setErrorMessage(t("Email service is unavailable."));
+      } else {
+        setErrorMessage(
+          err instanceof Error ? err.message : t("Unable to reset password.")
+        );
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -196,6 +246,127 @@ function AuthenticationProvider(props: Props) {
     );
   }
 
+  if (id === "password") {
+    if (isCreate) {
+      return null;
+    }
+
+    const showForgotPassword = env.EMAIL_ENABLED && authState === "forgotPassword";
+    const showPasswordForm = authState === "password";
+
+    return (
+      <Wrapper>
+        <Form method="POST" action="/auth/password">
+          {showPasswordForm ? (
+            <>
+              <InputGroup>
+                <InputLarge
+                  type="email"
+                  name="email"
+                  placeholder="me@domain.com"
+                  value={email}
+                  onChange={handleChangeEmail}
+                  disabled={isSubmitting}
+                  autoFocus
+                  required
+                />
+                <InputLarge
+                  type="password"
+                  name="password"
+                  placeholder={t("Password")}
+                  value={password}
+                  onChange={handleChangePassword}
+                  disabled={isSubmitting}
+                  required
+                />
+                <input
+                  type="hidden"
+                  name={CSRF.fieldName}
+                  value={getCookie(CSRF.cookieName) ?? ""}
+                />
+                <input type="hidden" name="client" value={clientType} />
+              </InputGroup>
+              <ButtonRow>
+                <ButtonLarge type="submit" disabled={isSubmitting} {...rest}>
+                  {t("Sign In")} →
+                </ButtonLarge>
+                {env.EMAIL_ENABLED && (
+                  <ButtonLarge
+                    type="button"
+                    neutral
+                    disabled={isSubmitting}
+                    onClick={() => {
+                      setAuthState("forgotPassword");
+                      setErrorMessage(null);
+                      setMessage(null);
+                    }}
+                  >
+                    {t("Forgot password?")}
+                  </ButtonLarge>
+                )}
+              </ButtonRow>
+            </>
+          ) : showForgotPassword ? (
+            <>
+              <InputGroup>
+                <InputLarge
+                  type="email"
+                  name="email"
+                  placeholder="me@domain.com"
+                  value={email}
+                  onChange={handleChangeEmail}
+                  disabled={isSubmitting}
+                  autoFocus
+                  required
+                />
+              </InputGroup>
+              <ButtonRow>
+                <ButtonLarge
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    void handleResetPassword({
+                      preventDefault() {},
+                    } as React.SyntheticEvent<HTMLFormElement>);
+                  }}
+                  {...rest}
+                >
+                  {t("Send reset link")}
+                </ButtonLarge>
+                <ButtonLarge
+                  type="button"
+                  neutral
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    setAuthState("password");
+                    setErrorMessage(null);
+                    setMessage(null);
+                  }}
+                >
+                  {t("Back")}
+                </ButtonLarge>
+              </ButtonRow>
+              {message ? <HelperText>{message}</HelperText> : null}
+              {errorMessage ? <ErrorText>{errorMessage}</ErrorText> : null}
+            </>
+          ) : (
+            <ButtonLarge
+              type="button"
+              icon={<PluginIcon id={id} />}
+              fullwidth
+              onClick={() => setAuthState("password")}
+              {...rest}
+            >
+              {t("Continue with {{ authProviderName }}", {
+                authProviderName: name,
+              })}
+            </ButtonLarge>
+          )}
+        </Form>
+      </Wrapper>
+    );
+  }
+
   return (
     <ButtonLarge
       onClick={() => (window.location.href = href)}
@@ -217,7 +388,33 @@ const Wrapper = styled.div`
 const Form = styled.form`
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const InputGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const ButtonRow = styled.div`
+  display: flex;
+  gap: 8px;
+  width: 100%;
+
+  > * {
+    flex: 1;
+  }
+`;
+
+const HelperText = styled.div`
+  font-size: 14px;
+  text-align: center;
+`;
+
+const ErrorText = styled(HelperText)`
+  color: ${(props) => props.theme.danger};
 `;
 
 export default AuthenticationProvider;

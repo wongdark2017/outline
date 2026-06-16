@@ -21,12 +21,15 @@ import SidebarContext from "./SidebarContext";
 import SidebarLink from "./SidebarLink";
 import Text from "@shared/components/Text";
 import usePolicy from "~/hooks/usePolicy";
+import { isJournalSystemCollection } from "./isJournalSystemCollection";
 
 function Collections() {
   const { documents, auth, collections } = useStores();
   const { t } = useTranslation();
   const can = usePolicy(auth.team?.id);
-  const orderedCollections = collections.allActive;
+  const orderedCollections = collections.allActive.filter(
+    (collection) => !isJournalSystemCollection(collection)
+  );
 
   const params = useMemo(
     () => ({
@@ -41,12 +44,17 @@ function Collections() {
   ] = useDrop({
     accept: "collection",
     drop: async (item: DragObject) => {
+      if (!orderedCollections[0]) {
+        return;
+      }
+
       void collections.move(
         item.id,
         fractionalIndex(null, orderedCollections[0].index)
       );
     },
-    canDrop: (item) => item.id !== orderedCollections[0].id,
+    canDrop: (item) =>
+      !!orderedCollections[0] && item.id !== orderedCollections[0].id,
     collect: (monitor) => ({
       isCollectionDropping: monitor.isOver(),
       isDraggingAnyCollection: monitor.getItemType() === "collection",

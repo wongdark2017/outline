@@ -1,12 +1,18 @@
 import Router from "koa-router";
 import type { WhereOptions } from "sequelize";
 import { randomUUID } from "node:crypto";
+import contentDisposition from "content-disposition";
+import type {
+  AttachmentPdfStateData,
+  AttachmentPdfStateResponse,
+} from "@shared/types";
 import { AttachmentPreset } from "@shared/types";
 import { bytesToHumanReadable, getFileNameFromUrl } from "@shared/utils/files";
 import { AttachmentValidation } from "@shared/validations";
 import { createContext } from "@server/context";
 import {
   AuthorizationError,
+  ConflictError,
   InvalidRequestError,
   ValidationError,
 } from "@server/errors";
@@ -14,7 +20,7 @@ import auth from "@server/middlewares/authentication";
 import { rateLimiter } from "@server/middlewares/rateLimiter";
 import { transaction } from "@server/middlewares/transaction";
 import validate from "@server/middlewares/validate";
-import { Attachment, Document } from "@server/models";
+import { Attachment, AttachmentPdfState, Document } from "@server/models";
 import AttachmentHelper from "@server/models/helpers/AttachmentHelper";
 import { authorize } from "@server/policies";
 import { presentAttachment, presentPolicies } from "@server/presenters";
@@ -29,6 +35,64 @@ import { assertIn } from "@server/validation";
 import * as T from "./schema";
 
 const router = new Router();
+
+const EmptyPdfStateData: AttachmentPdfStateData = {
+  version: 2,
+  annotations: [],
+};
+
+const presentAttachmentPdfState = (
+  state: AttachmentPdfState | {
+    attachmentId: string;
+    documentId: string;
+    revision: number;
+    data: AttachmentPdfStateData;
+  }
+): AttachmentPdfStateResponse => ({
+  attachmentId: state.attachmentId,
+  documentId: state.documentId,
+  revision: state.revision,
+  data: state.data,
+});
+
+const loadPdfAttachmentForDocument = async (
+  ctx:
+    | APIContext<T.AttachmentsPdfStateGetReq>
+    | APIContext<T.AttachmentsPdfStateUpdateReq>,
+  action: "read" | "update"
+) => {
+  const { attachmentId, documentId } = ctx.input.body;
+  const { user } = ctx.state.auth;
+  const { transaction } = ctx.state;
+
+  const document = await Document.findByPk(documentId, {
+    userId: user.id,
+    transaction,
+  });
+  authorize(user, action, document);
+
+  const attachment = await Attachment.findByPk(attachmentId, {
+    rejectOnEmpty: true,
+    transaction,
+  });
+
+  if (attachment.teamId !== user.teamId) {
+    throw AuthorizationError();
+  }
+
+  if (attachment.documentId !== documentId) {
+    throw ValidationError("Attachment must belong to the document");
+  }
+
+  if (attachment.contentType !== "application/pdf") {
+    throw ValidationError("Attachment must be a PDF");
+  }
+
+  return {
+    attachment,
+    document,
+  };
+};
 
 router.post(
   "attachments.list",
@@ -266,7 +330,103 @@ router.post(
   }
 );
 
-const handleAttachmentsRedirect = async (
+router.post(
+  "attachments.pdfState.get",
+  auth(),
+  validate(T.AttachmentsPdfStateGetSchema),
+  async (ctx: APIContext<T.AttachmentsPdfStateGetReq>) => {
+    const { attachmentId, documentId } = ctx.input.body;
+    const { user } = ctx.state.auth;
+
+    await loadPdfAttachmentForDocument(ctx, "read");
+
+    const state = await AttachmentPdfState.findOne({
+      where: {
+        attachmentId,
+        documentId,
+        teamId: user.teamId,
+      },
+    });
+
+    ctx.body = {
+      data: presentAttachmentPdfState(
+        state ?? {
+          attachmentId,
+          documentId,
+          revision: 0,
+          data: EmptyPdfStateData,
+        }
+      ),
+    };
+  }
+);
+
+router.post(
+  "attachments.pdfState.update",
+  auth(),
+  validate(T.AttachmentsPdfStateUpdateSchema),
+  transaction(),
+  async (ctx: APIContext<T.AttachmentsPdfStateUpdateReq>) => {
+    const { attachmentId, data, documentId, revision } = ctx.input.body;
+    const { user } = ctx.state.auth;
+    const { transaction } = ctx.state;
+
+    await loadPdfAttachmentForDocument(ctx, "update");
+
+    const state = await AttachmentPdfState.findOne({
+      where: {
+        attachmentId,
+        documentId,
+        teamId: user.teamId,
+      },
+      lock: transaction.LOCK.UPDATE,
+      transaction,
+    });
+
+    if (!state) {
+      if (revision !== 0) {
+        throw ConflictError("PDF annotation state has changed");
+      }
+
+      const created = await AttachmentPdfState.create(
+        {
+          attachmentId,
+          data,
+          documentId,
+          revision: 1,
+          teamId: user.teamId,
+          createdById: user.id,
+          updatedById: user.id,
+        },
+        { transaction }
+      );
+
+      ctx.body = {
+        data: presentAttachmentPdfState(created),
+      };
+      return;
+    }
+
+    if (state.revision !== revision) {
+      throw ConflictError("PDF annotation state has changed");
+    }
+
+    await state.update(
+      {
+        data,
+        revision: revision + 1,
+        updatedById: user.id,
+      },
+      { transaction }
+    );
+
+    ctx.body = {
+      data: presentAttachmentPdfState(state),
+    };
+  }
+);
+
+const authorizeAttachmentAccess = async (
   ctx: APIContext<T.AttachmentsRedirectReq>
 ) => {
   const id = (ctx.input.body.id ?? ctx.input.query.id) as string;
@@ -285,6 +445,14 @@ const handleAttachmentsRedirect = async (
     throw AuthorizationError();
   }
 
+  return attachment;
+};
+
+const handleAttachmentsRedirect = async (
+  ctx: APIContext<T.AttachmentsRedirectReq>
+) => {
+  const attachment = await authorizeAttachmentAccess(ctx);
+
   await attachment.update(
     {
       lastAccessedAt: new Date(),
@@ -293,6 +461,8 @@ const handleAttachmentsRedirect = async (
       silent: true,
     }
   );
+
+  ctx.remove("Content-Security-Policy");
 
   if (attachment.isStoredInPublicBucket) {
     ctx.set("Cache-Control", `max-age=604800, immutable`);
@@ -306,6 +476,86 @@ const handleAttachmentsRedirect = async (
   }
 };
 
+const getByteRange = (rangeHeader: string | undefined, size: number) => {
+  if (!rangeHeader) {
+    return;
+  }
+
+  const match = rangeHeader.match(/bytes=(\d+)-(\d+)?/);
+
+  if (!match) {
+    return;
+  }
+
+  const start = parseInt(match[1], 10);
+  const end = parseInt(match[2], 10) || size - 1;
+
+  if (
+    Number.isNaN(start) ||
+    Number.isNaN(end) ||
+    start < 0 ||
+    start > end ||
+    start >= size
+  ) {
+    return;
+  }
+
+  return {
+    start,
+    end: Math.min(end, size - 1),
+  };
+};
+
+const handleAttachmentFile = async (
+  ctx: APIContext<T.AttachmentsRedirectReq>
+) => {
+  const attachment = await authorizeAttachmentAccess(ctx);
+  const size = Number(attachment.size) || 0;
+  const range = getByteRange(ctx.headers.range, size);
+
+  await attachment.update(
+    {
+      lastAccessedAt: new Date(),
+    },
+    {
+      silent: true,
+    }
+  );
+
+  if (attachment.contentType === "application/pdf") {
+    ctx.remove("X-Frame-Options");
+  }
+
+  ctx.set("Accept-Ranges", "bytes");
+  ctx.set(
+    "Cache-Control",
+    `private, max-age=${BaseStorage.defaultSignedUrlExpires}`
+  );
+  ctx.set("Content-Type", attachment.contentType || "application/octet-stream");
+  ctx.set(
+    "Content-Security-Policy",
+    attachment.contentType === "application/pdf"
+      ? "default-src 'self'; object-src 'self'; base-uri 'none';"
+      : "sandbox"
+  );
+  ctx.set(
+    "Content-Disposition",
+    contentDisposition(attachment.name, {
+      type: FileStorage.getContentDisposition(attachment.contentType),
+    })
+  );
+
+  if (range) {
+    ctx.status = 206;
+    ctx.set("Content-Length", String(range.end - range.start + 1));
+    ctx.set("Content-Range", `bytes ${range.start}-${range.end}/${size}`);
+  } else {
+    ctx.set("Content-Length", String(size));
+  }
+
+  ctx.body = await FileStorage.getFileStream(attachment.key, range);
+};
+
 router.get(
   "attachments.redirect",
   auth({ optional: true }),
@@ -317,6 +567,12 @@ router.post(
   auth({ optional: true }),
   validate(T.AttachmentsRedirectSchema),
   handleAttachmentsRedirect
+);
+router.get(
+  "attachments.file",
+  auth({ optional: true }),
+  validate(T.AttachmentsRedirectSchema),
+  handleAttachmentFile
 );
 
 export default router;

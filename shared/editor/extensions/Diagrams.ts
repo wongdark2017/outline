@@ -5,6 +5,7 @@ import type { CommandFactory } from "../lib/Extension";
 import Extension from "../lib/Extension";
 import FileHelper, { ImageSource } from "../lib/FileHelper";
 import { IntegrationService } from "../../types";
+import { getUploadResultUrl } from "../commands/insertFiles";
 import type { NodeWithPos } from "../types";
 import {
   DiagramsNetClient,
@@ -194,7 +195,7 @@ export default class Diagrams extends Extension {
     if (!uploadFile) {
       throw new Error("No upload handler configured");
     }
-    return uploadFile(file);
+    return getUploadResultUrl(await uploadFile(file));
   }
 
   /**

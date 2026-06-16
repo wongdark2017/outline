@@ -1,5 +1,5 @@
 import { observer } from "mobx-react";
-import { SearchIcon, HomeIcon, SidebarIcon } from "outline-icons";
+import { CalendarIcon, SearchIcon, HomeIcon, SidebarIcon } from "outline-icons";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -115,6 +115,11 @@ function AppSidebar() {
                 label={t("Search")}
                 exact={false}
                 onClick={handleSearchClick}
+              />
+              <SidebarLink
+                to="/journal"
+                icon={<CalendarIcon />}
+                label={t("Journal")}
               />
               {can.createDocument && <DraftsLink />}
             </Section>

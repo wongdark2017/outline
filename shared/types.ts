@@ -139,6 +139,90 @@ export enum AttachmentPreset {
   Emoji = "emoji",
 }
 
+export enum OutlinePdfAnnotationType {
+  Note = "note",
+  Highlight = "highlight",
+  Rectangle = "rectangle",
+  Ink = "ink",
+}
+
+export type OutlinePdfAnnotationV2Type = "text" | "rectangle";
+
+export type OutlinePdfAnnotationMode = "highlight" | "fill" | "border";
+
+export interface OutlinePdfPoint {
+  x: number;
+  y: number;
+}
+
+export interface OutlinePdfRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface OutlinePdfAnnotation {
+  id: string;
+  pageIndex: number;
+  type: OutlinePdfAnnotationType;
+  color: string | null;
+  text: string;
+  rect: OutlinePdfRect | null;
+  points: OutlinePdfPoint[] | null;
+  createdById: string | null;
+  updatedById: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AttachmentPdfStateDataV1 {
+  version: 1;
+  annotations: OutlinePdfAnnotation[];
+}
+
+export interface OutlinePdfAnnotationV2 {
+  id: string;
+  pageIndex: number;
+  type: OutlinePdfAnnotationV2Type;
+  mode: OutlinePdfAnnotationMode;
+  color: string;
+  text: string;
+  selectedText: string | null;
+  rects: OutlinePdfRect[];
+  createdById: string | null;
+  updatedById: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AttachmentPdfStateDataV2 {
+  version: 2;
+  annotations: OutlinePdfAnnotationV2[];
+}
+
+export type AttachmentPdfStateData =
+  | AttachmentPdfStateDataV1
+  | AttachmentPdfStateDataV2;
+
+export interface AttachmentPdfStateResponse {
+  attachmentId: string;
+  documentId: string;
+  revision: number;
+  data: AttachmentPdfStateData;
+}
+
+export interface AttachmentPdfStateGetRequest {
+  attachmentId: string;
+  documentId: string;
+}
+
+export interface AttachmentPdfStateUpdateRequest
+  extends AttachmentPdfStateGetRequest {
+  revision: number;
+  data: AttachmentPdfStateData;
+}
+
 export enum IntegrationType {
   /** An integration that posts updates to an external system. */
   Post = "post",

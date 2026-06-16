@@ -12,6 +12,7 @@ import "./externalGroup";
 import "./fileOperation";
 import "./import";
 import "./integration";
+import "./journalEntry";
 import "./notification";
 import "./oauthClient";
 import "./oauthAuthentication";

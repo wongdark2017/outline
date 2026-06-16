@@ -10,6 +10,7 @@ declare global {
 
   interface Window {
     dataLayer: any[];
+    ga: UniversalAnalytics.ga;
     gtag: (...args: any[]) => void;
 
     stores: RootStore;

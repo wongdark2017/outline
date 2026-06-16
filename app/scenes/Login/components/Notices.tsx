@@ -69,6 +69,16 @@ function Message({ notice }: { notice: string }) {
           try again in a few minutes.
         </Trans>
       );
+    case "password-auth-failed":
+      return <Trans>The email address or password was incorrect.</Trans>;
+    case "password-locked":
+      return (
+        <Trans>
+          Too many failed attempts. Your account has been temporarily locked.
+        </Trans>
+      );
+    case "password-updated":
+      return <Trans>Your password was updated. Please sign in again.</Trans>;
     case "auth-error":
     case "state-mismatch":
       return (

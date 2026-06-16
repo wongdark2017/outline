@@ -1,0 +1,6 @@
+{
+  "id": "demo",
+  "name": "Demo",
+  "priority": 60,
+  "description": "Adds a demo plugin settings page and API endpoint."
+}

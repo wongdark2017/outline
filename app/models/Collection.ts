@@ -79,6 +79,9 @@ export default class Collection extends ParanoidModel {
   @observable
   commenting?: boolean | null;
 
+  @observable.shallow
+  sourceMetadata?: { externalId?: string; externalName?: string } | null;
+
   /** The child documents of the collection. */
   @observable
   documents?: NavigationNode[];

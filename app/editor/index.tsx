@@ -12,7 +12,12 @@ import { keymap } from "prosemirror-keymap";
 import type { NodeSpec, MarkSpec } from "prosemirror-model";
 import { Schema, Node as ProsemirrorNode } from "prosemirror-model";
 import type { Plugin, Transaction } from "prosemirror-state";
-import { EditorState, Selection, TextSelection } from "prosemirror-state";
+import {
+  EditorState,
+  NodeSelection,
+  Selection,
+  TextSelection,
+} from "prosemirror-state";
 import type { MarkdownParser } from "prosemirror-markdown";
 import {
   AddMarkStep,
@@ -26,6 +31,7 @@ import * as React from "react";
 import type { DefaultTheme, ThemeProps } from "styled-components";
 import styled, { css } from "styled-components";
 import insertFiles from "@shared/editor/commands/insertFiles";
+import type { UploadFileResult } from "@shared/editor/commands/insertFiles";
 import Styles from "@shared/editor/components/Styles";
 import type { EmbedDescriptor } from "@shared/editor/embeds";
 import type { CommandFactory, WidgetProps } from "@shared/editor/lib/Extension";
@@ -56,130 +62,134 @@ import WithTheme from "./components/WithTheme";
 import { isArray, isNull, map } from "es-toolkit/compat";
 import type { LightboxImage } from "@shared/editor/lib/Lightbox";
 import { LightboxImageFactory } from "@shared/editor/lib/Lightbox";
+import type { ActivePdfDocument } from "@shared/editor/lib/PdfDocument";
 import Lightbox from "~/components/Lightbox";
 import { anchorPlugin } from "@shared/editor/plugins/AnchorPlugin";
 
+const PdfViewerDialog = React.lazy(() => import("~/components/PdfViewerDialog"));
+
 export type Props = {
-  /** An optional identifier for the editor context. It is used to persist local settings */
+  /** 编辑器上下文的可选标识符，用于持久化本地设置 */
   id?: string;
-  /** The user id of the current user */
+  /** 当前用户的用户 ID */
   userId?: string;
-  /** The editor content, should only be changed if you wish to reset the content */
+  /** 编辑器内容，仅在需要重置内容时更改 */
   value?: string | ProsemirrorData | ProsemirrorNode;
-  /** The initial editor content as a markdown string, JSON object, or ProsemirrorNode */
+  /** 初始编辑器内容，可以是 Markdown 字符串、JSON 对象或 ProsemirrorNode */
   defaultValue: string | ProsemirrorData | ProsemirrorNode;
-  /** Placeholder displayed when the editor is empty */
+  /** 编辑器为空时显示的占位符 */
   placeholder: string;
-  /** Extensions to load into the editor */
+  /** 要加载到编辑器中的扩展 */
   extensions?: (AnyExtensionClass | AnyExtension)[];
-  /** If the editor should be focused on mount */
+  /** 编辑器是否应在挂载时自动聚焦 */
   autoFocus?: boolean;
-  /** The focused comment, if any */
+  /** 当前聚焦的评论 ID（如果有） */
   focusedCommentId?: string;
-  /** If the editor should not allow editing */
+  /** 编辑器是否不允许编辑 */
   readOnly?: boolean;
   /**
-   * Whether we are rendering a cached version of the document while multiplayer loads.
-   * This is used to disable some editor functionality
+   * 是否正在渲染文档的缓存版本（在多人协作加载时）。
+   * 用于禁用某些编辑器功能
    */
   cacheOnly?: boolean;
-  /** If the editor should still allow editing checkboxes when it is readOnly */
+  /** 在只读模式下是否仍允许编辑复选框 */
   canUpdate?: boolean;
-  /** If the editor should still allow commenting when it is readOnly */
+  /** 在只读模式下是否仍允许评论 */
   canComment?: boolean;
-  /** The reading direction of the text content, if known */
+  /** 文本内容的阅读方向（如果已知） */
   dir?: "rtl" | "ltr";
-  /** If the editor should vertically grow to fill available space */
+  /** 编辑器是否应垂直增长以填充可用空间 */
   grow?: boolean;
-  /** If the editor should display template options such as inserting placeholders */
+  /** 编辑器是否应显示模板选项（如插入占位符） */
   template?: boolean;
-  /** An enforced maximum content length */
+  /** 强制的最大内容长度 */
   maxLength?: number;
-  /** Heading id to scroll to when the editor has loaded */
+  /** 编辑器加载后要滚动到的标题 ID */
   scrollTo?: string;
-  /** Callback for handling uploaded images, should return the url of uploaded file */
+  /** 处理上传图片的回调，应返回上传文件的 URL */
   uploadFile?: (
     file: File | string,
     options?: { id?: string; onProgress?: (fractionComplete: number) => void }
-  ) => Promise<string>;
-  /** Callback when prosemirror nodes are initialized on document mount. */
+  ) => Promise<UploadFileResult>;
+  /** 文档挂载时 ProseMirror 节点初始化的回调 */
   onInit?: () => void;
-  /** Callback when prosemirror nodes are destroyed on document unmount. */
+  /** 文档卸载时 ProseMirror 节点销毁的回调 */
   onDestroy?: () => void;
-  /** Callback when editor is blurred, as native input */
+  /** 编辑器失去焦点时的回调，类似原生 input */
   onBlur?: () => void;
-  /** Callback when editor is focused, as native input */
+  /** 编辑器获得焦点时的回调，类似原生 input */
   onFocus?: () => void;
-  /** Callback when user uses save key combo */
+  /** 用户使用保存快捷键时的回调 */
   onSave?: (options: { done: boolean }) => void;
-  /** Callback when user uses cancel key combo */
+  /** 用户使用取消快捷键时的回调 */
   onCancel?: () => void;
-  /** Callback when user changes editor content */
+  /** 用户更改编辑器内容时的回调 */
   // oxlint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?: (value: (asString?: boolean, trim?: boolean) => any) => void;
-  /** Callback when a comment mark is clicked */
+  /** 点击评论标记时的回调 */
   onClickCommentMark?: (commentId: string) => void;
   /**
-   * Callback when a comment mark is created.
+   * 创建评论标记时的回调。
    *
-   * @param commentId - the id of the comment mark.
-   * @param userId - the id of the user who created the mark.
-   * @param options - options for the comment mark creation.
+   * @param commentId - 评论标记的 ID。
+   * @param userId - 创建标记的用户 ID。
+   * @param options - 评论标记创建的选项。
    */
   onCreateCommentMark?: (
     commentId: string,
     userId: string,
     options?: { focus: boolean }
   ) => void;
-  /** Callback when a comment mark is removed */
+  /** 删除评论标记时的回调 */
   onDeleteCommentMark?: (commentId: string) => void;
-  /** Callback when comments sidebar should be opened */
+  /** 应打开评论侧边栏时的回调 */
   onOpenCommentsSidebar?: () => void;
-  /** Callback when a file upload begins */
+  /** 文件上传开始时的回调 */
   onFileUploadStart?: () => void;
-  /** Callback when a file upload ends */
+  /** 文件上传结束时的回调 */
   onFileUploadStop?: () => void;
-  /** Callback when file upload progress changes */
+  /** 文件上传进度变化时的回调 */
   onFileUploadProgress?: (id: string, fractionComplete: number) => void;
-  /** Callback when a link is created, should return url to created document */
+  /** 创建链接时的回调，应返回创建文档的 URL */
   onCreateLink?: (
     params: Properties<Document>,
     nested?: boolean
   ) => Promise<string>;
-  /** Callback when user clicks on any link in the document */
+  /** 用户点击文档中任何链接时的回调 */
   onClickLink: (
     href: string,
     event?: MouseEvent | React.MouseEvent<HTMLButtonElement>
   ) => void;
-  /** Callback when user presses any key with document focused */
+  /** 文档聚焦时用户按下任何键的回调 */
   onKeyDown?: (event: React.KeyboardEvent<HTMLDivElement>) => void;
-  /** Collection of embed types to render in the document */
+  /** 要在文档中渲染的嵌入类型集合 */
   embeds: EmbedDescriptor[];
-  /** Display preferences for the logged in user, if any. */
+  /** 已登录用户的显示偏好设置（如果有） */
   userPreferences?: UserPreferences | null;
-  /** Whether embeds should be rendered without an iframe */
+  /** 嵌入内容是否应在没有 iframe 的情况下渲染 */
   embedsDisabled?: boolean;
   className?: string;
-  /** Optional style overrides for the container*/
+  /** 容器的可选样式覆盖 */
   style?: React.CSSProperties;
-  /** Optional style overrides for the contenteeditable */
+  /** contenteditable 的可选样式覆盖 */
   editorStyle?: React.CSSProperties;
   lang?: string;
 };
 
 type State = {
-  /** If the document text has been detected as using RTL script */
+  /** 文档文本是否被检测为使用 RTL 脚本 */
   isRTL: boolean;
-  /** If the editor is currently focused */
+  /** 编辑器当前是否聚焦 */
   isEditorFocused: boolean;
-  /** Image that's being currently viewed in Lightbox */
+  /** 当前在灯箱中查看的图片 */
   activeLightboxImage: LightboxImage | null;
+  /** 当前在独立阅读态中查看的 PDF */
+  activePdfDocument: ActivePdfDocument | null;
 };
 
 /**
- * The shared editor at the root of all rich editable text in Outline. Do not
- * use this component directly, it should by lazy loaded. Use
- * ~/components/Editor instead.
+ * Outline 中所有富文本可编辑内容的共享编辑器根组件。
+ * 不要直接使用此组件，应该通过懒加载使用。请使用 ~/components/Editor。
  */
 export class Editor extends React.PureComponent<
   Props & ThemeProps<DefaultTheme>,
@@ -191,10 +201,10 @@ export class Editor extends React.PureComponent<
     placeholder: "Write something nice…",
     readOnly: false,
     onFileUploadStart: () => {
-      // no default behavior
+      // 无默认行为
     },
     onFileUploadStop: () => {
-      // no default behavior
+      // 无默认行为
     },
     embeds: [],
     extensions,
@@ -204,37 +214,60 @@ export class Editor extends React.PureComponent<
     isRTL: false,
     isEditorFocused: false,
     activeLightboxImage: null,
+    activePdfDocument: null,
   };
 
+  /** 编辑器是否已初始化 */
   isInitialized = false;
+  /** 编辑器是否失去焦点 */
   isBlurred = true;
+  /** 扩展管理器实例 */
   extensions: ExtensionManager;
+  /** 编辑器 DOM 元素的引用 */
   elementRef = React.createRef<HTMLDivElement>();
+  /** 包装器 DOM 元素的引用 */
   wrapperRef = React.createRef<HTMLDivElement>();
+  /** ProseMirror 编辑器视图实例 */
   view: EditorView;
+  /** ProseMirror 文档模式 */
   schema: Schema;
+  /** Markdown 序列化器 */
   serializer: MarkdownSerializer;
+  /** Markdown 解析器 */
   parser: MarkdownParser;
+  /** 粘贴内容的 Markdown 解析器 */
   pasteParser: MarkdownParser;
+  /** ProseMirror 插件列表 */
   plugins: Plugin[];
+  /** 键盘映射插件列表 */
   keymaps: Plugin[];
+  /** 输入规则列表 */
   inputRules: InputRule[];
+  /** 节点视图构造器映射 */
   nodeViews: {
     [name: string]: NodeViewConstructor;
   };
 
+  /** 小部件组件映射 */
   widgets: { [name: string]: React.FC<WidgetProps> };
+  /** 可观察的节点视图渲染器集合 */
   renderers = observable.set<NodeViewRenderer<ComponentProps>>();
+  /** 节点规范映射 */
   nodes: { [name: string]: NodeSpec };
+  /** 标记规范映射 */
   marks: { [name: string]: MarkSpec };
+  /** 命令工厂映射 */
   commands: Record<string, CommandFactory>;
+  /** Markdown 规则插件列表 */
   rulePlugins: PluginSimple[];
+  /** 事件发射器 */
   events = new EventEmitter();
+  /** DOM 变化观察器 */
   mutationObserver?: MutationObserver;
 
   /**
-   * We use componentDidMount instead of constructor as the init method requires
-   * that the dom is already mounted.
+   * 组件挂载后初始化编辑器。使用 componentDidMount 而不是 constructor，
+   * 因为 init 方法需要 DOM 已经挂载完成。
    */
   public componentDidMount() {
     this.init();
@@ -249,21 +282,27 @@ export class Editor extends React.PureComponent<
     if (this.props.readOnly) {
       return;
     }
+    
 
     if (this.props.autoFocus) {
       this.focusAtEnd();
     }
   }
 
+  /**
+   * 组件更新时处理属性变化，包括 value 变化、readOnly 切换、滚动到锚点等。
+   *
+   * @param prevProps - 更新前的属性。
+   */
   public componentDidUpdate(prevProps: Props) {
-    // Allow changes to the 'value' prop to update the editor from outside
+    // 允许从外部通过 'value' 属性更新编辑器内容
     if (this.props.value && prevProps.value !== this.props.value) {
       const newState = this.createState(this.props.value);
       this.view.updateState(newState);
     }
 
-    // When transitioning from readOnly to editable, reinitialize to create
-    // editing extensions, keymaps, input rules, and commands that were skipped.
+    // 从只读模式切换到可编辑模式时，重新初始化以创建
+    // 之前跳过的编辑扩展、键映射、输入规则和命令。
     if (prevProps.readOnly && !this.props.readOnly) {
       const docJSON = this.view.state.doc.toJSON();
       this.view.destroy();
@@ -271,14 +310,14 @@ export class Editor extends React.PureComponent<
       const newState = this.createState(docJSON);
       this.view.updateState(newState);
     } else if (!prevProps.readOnly && this.props.readOnly) {
-      // pass readOnly changes through to underlying editor instance
+      // 将 readOnly 变化传递给底层编辑器实例
       this.view.update({
         ...this.view.props,
         editable: () => false,
       });
 
-      // NodeView will not automatically render when editable changes so we must trigger an update
-      // manually, see: https://discuss.prosemirror.net/t/re-render-custom-nodeview-when-view-editable-changes/6441
+      // 当 editable 改变时，NodeView 不会自动重新渲染，因此必须手动触发更新
+      // 参见：https://discuss.prosemirror.net/t/re-render-custom-nodeview-when-view-editable-changes/6441
       Array.from(this.renderers).forEach((view) =>
         view.setProp("isEditable", false)
       );
@@ -288,8 +327,7 @@ export class Editor extends React.PureComponent<
       void this.scrollToAnchor(this.props.scrollTo);
     }
 
-    // Focus at the end of the document if switching from readOnly and autoFocus
-    // is set to true
+    // 如果从只读模式切换且 autoFocus 为 true，则聚焦到文档末尾
     if (prevProps.readOnly && !this.props.readOnly && this.props.autoFocus) {
       this.focusAtEnd();
     }
@@ -309,6 +347,9 @@ export class Editor extends React.PureComponent<
     }
   }
 
+  /**
+   * 组件卸载时清理资源，包括事件监听器、视图和观察器。
+   */
   public componentWillUnmount(): void {
     window.removeEventListener("theme-changed", this.dispatchThemeChanged);
     this.view?.destroy();
@@ -316,6 +357,9 @@ export class Editor extends React.PureComponent<
     this.handleEditorDestroy();
   }
 
+  /**
+   * 初始化编辑器的所有核心组件，包括扩展、节点、标记、模式、插件等。
+   */
   private init() {
     this.extensions = this.createExtensions();
     this.nodes = this.createNodes();
@@ -329,6 +373,7 @@ export class Editor extends React.PureComponent<
 
     this.widgets = this.createWidgets();
 
+    // 只读模式下不需要键盘映射和输入规则
     if (this.props.readOnly) {
       this.keymaps = [];
       this.inputRules = [];
@@ -343,30 +388,60 @@ export class Editor extends React.PureComponent<
     this.commands = this.createCommands();
   }
 
+  /**
+   * 创建扩展管理器，负责管理所有编辑器扩展。
+   *
+   * @returns 扩展管理器实例。
+   */
   private createExtensions() {
     return new ExtensionManager(this.props.extensions, this);
   }
 
+  /**
+   * 从扩展管理器中获取所有插件。
+   *
+   * @returns 插件数组。
+   */
   private createPlugins() {
     return this.extensions.plugins;
   }
 
+  /**
+   * 从扩展管理器中获取所有规则插件（用于 Markdown 解析）。
+   *
+   * @returns 规则插件数组。
+   */
   private createRulePlugins() {
     return this.extensions.rulePlugins;
   }
 
+  /**
+   * 创建键盘映射，定义编辑器的快捷键行为。
+   *
+   * @returns 键盘映射插件数组。
+   */
   private createKeymaps() {
     return this.extensions.keymaps({
       schema: this.schema,
     });
   }
 
+  /**
+   * 创建输入规则，用于自动格式化（如自动转换 Markdown 语法）。
+   *
+   * @returns 输入规则数组。
+   */
   private createInputRules() {
     return this.extensions.inputRules({
       schema: this.schema,
     });
   }
 
+  /**
+   * 创建节点视图构造器，用于渲染自定义 React 组件节点。
+   *
+   * @returns 节点视图构造器映射对象。
+   */
   private createNodeViews(): { [name: string]: NodeViewConstructor } {
     return Object.fromEntries(
       this.extensions.extensions
@@ -391,6 +466,11 @@ export class Editor extends React.PureComponent<
     ) as { [name: string]: NodeViewConstructor };
   }
 
+  /**
+   * 创建编辑器命令集合，用于执行各种编辑操作。
+   *
+   * @returns 命令映射对象。
+   */
   private createCommands() {
     return this.extensions.commands({
       schema: this.schema,
@@ -398,18 +478,38 @@ export class Editor extends React.PureComponent<
     });
   }
 
+  /**
+   * 创建小部件集合，用于渲染浮动工具栏等 UI 组件。
+   *
+   * @returns 小部件映射对象。
+   */
   private createWidgets() {
     return this.extensions.widgets;
   }
 
+  /**
+   * 从扩展管理器中获取所有节点定义。
+   *
+   * @returns 节点规范映射对象。
+   */
   private createNodes() {
     return this.extensions.nodes;
   }
 
+  /**
+   * 从扩展管理器中获取所有标记定义。
+   *
+   * @returns 标记规范映射对象。
+   */
   private createMarks() {
     return this.extensions.marks;
   }
 
+  /**
+   * 创建 ProseMirror 模式，定义文档结构和允许的节点/标记。
+   *
+   * @returns ProseMirror 模式实例。
+   */
   private createSchema() {
     return new Schema({
       nodes: this.nodes,
@@ -417,10 +517,20 @@ export class Editor extends React.PureComponent<
     });
   }
 
+  /**
+   * 创建 Markdown 序列化器，用于将 ProseMirror 文档转换为 Markdown。
+   *
+   * @returns Markdown 序列化器实例。
+   */
   private createSerializer() {
     return this.extensions.serializer();
   }
 
+  /**
+   * 创建 Markdown 解析器，用于将 Markdown 转换为 ProseMirror 文档。
+   *
+   * @returns Markdown 解析器实例。
+   */
   private createParser() {
     return this.extensions.parser({
       schema: this.schema,
@@ -428,6 +538,11 @@ export class Editor extends React.PureComponent<
     });
   }
 
+  /**
+   * 创建粘贴解析器，用于处理粘贴的 Markdown 内容，启用链接自动识别。
+   *
+   * @returns Markdown 解析器实例。
+   */
   private createPasteParser() {
     return this.extensions.parser({
       schema: this.schema,
@@ -436,9 +551,16 @@ export class Editor extends React.PureComponent<
     });
   }
 
+  /**
+   * 创建编辑器状态，包含文档内容和所有插件。
+   *
+   * @param value - 可选的初始内容。
+   * @returns ProseMirror 编辑器状态实例。
+   */
   private createState(value?: string | ProsemirrorData | ProsemirrorNode) {
     const doc = this.createDocument(value || this.props.defaultValue);
 
+    // 只读模式下只加载基础插件
     if (this.props.readOnly) {
       return EditorState.create({
         schema: this.schema,
@@ -447,6 +569,7 @@ export class Editor extends React.PureComponent<
       });
     }
 
+    // 可编辑模式下加载完整的插件集合
     return EditorState.create({
       schema: this.schema,
       doc,
@@ -466,13 +589,19 @@ export class Editor extends React.PureComponent<
     });
   }
 
+  /**
+   * 创建 ProseMirror 文档实例。
+   *
+   * @param content - 文档内容，可以是字符串（Markdown）、JSON 对象或 ProsemirrorNode。
+   * @returns ProseMirror 文档节点。
+   */
   private createDocument(content: string | object | ProsemirrorNode) {
-    // Already a ProsemirrorNode
+    // 已经是 ProsemirrorNode
     if (content instanceof ProsemirrorNode) {
       return content;
     }
 
-    // Looks like Markdown
+    // 看起来像 Markdown
     if (typeof content === "string") {
       return this.parser.parse(content) || undefined;
     }
@@ -480,11 +609,17 @@ export class Editor extends React.PureComponent<
     return ProsemirrorNode.fromJSON(this.schema, content);
   }
 
+  /**
+   * 创建 ProseMirror EditorView 实例，配置事件处理器和事务分发逻辑。
+   *
+   * @returns EditorView 实例。
+   */
   private createView() {
     if (!this.elementRef.current) {
       throw new Error("createView called before ref available");
     }
 
+    // 检查事务是否正在编辑复选框
     const isEditingCheckbox = (tr: Transaction) =>
       tr.steps.some(
         (step) =>
@@ -493,6 +628,7 @@ export class Editor extends React.PureComponent<
             this.schema.nodes.checkbox_item.name
       );
 
+    // 检查事务是否正在编辑评论
     const isEditingComment = (tr: Transaction) =>
       tr.steps.some(
         (step) =>
@@ -500,7 +636,7 @@ export class Editor extends React.PureComponent<
           step.mark.type.name === this.schema.marks.comment.name
       );
 
-    const self = this; // oxlint-disable-line
+    const self = this; // oxlint-disable-line - 在 dispatchTransaction 中需要访问外部 this
     const view = new EditorView(this.elementRef.current, {
       handleDOMEvents: {
         blur: this.handleEditorBlur,
@@ -517,15 +653,14 @@ export class Editor extends React.PureComponent<
           return;
         }
 
-        // callback is bound to have the view instance as its this binding
+        // 回调绑定到视图实例作为其 this
         const { state, transactions } =
           this.state.applyTransaction(transaction);
 
         this.updateState(state);
 
-        // If any of the transactions being dispatched resulted in the doc
-        // changing then call our own change handler to let the outside world
-        // know
+        // 如果任何被分发的事务导致文档发生变化，则调用我们自己的
+        // 变化处理器来通知外部世界
         if (
           transactions.some((tr) => tr.docChanged) &&
           (!self.props.readOnly ||
@@ -539,24 +674,30 @@ export class Editor extends React.PureComponent<
 
         self.calculateDir();
 
-        // Because Prosemirror and React are not linked we must tell React that
-        // a render is needed whenever the Prosemirror state changes.
+        // 因为 Prosemirror 和 React 没有关联，所以每当 Prosemirror 状态
+        // 改变时，我们必须告诉 React 需要重新渲染。
         self.forceUpdate();
       },
     });
 
-    // Tell third-party libraries and screen-readers that this is an input
+    // 告诉第三方库和屏幕阅读器这是一个输入框
     view.dom.setAttribute("role", "textbox");
     view.dom.setAttribute("aria-label", "Editor content");
 
     return view;
   }
 
+  /**
+   * 滚动到指定的锚点元素。使用 MutationObserver 等待元素出现在 DOM 中。
+   *
+   * @param hash - 要滚动到的锚点标识符。
+   */
   public async scrollToAnchor(hash: string) {
     if (!hash) {
       return;
     }
 
+    // 检查元素是否可见（未被 display:none 或 opacity:0 隐藏）
     function isVisible(element: HTMLElement | null) {
       for (let e = element; e; e = e.parentElement) {
         const s = getComputedStyle(e);
@@ -586,13 +727,19 @@ export class Editor extends React.PureComponent<
         this.elementRef.current || undefined
       );
     } catch (_err) {
-      // querySelector will throw an error if the hash begins with a number
-      // or contains a period. This is protected against now by safeSlugify
-      // however previous links may be in the wild.
+      // querySelector 在哈希以数字开头或包含句点时会抛出错误。
+      // 现在通过 safeSlugify 进行了保护，但之前的链接可能仍然存在。
       Logger.debug("editor", `Attempted to scroll to invalid hash: ${hash}`);
     }
   }
 
+  /**
+   * 获取编辑器的内容值。
+   *
+   * @param asString - 是否以字符串形式返回（默认为 true），否则返回 JSON 对象。
+   * @param trim - 是否修剪内容的前后空白。
+   * @returns 编辑器内容的字符串或 JSON 表示。
+   */
   public value = (asString = true, trim?: boolean) => {
     if (asString) {
       const content = this.serializer.serialize(this.view.state.doc);
@@ -604,6 +751,9 @@ export class Editor extends React.PureComponent<
     ).toJSON();
   };
 
+  /**
+   * 计算并更新文本方向（RTL 或 LTR）。
+   */
   private calculateDir = () => {
     if (!this.elementRef.current) {
       return;
@@ -619,7 +769,7 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Focus the editor at the start of the content.
+   * 将编辑器光标聚焦到内容的开头。
    */
   public focusAtStart = () => {
     const selection = Selection.atStart(this.view.state.doc);
@@ -629,7 +779,7 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Focus the editor at the end of the content.
+   * 将编辑器光标聚焦到内容的末尾。
    */
   public focusAtEnd = () => {
     const selection = Selection.atEnd(this.view.state.doc);
@@ -639,7 +789,7 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Focus the editor and scroll to the current selection.
+   * 聚焦编辑器并滚动到当前选区。
    */
   public focus = () => {
     this.view.focus();
@@ -647,19 +797,19 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Blur the editor.
+   * 使编辑器失去焦点。
    */
   public blur = () => {
     (this.view.dom as HTMLElement).blur();
 
-    // Have Safari remove the caret.
+    // Safari 需要手动移除光标
     window?.getSelection()?.removeAllRanges();
   };
 
   /**
-   * Insert content into the editor, replacing the block at the current selection.
+   * 在编辑器中插入内容，替换当前选区所在的块。
    *
-   * @param content The prosemirror data to insert.
+   * @param content - 要插入的 ProseMirror 数据。
    */
   public insertContent = (content: ProsemirrorData) => {
     const doc = ProsemirrorNode.fromJSON(this.schema, content);
@@ -670,11 +820,11 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Insert files at the current selection.
+   * 在当前选区插入文件。
    *
-   * @param event The source event.
-   * @param files The files to insert.
-   * @returns True if the files were inserted.
+   * @param event - 源事件。
+   * @param files - 要插入的文件列表。
+   * @returns 如果文件被插入则返回 true。
    */
   public insertFiles = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -689,26 +839,31 @@ export class Editor extends React.PureComponent<
     );
 
   /**
-   * Returns true if the trimmed content of the editor is an empty string.
+   * 如果编辑器的修剪内容为空字符串，则返回 true。
    *
-   * @returns True if the editor is empty
+   * @returns 如果编辑器为空则返回 true。
    */
   public isEmpty = () => ProsemirrorHelper.isEmpty(this.view.state.doc);
 
   /**
-   * Return the headings in the current editor.
+   * 返回当前编辑器中的标题列表。
    *
-   * @returns A list of headings in the document
+   * @returns 文档中的标题列表。
    */
   public getHeadings = () => ProsemirrorHelper.getHeadings(this.view.state.doc);
 
   /**
-   * Return the images in the current editor.
+   * 返回当前编辑器中的图片列表。
    *
-   * @returns A list of images in the document
+   * @returns 文档中的图片列表。
    */
   public getImages = () => ProsemirrorHelper.getImages(this.view.state.doc);
 
+  /**
+   * 获取当前编辑器中可用于灯箱显示的图片列表。
+   *
+   * @returns 灯箱图片对象数组。
+   */
   public getLightboxImages = (): LightboxImage[] => {
     const lightboxNodes = ProsemirrorHelper.getLightboxNodes(
       this.view.state.doc
@@ -720,23 +875,23 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Return the tasks/checkmarks in the current editor.
+   * 返回当前编辑器中的任务/复选框列表。
    *
-   * @returns A list of tasks in the document
+   * @returns 文档中的任务列表。
    */
   public getTasks = () => ProsemirrorHelper.getTasks(this.view.state.doc);
 
   /**
-   * Return the comments in the current editor.
+   * 返回当前编辑器中的评论列表。
    *
-   * @returns A list of comments in the document
+   * @returns 文档中的评论列表。
    */
   public getComments = () => ProsemirrorHelper.getComments(this.view.state.doc);
 
   /**
-   * Remove all marks related to a specific comment from the document.
+   * 从文档中删除与特定评论相关的所有标记。
    *
-   * @param commentId The id of the comment to remove
+   * @param commentId - 要删除的评论 ID。
    */
   public removeComment = (commentId: string) => {
     const { state, dispatch } = this.view;
@@ -769,10 +924,10 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Update all marks related to a specific comment in the document.
+   * 更新文档中与特定评论相关的所有标记。
    *
-   * @param commentId The id of the comment to update
-   * @param attrs The attributes to update
+   * @param commentId - 要更新的评论 ID。
+   * @param attrs - 要更新的属性。
    */
   public updateComment = (
     commentId: string,
@@ -815,6 +970,11 @@ export class Editor extends React.PureComponent<
     dispatch(tr);
   };
 
+  /**
+   * 更新当前在灯箱中显示的图片。
+   *
+   * @param activeImage - 要显示的图片对象，或 null 表示关闭灯箱。
+   */
   public updateActiveLightboxImage = (activeImage: LightboxImage | null) => {
     this.setState((state) => ({
       ...state,
@@ -823,9 +983,23 @@ export class Editor extends React.PureComponent<
   };
 
   /**
-   * Return the plain text content of the current editor.
+   * 更新当前独立阅读态中显示的 PDF。
    *
-   * @returns A string of text
+   * @param activePdfDocument - 要显示的 PDF，或 null 表示关闭。
+   */
+  public updateActivePdfDocument = (
+    activePdfDocument: ActivePdfDocument | null
+  ) => {
+    this.setState((state) => ({
+      ...state,
+      activePdfDocument,
+    }));
+  };
+
+  /**
+   * 返回当前编辑器的纯文本内容。
+   *
+   * @returns 文本字符串。
    */
   public getPlainText = () => {
     const { doc } = this.view.state;
@@ -833,10 +1007,18 @@ export class Editor extends React.PureComponent<
     return textBetween(doc, 0, doc.content.size);
   };
 
+  /**
+   * 当主题发生变化时分发事件到编辑器。
+   *
+   * @param event - 包含主题详情的自定义事件。
+   */
   private dispatchThemeChanged = (event: CustomEvent) => {
     this.view.dispatch(this.view.state.tr.setMeta("theme", event.detail));
   };
 
+  /**
+   * 处理编辑器内容变化，调用 onChange 回调。
+   */
   private handleChange = () => {
     if (!this.props.onChange) {
       return;
@@ -847,6 +1029,9 @@ export class Editor extends React.PureComponent<
     );
   };
 
+  /**
+   * 处理编辑器初始化完成，确保 onInit 回调只被调用一次。
+   */
   private handleEditorInit = () => {
     if (!this.props.onInit || this.isInitialized) {
       return;
@@ -856,6 +1041,9 @@ export class Editor extends React.PureComponent<
     this.isInitialized = true;
   };
 
+  /**
+   * 处理编辑器销毁，调用 onDestroy 回调。
+   */
   private handleEditorDestroy = () => {
     if (!this.props.onDestroy) {
       return;
@@ -863,16 +1051,55 @@ export class Editor extends React.PureComponent<
     this.props.onDestroy();
   };
 
+  /**
+   * 处理编辑器失去焦点事件。
+   *
+   * @returns false 表示不阻止默认行为。
+   */
   private handleEditorBlur = () => {
     this.setState({ isEditorFocused: false });
     return false;
   };
 
+  /**
+   * 处理编辑器获得焦点事件。
+   *
+   * @returns false 表示不阻止默认行为。
+   */
   private handleEditorFocus = () => {
     this.setState({ isEditorFocused: true });
     return false;
   };
 
+  /**
+   * 关闭 PDF 阅读态并尽量将焦点恢复到原始附件节点。
+   */
+  private handlePdfViewerClose = () => {
+    const { activePdfDocument } = this.state;
+    this.updateActivePdfDocument(null);
+
+    if (!activePdfDocument) {
+      this.view.focus();
+      return;
+    }
+
+    const node = this.view.state.doc.nodeAt(activePdfDocument.pos);
+
+    if (node && NodeSelection.isSelectable(node)) {
+      const transaction = this.view.state.tr
+        .setSelection(NodeSelection.create(this.view.state.doc, activePdfDocument.pos))
+        .scrollIntoView();
+      this.view.dispatch(transaction);
+    }
+
+    this.view.focus();
+  };
+
+  /**
+   * 渲染编辑器组件，包括编辑器容器、小部件和灯箱。
+   *
+   * @returns 编辑器的 React 元素。
+   */
   public render() {
     const { readOnly, canUpdate, grow, style, className, onKeyDown } =
       this.props;
@@ -928,6 +1155,16 @@ export class Editor extends React.PureComponent<
               onClose={this.view.focus.bind(this.view)}
             />
           )}
+          {!isNull(this.state.activePdfDocument) && (
+            <React.Suspense fallback={null}>
+              <PdfViewerDialog
+                document={this.state.activePdfDocument}
+                onRequestClose={this.handlePdfViewerClose}
+                readOnly={readOnly || canUpdate === false}
+                userId={this.props.userId}
+              />
+            </React.Suspense>
+          )}
         </EditorContext.Provider>
       </PortalContext.Provider>
     );
@@ -972,6 +1209,9 @@ const EditorContainer = styled(Styles)<{
     `}
 `;
 
+/**
+ * 懒加载的编辑器组件，包装了主题提供者。
+ */
 const LazyLoadedEditor = React.forwardRef<Editor, Props>(
   function LazyLoadedEditor_(props: Props, ref) {
     return (
@@ -982,12 +1222,21 @@ const LazyLoadedEditor = React.forwardRef<Editor, Props>(
   }
 );
 
+/**
+ * 观察 DOM 变化，当匹配选择器的元素出现时执行回调。
+ *
+ * @param selector - CSS 选择器。
+ * @param callback - 当元素出现时执行的回调函数。
+ * @param targetNode - 要观察的目标节点，默认为 document.body。
+ * @returns MutationObserver 实例。
+ */
 const observe = (
   selector: string,
   callback: (element: HTMLElement) => void,
   targetNode = document.body
 ) => {
   const observer = new MutationObserver((mutations) => {
+    // 查找匹配选择器的新增节点
     const match = [...mutations]
       .flatMap((mutation) => [...mutation.addedNodes])
       .find((node: HTMLElement) => node.matches?.(selector));
@@ -996,9 +1245,11 @@ const observe = (
     }
   });
 
+  // 如果元素已经存在，立即执行回调
   if (targetNode.querySelector(selector)) {
     callback(targetNode.querySelector(selector) as HTMLElement);
   } else {
+    // 否则开始观察 DOM 变化
     observer.observe(targetNode, { childList: true, subtree: true });
   }
 

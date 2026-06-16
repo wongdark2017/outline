@@ -65,6 +65,10 @@ export type Plugin<T extends Hook> = {
   deployments?: string[];
 };
 
+function isPluginModuleLoader(load: unknown): load is () => Promise<unknown> {
+  return typeof load === "function";
+}
+
 /**
  * Client plugin manager.
  */
@@ -143,7 +147,30 @@ export class PluginManager {
     }
 
     const r = import.meta.glob("../../plugins/*/client/index.{ts,js,tsx,jsx}");
-    await Promise.all(Object.keys(r).map((key: string) => r[key]()));
+    const pluginEntries = Object.entries(r);
+
+    const results = await Promise.allSettled(
+      pluginEntries.map(async ([path, load]) => {
+        try {
+          if (!isPluginModuleLoader(load)) {
+            throw new Error(`Client plugin ${path} is not loadable`);
+          }
+
+          await load();
+        } catch (err) {
+          Logger.error(
+            `Failed to load client plugin ${path}`,
+            err instanceof Error ? err : new Error(String(err))
+          );
+          throw err;
+        }
+      })
+    );
+
+    if (results.some((result) => result.status === "rejected")) {
+      Logger.warn("One or more client plugins failed to load");
+    }
+
     this.loaded = true;
   }
 

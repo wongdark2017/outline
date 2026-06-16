@@ -21,6 +21,7 @@ import ValidateSSOAccessTask from "@server/queues/tasks/ValidateSSOAccessTask";
 import type { APIContext } from "@server/types";
 import { getSessionsInCookie } from "@server/utils/authentication";
 import RateLimiter from "@server/utils/RateLimiter";
+import passwordEnv from "../../../../plugins/password/server/env";
 import type * as T from "./schema";
 
 const router = new Router();
@@ -49,6 +50,14 @@ router.post("auth.config", async (ctx: APIContext<T.AuthConfigReq>) => {
       };
       return;
     }
+
+    ctx.body = {
+      data: {
+        isPasswordAuthEnabled: passwordEnv.PASSWORD_AUTH_ENABLED,
+        providers: [],
+      },
+    };
+    return;
   }
 
   const domain = parseDomain(ctx.request.hostname);
@@ -108,6 +117,7 @@ router.post("auth.config", async (ctx: APIContext<T.AuthConfigReq>) => {
   // Otherwise, we're requesting from the standard root signin page
   ctx.body = {
     data: {
+      isPasswordAuthEnabled: passwordEnv.PASSWORD_AUTH_ENABLED,
       providers: (await AuthenticationHelper.providersForTeam()).map(
         presentProviderConfig
       ),
@@ -116,7 +126,7 @@ router.post("auth.config", async (ctx: APIContext<T.AuthConfigReq>) => {
 });
 
 /** Authentication services that don't require SSO validation. */
-const NON_SSO_SERVICES = ["email", "passkeys"];
+const NON_SSO_SERVICES = ["email", "passkeys", "password"];
 
 router.post("auth.info", auth(), async (ctx: APIContext<T.AuthInfoReq>) => {
   const { user, service } = ctx.state.auth;
@@ -164,6 +174,7 @@ router.post("auth.info", auth(), async (ctx: APIContext<T.AuthInfoReq>) => {
     data: {
       user: presentUser(user, {
         includeDetails: true,
+        includePasswordState: true,
       }),
       team: presentTeam(team),
       groups: await Promise.all(groups.map(presentGroup)),

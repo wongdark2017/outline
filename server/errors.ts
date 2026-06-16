@@ -7,6 +7,13 @@ export function InternalError(message = "Internal error") {
   });
 }
 
+export function ServiceUnavailableError(message = "Service unavailable") {
+  return httpErrors(503, message, {
+    id: "service_unavailable",
+    isReportable: false,
+  });
+}
+
 export function AuthenticationError(
   message = "Authentication required",
   redirectPath = "/"
@@ -100,6 +107,13 @@ export function UserSuspendedError({
 export function InvalidRequestError(message = "Request invalid") {
   return httpErrors(400, message, {
     id: "invalid_request",
+    isReportable: false,
+  });
+}
+
+export function ConflictError(message = "Conflict") {
+  return httpErrors(409, message, {
+    id: "conflict",
     isReportable: false,
   });
 }

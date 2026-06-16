@@ -10,6 +10,7 @@ import userInviter from "@server/commands/userInviter";
 import ConfirmUpdateEmail from "@server/emails/templates/ConfirmUpdateEmail";
 import ConfirmUserDeleteEmail from "@server/emails/templates/ConfirmUserDeleteEmail";
 import InviteEmail from "@server/emails/templates/InviteEmail";
+import InvitePasswordActivationEmail from "@server/emails/templates/InvitePasswordActivationEmail";
 import env from "@server/env";
 import { ValidationError } from "@server/errors";
 import logger from "@server/logging/Logger";
@@ -21,10 +22,12 @@ import { User, Team } from "@server/models";
 import { UserFlag } from "@server/models/User";
 import { can, authorize } from "@server/policies";
 import { presentUser, presentPolicies } from "@server/presenters";
+import Redis from "@server/storage/redis";
 import type { APIContext } from "@server/types";
 import { RateLimiterStrategy } from "@server/utils/RateLimiter";
 import { safeEqual } from "@server/utils/crypto";
 import { getDetailsForEmailUpdateToken } from "@server/utils/jwt";
+import passwordEnv from "../../../../plugins/password/server/env";
 import pagination from "../middlewares/pagination";
 import * as T from "./schema";
 
@@ -580,15 +583,43 @@ router.post(
       throw ValidationError("This invite has been sent too many times");
     }
 
-    await new InviteEmail({
-      to: user.email,
-      language: user.language,
-      name: user.name,
-      actorName: actor.name,
-      actorEmail: actor.email,
-      teamName: actor.team.name,
-      teamUrl: actor.team.url,
-    }).schedule();
+    if (passwordEnv.PASSWORD_AUTH_ENABLED) {
+      const { token, jti } = user.getPasswordActivationToken();
+      const activationUrl = `${actor.team.url}/reset-password?activationToken=${encodeURIComponent(
+        token
+      )}`;
+
+      await Redis.defaultClient.set(
+        `password-activation:jti:${jti}`,
+        JSON.stringify({
+          userId: user.id,
+          teamId: user.teamId,
+        }),
+        "EX",
+        900
+      );
+
+      await new InvitePasswordActivationEmail({
+        to: user.email,
+        language: user.language,
+        name: user.name,
+        actorName: actor.name,
+        actorEmail: actor.email,
+        teamName: actor.team.name,
+        teamUrl: actor.team.url,
+        activationUrl,
+      }).schedule();
+    } else {
+      await new InviteEmail({
+        to: user.email,
+        language: user.language,
+        name: user.name,
+        actorName: actor.name,
+        actorEmail: actor.email,
+        teamName: actor.team.name,
+        teamUrl: actor.team.url,
+      }).schedule();
+    }
 
     user.incrementFlag(UserFlag.InviteSent);
     await user.save({ transaction });

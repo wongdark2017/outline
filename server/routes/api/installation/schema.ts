@@ -3,14 +3,43 @@ import { TeamValidation, UserValidation } from "@shared/validations";
 import { BaseSchema } from "@server/routes/api/schema";
 
 export const InstallationCreateSchema = BaseSchema.extend({
-  body: z.object({
-    /** Team name */
-    teamName: z.string().min(1).max(TeamValidation.maxNameLength),
-    /** User name */
-    userName: z.string().min(1).max(UserValidation.maxNameLength),
-    /** User email */
-    userEmail: z.email().max(UserValidation.maxEmailLength),
-  }),
+  body: z
+    .object({
+      /** Team name */
+      teamName: z.string().min(1).max(TeamValidation.maxNameLength),
+      /** User name */
+      userName: z.string().min(1).max(UserValidation.maxNameLength),
+      /** User email */
+      userEmail: z.email().max(UserValidation.maxEmailLength),
+      /** Password for the initial admin account */
+      password: z.string().min(12).optional(),
+      /** Password confirmation for the initial admin account */
+      passwordConfirmation: z.string().min(12).optional(),
+    })
+    .superRefine((data, ctx) => {
+      const hasPassword = data.password !== undefined;
+      const hasConfirmation = data.passwordConfirmation !== undefined;
+
+      if (hasPassword !== hasConfirmation) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Provide both password and passwordConfirmation",
+          path: hasPassword ? ["passwordConfirmation"] : ["password"],
+        });
+      }
+
+      if (
+        hasPassword &&
+        hasConfirmation &&
+        data.password !== data.passwordConfirmation
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Passwords do not match",
+          path: ["passwordConfirmation"],
+        });
+      }
+    }),
 });
 
 export type InstallationCreateSchemaReq = z.infer<

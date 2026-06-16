@@ -230,7 +230,10 @@ function Login({ children, onBack }: Props) {
   if (firstRun) {
     return (
       <React.Suspense fallback={null}>
-        <WorkspaceSetup onBack={onBack} />
+        <WorkspaceSetup
+          onBack={onBack}
+          isPasswordAuthEnabled={!!config.isPasswordAuthEnabled}
+        />
       </React.Suspense>
     );
   }

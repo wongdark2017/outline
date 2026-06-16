@@ -58,6 +58,9 @@ class User extends ParanoidModel implements Searchable {
   role: UserRole;
 
   @observable
+  hasPassword?: boolean;
+
+  @observable
   protected _lastActiveAt: string;
 
   /**

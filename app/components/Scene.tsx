@@ -5,24 +5,38 @@ import Header from "~/components/Header";
 import PageTitle from "~/components/PageTitle";
 
 type Props = {
-  /** An icon to display in the header when content has scrolled past the title */
+  /** 当内容滚动超过标题时在页头显示的图标 */
   icon?: React.ReactNode;
-  /** The title of the scene */
+  /** 场景的标题 */
   title?: React.ReactNode;
-  /** The title of the scene, as text – only required if the title prop is not plain text */
+  /** 场景的标题（纯文本形式）– 仅当 title 属性不是纯文本时才需要 */
   textTitle?: string;
-  /** A component to display on the left side of the header */
+  /** 在页头左侧显示的组件 */
   left?: React.ReactNode;
-  /** A component to display on the right side of the header */
+  /** 在页头右侧显示的操作按钮组件 */
   actions?: React.ReactNode;
-  /** Whether to center the content horizontally with the standard maximum width (default: true) */
+  /** 是否将内容水平居中并使用标准最大宽度（默认值：true） */
   centered?: boolean;
-  /** Whether to use the full width of the screen (default: false) */
+  /** 是否使用屏幕的全部宽度（默认值：false） */
   wide?: boolean;
-  /** The content of the scene */
+  /** 场景的内容 */
   children?: React.ReactNode;
 };
 
+/**
+ * Scene 是一个布局组件，提供一致的页面结构，包括粘性页头、可选标题、操作按钮和居中的内容区域。
+ * 它被用作应用程序中大多数页面的顶层包装器，以确保视觉一致性。
+ *
+ * 该组件自动处理：
+ * - 通过 PageTitle 组件设置浏览器标签页标题和 SEO
+ * - 具有侧边栏感知能力的粘性页头
+ * - 可配置最大宽度的可选内容居中
+ * - 在页头中显示图标和标题
+ * - 在页头中显示操作按钮和左侧组件
+ *
+ * @param props - 组件属性。
+ * @returns 带有页头和内容区域的全宽场景布局。
+ */
 const Scene: React.FC<Props> = ({
   title,
   icon,

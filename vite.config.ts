@@ -11,10 +11,12 @@ import environment from "./server/utils/environment";
 let httpsConfig: ServerOptions["https"] | undefined;
 let host: string | undefined;
 
+// 在开发环境中配置 HTTPS 和主机名
 if (environment.NODE_ENV === "development") {
   host = host = new URL(environment.URL!).hostname;
 
   try {
+    // 尝试加载本地 SSL 证书以启用 HTTPS
     httpsConfig = {
       key: fs.readFileSync("./server/config/certs/private.key"),
       cert: fs.readFileSync("./server/config/certs/public.cert"),
@@ -28,24 +30,29 @@ if (environment.NODE_ENV === "development") {
 export default () =>
   defineConfig({
     root: "./",
-    publicDir: "./server/static",
+    publicDir: "./static",
+    // CDN URL 前缀，用于静态资源
     base: (environment.CDN_URL ?? "") + "/static/",
     server: {
       port: 3001,
+      strictPort: true,
       host: true,
       https: httpsConfig,
       allowedHosts: host ? [host] : undefined,
       cors: true,
+      proxy: {
+      },
       fs:
         environment.NODE_ENV === "development"
           ? {
-              // Allow serving files from one level up to the project root
+              // 允许从项目根目录的上一级提供文件
               allow: [".."],
             }
           : { strict: true },
     },
     plugins: [
       react(),
+      // PWA 插件配置，用于生成 Service Worker 和 manifest
       // https://vite-pwa-org.netlify.app/
       VitePWA({
         injectRegister: "inline",
@@ -62,6 +69,7 @@ export default () =>
           cleanupOutdatedCaches: true,
           runtimeCaching: [
             {
+              // 缓存 URL 预览数据（仅使用缓存，不发起网络请求）
               urlPattern: /api\/urls\.unfurl$/,
               handler: "CacheOnly",
               options: {
@@ -75,21 +83,6 @@ export default () =>
                 },
               },
             },
-            {
-              urlPattern: /api\/files\.get/,
-              handler: "CacheFirst",
-              options: {
-                cacheName: "files-cache",
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 604800, // 7 days
-                },
-                cacheableResponse: {
-                  statuses: [0, 200, 206], // Include partial content for range requests
-                },
-                rangeRequests: true, // Allow range requests for partial content
-              },
-            },
           ],
         },
         manifest: {
@@ -100,10 +93,9 @@ export default () =>
           start_url: "/",
           scope: ".",
           display: "standalone",
-          // For Chrome, you must provide at least a 192x192 pixel icon, and a 512x512 pixel icon.
-          // If only those two icon sizes are provided, Chrome will automatically scale the icons
-          // to fit the device. If you'd prefer to scale your own icons, and adjust them for
-          // pixel-perfection, provide icons in increments of 48dp.
+          // Chrome 要求至少提供 192x192 和 512x512 像素的图标。
+          // 如果只提供这两个尺寸，Chrome 会自动缩放图标以适应设备。
+          // 如果希望自行缩放图标以达到像素完美，请以 48dp 的增量提供图标。
           icons: [
             {
               src: "/images/icon-192.png",
@@ -148,13 +140,14 @@ export default () =>
           ],
         },
       }),
-      // Generate a stats.json file for webpack that will be consumed by RelativeCI
+      // 生成 stats.json 文件供 RelativeCI 使用
       webpackStats(),
     ],
     experimental: {
       enableNativePlugin: true,
     },
     resolve: {
+      // 路径别名配置
       alias: {
         "~": path.resolve(__dirname, "./app"),
         "@shared": path.resolve(__dirname, "./shared"),
@@ -165,13 +158,13 @@ export default () =>
       manifest: true,
       sourcemap: process.env.CI ? false : "hidden",
       minify: "oxc",
-      // Prevent asset inlining as it does not conform to CSP rules
+      // 防止资源内联，因为它不符合 CSP 规则
       assetsInlineLimit: 0,
       target: browserslistToEsbuild(),
       reportCompressedSize: false,
       rollupOptions: {
         onwarn(warning, warn) {
-          // Suppress noisy warnings about module-level directives, e.g. "use client"
+          // 抑制关于模块级指令的警告，例如 "use client"
           if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
             return;
           }
@@ -186,8 +179,8 @@ export default () =>
           entryFileNames: "assets/[name].[hash].js",
           advancedChunks: {
             groups: [
-              // Shared utilities used across the app — higher priority
-              // prevents them being absorbed into lazy vendor chunks
+              // 应用中使用的共享工具 — 更高的优先级
+              // 防止它们被吸收到懒加载的 vendor 块中
               {
                 name: "vendor-shared",
                 test: /node_modules[\\/]uuid|vite[\\/]preload-helper/,

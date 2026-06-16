@@ -33,6 +33,7 @@ export type Config = {
   logo?: string;
   customTheme?: Partial<CustomTheme>;
   hostname?: string;
+  isPasswordAuthEnabled?: boolean;
   providers: Provider[];
 };
 

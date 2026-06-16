@@ -9,7 +9,7 @@ import {
 } from "../../utils/files";
 import { fileNameFromUrl, isInternalUrl } from "../../utils/urls";
 import type { Options } from "../commands/insertFiles";
-import insertFiles from "../commands/insertFiles";
+import insertFiles, { getUploadResultUrl } from "../commands/insertFiles";
 import FileHelper from "../lib/FileHelper";
 import uploadPlaceholder, { findPlaceholder } from "../lib/uploadPlaceholder";
 
@@ -233,15 +233,19 @@ export class UploadPlugin extends Plugin {
                   }
                 }
 
-                const url = await options.uploadFile?.(upload.originalSrc, {
-                  id: upload.id,
-                });
+                const uploadResult = await options.uploadFile?.(
+                  upload.originalSrc,
+                  {
+                    id: upload.id,
+                  }
+                );
 
                 if (view.isDestroyed) {
                   return;
                 }
 
-                if (url) {
+                if (uploadResult) {
+                  const url = getUploadResultUrl(uploadResult);
                   const file = await FileHelper.getFileForUrl(url);
                   const dimensions = await FileHelper.getImageDimensions(file);
                   const result = findPlaceholder(view.state, upload.id);

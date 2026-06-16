@@ -2,6 +2,8 @@ export { default as ApiKey } from "./ApiKey";
 
 export { default as Attachment } from "./Attachment";
 
+export { default as AttachmentPdfState } from "./AttachmentPdfState";
+
 export { default as AuthenticationProvider } from "./AuthenticationProvider";
 
 export { default as Relationship } from "./Relationship";
@@ -35,6 +37,8 @@ export { default as ImportTask } from "./ImportTask";
 export { default as Integration } from "./Integration";
 
 export { default as IntegrationAuthentication } from "./IntegrationAuthentication";
+
+export { default as JournalEntry } from "./JournalEntry";
 
 export { default as Notification } from "./Notification";
 

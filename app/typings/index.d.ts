@@ -10,6 +10,13 @@ declare module "styled-components-breakpoint";
 
 declare module "command-score";
 
+declare module "vite/modulepreload-polyfill";
+
+declare module "*?url" {
+  const value: string;
+  export default value;
+}
+
 declare module "*.png" {
   const value: any;
   export = value;

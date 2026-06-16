@@ -14,8 +14,38 @@ import { Background } from "./Background";
 import { Centered } from "./Centered";
 import { Form } from "~/components/primitives/Form";
 
-const WorkspaceSetup = ({ onBack }: { onBack?: () => void }) => {
+const WorkspaceSetup = ({
+  onBack,
+  isPasswordAuthEnabled,
+}: {
+  onBack?: () => void;
+  isPasswordAuthEnabled?: boolean;
+}) => {
   const { t } = useTranslation();
+  const [password, setPassword] = React.useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = React.useState("");
+  const [error, setError] = React.useState<string | undefined>();
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    if (!isPasswordAuthEnabled) {
+      setError(undefined);
+      return;
+    }
+
+    if (password.length < 12) {
+      event.preventDefault();
+      setError(t("Password must be at least 12 characters."));
+      return;
+    }
+
+    if (password !== passwordConfirmation) {
+      event.preventDefault();
+      setError(t("Passwords do not match."));
+      return;
+    }
+
+    setError(undefined);
+  };
 
   return (
     <Background>
@@ -26,6 +56,7 @@ const WorkspaceSetup = ({ onBack }: { onBack?: () => void }) => {
         action="/api/installation.create"
         method="POST"
         gap={12}
+        onSubmit={handleSubmit}
       >
         <StyledHeading centered>{t("Create workspace")}</StyledHeading>
         <Content>
@@ -57,6 +88,29 @@ const WorkspaceSetup = ({ onBack }: { onBack?: () => void }) => {
             required
             flex
           />
+          {isPasswordAuthEnabled ? (
+            <>
+              <Input
+                name="password"
+                type="password"
+                label={t("Password")}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                error={error}
+                required
+                flex
+              />
+              <Input
+                name="passwordConfirmation"
+                type="password"
+                label={t("Confirm password")}
+                value={passwordConfirmation}
+                onChange={(event) => setPasswordConfirmation(event.target.value)}
+                required
+                flex
+              />
+            </>
+          ) : null}
         </Inputs>
         <ButtonLarge type="submit" fullwidth>
           {t("Continue")} →

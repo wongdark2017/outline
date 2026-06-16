@@ -1245,6 +1245,19 @@ describe("#collections.create", () => {
     expect(body.policies[0].abilities.read).toBeTruthy();
   });
 
+  it("should reject reserved collection names", async () => {
+    const user = await buildUser();
+    const res = await server.post("/api/collections.create", user, {
+      body: {
+        name: "  __journal__  ",
+      },
+    });
+    const body = await res.json();
+
+    expect(res.status).toEqual(400);
+    expect(body.message).toEqual("Collection name is reserved");
+  });
+
   it("should error when index is invalid", async () => {
     const user = await buildUser();
     const res = await server.post("/api/collections.create", user, {
@@ -1427,6 +1440,22 @@ describe("#collections.update", () => {
     expect(body.policies.length).toBe(1);
   });
 
+  it("rejects renaming to a reserved collection name", async () => {
+    const team = await buildTeam();
+    const admin = await buildAdmin({ teamId: team.id });
+    const collection = await buildCollection({ teamId: team.id });
+    const res = await server.post("/api/collections.update", admin, {
+      body: {
+        id: collection.id,
+        name: "__journal__",
+      },
+    });
+    const body = await res.json();
+
+    expect(res.status).toEqual(400);
+    expect(body.message).toEqual("Collection name is reserved");
+  });
+
   it("allows editing description", async () => {
     const team = await buildTeam();
     const admin = await buildAdmin({ teamId: team.id });
@@ -1445,6 +1474,23 @@ describe("#collections.update", () => {
 
     expect(collection.description).toBe("Test");
     expect(collection.content).toBeTruthy();
+  });
+
+  it("allows updates without a name", async () => {
+    const team = await buildTeam();
+    const admin = await buildAdmin({ teamId: team.id });
+    const collection = await buildCollection({ teamId: team.id });
+    const res = await server.post("/api/collections.update", admin, {
+      body: {
+        id: collection.id,
+        sharing: false,
+      },
+    });
+    const body = await res.json();
+
+    expect(res.status).toEqual(200);
+    expect(body.data.name).toEqual(collection.name);
+    expect(body.data.sharing).toEqual(false);
   });
 
   it("allows editing data", async () => {

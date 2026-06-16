@@ -61,3 +61,34 @@ export const ResizeBottom = styled(ResizeLeft)`
     min-height: 0;
   }
 `;
+
+export const ResizeBottomRight = styled.div<{ $dragging: boolean }>`
+  cursor: nwse-resize;
+  position: absolute;
+  right: -12px;
+  bottom: -12px;
+  width: 48px;
+  height: 48px;
+  z-index: 3;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  opacity: ${(props) => (props.$dragging ? 1 : 0)};
+  transition: opacity 150ms ease-in-out;
+
+  &:after {
+    content: "";
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 12px;
+    height: 12px;
+    border-right: 2px solid ${s("textSecondary")};
+    border-bottom: 2px solid ${s("textSecondary")};
+    opacity: 0.75;
+  }
+
+  @media print {
+    display: none;
+  }
+`;

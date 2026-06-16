@@ -13,6 +13,7 @@ import {
   AuthorizationError,
   BadGatewayError,
   BadRequestError,
+  ConflictError,
   NetworkError,
   NotFoundError,
   OfflineError,
@@ -234,6 +235,10 @@ class ApiClient {
 
     if (response.status === 402) {
       throw new PaymentRequiredError(error.message);
+    }
+
+    if (response.status === 409) {
+      throw new ConflictError(error.message);
     }
 
     if (response.status === 403) {

@@ -1,0 +1,6 @@
+{
+  "id": "journal",
+  "name": "Journal",
+  "priority": 100,
+  "description": "Adds a private journal calendar and daily document entry points."
+}

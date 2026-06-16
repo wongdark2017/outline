@@ -1,7 +1,10 @@
 import { randomUUID } from "node:crypto";
+import { createReadStream, readFileSync } from "node:fs";
+import path from "node:path";
 import { AttachmentPreset, CollectionPermission } from "@shared/types";
-import { UserMembership } from "@server/models";
+import { AttachmentPdfState, UserMembership } from "@server/models";
 import Attachment from "@server/models/Attachment";
+import FileStorage from "@server/storage/files";
 import {
   buildUser,
   buildAdmin,
@@ -15,6 +18,9 @@ import { getTestServer } from "@server/test/support";
 vi.mock("@server/storage/files");
 
 const server = getTestServer();
+const mockFilePath = path.join(__dirname, "../../../test/fixtures/markdown.md");
+const mockFileContent = readFileSync(mockFilePath, "utf8");
+const mockFileSize = Buffer.byteLength(mockFileContent);
 
 describe("#attachments.list", () => {
   it("should return attachments for user", async () => {
@@ -427,6 +433,617 @@ describe("#attachments.delete", () => {
   });
 });
 
+describe("#attachments.pdfState", () => {
+  const data = {
+    version: 2,
+    annotations: [
+      {
+        id: "annotation-1",
+        pageIndex: 0,
+        type: "text",
+        mode: "highlight",
+        color: "#ffcc00",
+        text: "Check this section",
+        selectedText: "Check this section",
+        rects: [
+          {
+            x: 0.12,
+            y: 0.2,
+            width: 0.24,
+            height: 0.03,
+          },
+        ],
+        createdById: "00000000-0000-0000-0000-000000000000",
+        updatedById: "00000000-0000-0000-0000-000000000000",
+        createdAt: "2026-06-07T00:00:00.000Z",
+        updatedAt: "2026-06-07T00:00:00.000Z",
+      },
+    ],
+  };
+
+  it("should return empty state for a pdf attachment without state", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.get", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+    const body = await res.json();
+
+    expect(res.status).toEqual(200);
+    expect(body.data).toEqual({
+      attachmentId: attachment.id,
+      documentId: document.id,
+      revision: 0,
+      data: {
+        version: 2,
+        annotations: [],
+      },
+    });
+  });
+
+  it("should create and update pdf state with revision control", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const createRes = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+    const createBody = await createRes.json();
+
+    expect(createRes.status).toEqual(200);
+    expect(createBody.data.revision).toEqual(1);
+    expect(createBody.data.data).toEqual(data);
+
+    const updatedData = {
+      version: 2,
+      annotations: [
+        {
+          ...data.annotations[0],
+          text: "Updated note",
+          updatedAt: "2026-06-07T00:10:00.000Z",
+        },
+      ],
+    };
+
+    const updateRes = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 1,
+        data: updatedData,
+      },
+    });
+    const updateBody = await updateRes.json();
+
+    expect(updateRes.status).toEqual(200);
+    expect(updateBody.data.revision).toEqual(2);
+    expect(updateBody.data.data).toEqual(updatedData);
+    expect(
+      await AttachmentPdfState.count({
+        where: {
+          attachmentId: attachment.id,
+          documentId: document.id,
+        },
+      })
+    ).toEqual(1);
+  });
+
+  it("should reject stale pdf state revisions", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+
+    const res = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+
+    expect(res.status).toEqual(409);
+  });
+
+  it("should require update permission to save pdf state", async () => {
+    const user = await buildViewer();
+    const collection = await buildCollection({
+      teamId: user.teamId,
+      permission: null,
+    });
+    await UserMembership.create({
+      collectionId: collection.id,
+      createdById: user.id,
+      permission: CollectionPermission.Read,
+      userId: user.id,
+    });
+    const document = await buildDocument({
+      teamId: user.teamId,
+      collectionId: collection.id,
+      userId: collection.createdById,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: collection.createdById,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+
+    expect(res.status).toEqual(403);
+  });
+
+  it("should allow read-only users to read pdf state", async () => {
+    const user = await buildViewer();
+    const collection = await buildCollection({
+      teamId: user.teamId,
+      permission: null,
+    });
+    await UserMembership.create({
+      collectionId: collection.id,
+      createdById: user.id,
+      permission: CollectionPermission.Read,
+      userId: user.id,
+    });
+    const document = await buildDocument({
+      teamId: user.teamId,
+      collectionId: collection.id,
+      userId: collection.createdById,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: collection.createdById,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.get", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+
+    expect(res.status).toEqual(200);
+  });
+
+  it("should require read permission to read pdf state", async () => {
+    const user = await buildViewer();
+    const collection = await buildCollection({
+      teamId: user.teamId,
+      permission: null,
+    });
+    const document = await buildDocument({
+      teamId: user.teamId,
+      collectionId: collection.id,
+      userId: collection.createdById,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: collection.createdById,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.get", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+
+    expect(res.status).toEqual(403);
+  });
+
+  it("should reject non-pdf attachments", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "image/png",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+
+    expect(res.status).toEqual(400);
+  });
+
+  it("should reject attachments from another team", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.get", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+
+    expect(res.status).toEqual(403);
+  });
+
+  it("should reject attachments outside the requested document", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const otherDocument = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: otherDocument.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.get", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+
+    expect(res.status).toEqual(400);
+  });
+
+  it("should cascade delete pdf state when the attachment is deleted", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data,
+      },
+    });
+
+    await attachment.destroy();
+
+    expect(
+      await AttachmentPdfState.count({
+        where: {
+          attachmentId: attachment.id,
+        },
+      })
+    ).toEqual(0);
+  });
+
+  it("should reject invalid pdf state data", async () => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data: {
+          version: 9,
+          annotations: [],
+        },
+      },
+    });
+
+    expect(res.status).toEqual(400);
+  });
+
+  it.each([
+    [
+      "pageIndex",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            pageIndex: -1,
+          },
+        ],
+      },
+    ],
+    [
+      "type",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            type: "comment",
+          },
+        ],
+      },
+    ],
+    [
+      "mode",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            mode: "outline",
+          },
+        ],
+      },
+    ],
+    [
+      "text",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            text: "a".repeat(4001),
+          },
+        ],
+      },
+    ],
+    [
+      "annotations",
+      {
+        annotations: Array.from({ length: 201 }, (_, index) => ({
+          ...data.annotations[0],
+          id: `annotation-${index}`,
+        })),
+      },
+    ],
+    [
+      "rects",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            rects: [
+              {
+                x: 1.5,
+                y: 0,
+                width: 0.1,
+                height: 0.1,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    [
+      "selectedText",
+      {
+        annotations: [
+          {
+            ...data.annotations[0],
+            selectedText: "a".repeat(4001),
+          },
+        ],
+      },
+    ],
+  ])("should reject invalid pdf state %s", async (_field, partialData) => {
+    const user = await buildUser();
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      contentType: "application/pdf",
+    });
+
+    const res = await server.post("/api/attachments.pdfState.update", user, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+        revision: 0,
+        data: {
+          version: 2,
+          ...partialData,
+        },
+      },
+    });
+
+    expect(res.status).toEqual(400);
+  });
+
+  it("should verify pdf attachment state without modifying the original pdf", async () => {
+    vi.mocked(FileStorage.getFileStream).mockImplementation(() =>
+      Promise.resolve(createReadStream(mockFilePath))
+    );
+
+    const user = await buildUser();
+    const viewer = await buildViewer({
+      teamId: user.teamId,
+    });
+    const collection = await buildCollection({
+      teamId: user.teamId,
+      userId: user.id,
+      permission: null,
+    });
+    await UserMembership.create({
+      collectionId: collection.id,
+      createdById: user.id,
+      permission: CollectionPermission.Read,
+      userId: viewer.id,
+    });
+    const document = await buildDocument({
+      teamId: user.teamId,
+      userId: user.id,
+      collectionId: collection.id,
+    });
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      documentId: document.id,
+      acl: "private",
+      contentType: "application/pdf",
+      size: mockFileSize,
+    });
+    const annotationText = "Sidecar note that should not be in PDF";
+    const annotationData = {
+      version: 2,
+      annotations: [
+        {
+          ...data.annotations[0],
+          id: "manual-verification-note",
+          text: annotationText,
+        },
+      ],
+    };
+
+    const originalFileRes = await server.get(
+      `/api/attachments.file?id=${attachment.id}`,
+      user
+    );
+    const originalFileBody = await originalFileRes.text();
+
+    expect(originalFileRes.status).toEqual(200);
+    expect(originalFileRes.headers.get("content-type")).toContain(
+      "application/pdf"
+    );
+    expect(originalFileBody).toEqual(mockFileContent);
+
+    const updateRes = await server.post(
+      "/api/attachments.pdfState.update",
+      user,
+      {
+        body: {
+          documentId: document.id,
+          attachmentId: attachment.id,
+          revision: 0,
+          data: annotationData,
+        },
+      }
+    );
+    const updateBody = await updateRes.json();
+
+    expect(updateRes.status).toEqual(200);
+    expect(updateBody.data.revision).toEqual(1);
+
+    const readRes = await server.post("/api/attachments.pdfState.get", viewer, {
+      body: {
+        documentId: document.id,
+        attachmentId: attachment.id,
+      },
+    });
+    const readBody = await readRes.json();
+
+    expect(readRes.status).toEqual(200);
+    expect(readBody.data.data.annotations[0].text).toEqual(annotationText);
+
+    const viewerUpdateRes = await server.post(
+      "/api/attachments.pdfState.update",
+      viewer,
+      {
+        body: {
+          documentId: document.id,
+          attachmentId: attachment.id,
+          revision: 1,
+          data: annotationData,
+        },
+      }
+    );
+
+    expect(viewerUpdateRes.status).toEqual(403);
+
+    const downloadedFileRes = await server.get(
+      `/api/attachments.file?id=${attachment.id}`,
+      user
+    );
+    const downloadedFileBody = await downloadedFileRes.text();
+
+    expect(downloadedFileRes.status).toEqual(200);
+    expect(downloadedFileBody).toEqual(originalFileBody);
+    expect(downloadedFileBody).not.toContain(annotationText);
+  });
+});
+
 describe("#attachments.redirect", () => {
   it("should return a redirect for an attachment belonging to a document user has access to", async () => {
     const user = await buildUser();
@@ -570,5 +1187,66 @@ describe("#attachments.redirect", () => {
     const body = await res.json();
     expect(res.status).toEqual(400);
     expect(body.message).toEqual("id is required");
+  });
+});
+
+describe("#attachments.file", () => {
+  it("should stream a private pdf attachment for an authenticated team member", async () => {
+    const user = await buildUser();
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      acl: "private",
+      contentType: "application/pdf",
+      size: mockFileSize,
+    });
+
+    const res = await server.get(
+      `/api/attachments.file?id=${attachment.id}`,
+      user
+    );
+
+    expect(res.status).toEqual(200);
+    expect(res.headers.get("content-type")).toContain("application/pdf");
+    expect(res.headers.get("accept-ranges")).toEqual("bytes");
+    expect(res.headers.get("content-disposition")).toContain("inline");
+    expect(await res.text()).toEqual(mockFileContent);
+    expect(FileStorage.getFileStream).toHaveBeenCalledWith(attachment.key, undefined);
+  });
+
+  it("should support byte range requests", async () => {
+    const user = await buildUser();
+    const attachment = await buildAttachment({
+      teamId: user.teamId,
+      userId: user.id,
+      acl: "private",
+      contentType: "application/pdf",
+      size: 100,
+    });
+
+    const res = await server.get(`/api/attachments.file?id=${attachment.id}`, user, {
+      headers: {
+        Range: "bytes=10-19",
+      },
+    });
+
+    expect(res.status).toEqual(206);
+    expect(res.headers.get("content-range")).toEqual("bytes 10-19/100");
+    expect(res.headers.get("content-length")).toEqual("10");
+    expect(FileStorage.getFileStream).toHaveBeenCalledWith(attachment.key, {
+      start: 10,
+      end: 19,
+    });
+  });
+
+  it("should reject access to a private attachment from another team", async () => {
+    const user = await buildUser();
+    const attachment = await buildAttachment({
+      acl: "private",
+    });
+
+    const res = await server.get(`/api/attachments.file?id=${attachment.id}`, user);
+
+    expect(res.status).toEqual(403);
   });
 });

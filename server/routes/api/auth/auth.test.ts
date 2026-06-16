@@ -1,7 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { randomUUID } from "node:crypto";
+import sharedEnv from "@shared/env";
+import env from "@server/env";
 import { buildUser, buildTeam, buildUserPasskey } from "@server/test/factories";
 import { getTestServer, setSelfHosted } from "@server/test/support";
+import { PluginManager } from "@server/utils/PluginManager";
+import { Team } from "@server/models";
 
 const mockTeamInSessionId = randomUUID();
 
@@ -12,6 +16,41 @@ vi.mock("@server/utils/authentication", () => ({
 }));
 
 const server = getTestServer();
+
+interface PluginRegistry {
+  loaded: boolean;
+  plugins: Map<unknown, unknown[]>;
+}
+
+async function setupSelfHostedPasswordAuth() {
+  const pluginManager = PluginManager as unknown as PluginRegistry;
+  const originalLoaded = pluginManager.loaded;
+  const originalPlugins = new Map(
+    Array.from(pluginManager.plugins.entries(), ([key, value]) => [
+      key,
+      [...value],
+    ])
+  );
+  const originalUrl = env.URL;
+  const originalSharedUrl = sharedEnv.URL;
+  const [{ registerPasswordPlugin }, passwordEnv] = await Promise.all([
+    import("../../../../plugins/password/server/index"),
+    import("../../../../plugins/password/server/env"),
+  ]);
+  const originalPasswordAuthEnabled = passwordEnv.default.PASSWORD_AUTH_ENABLED;
+
+  setSelfHosted();
+  passwordEnv.default.PASSWORD_AUTH_ENABLED = true;
+  registerPasswordPlugin();
+
+  return () => {
+    passwordEnv.default.PASSWORD_AUTH_ENABLED = originalPasswordAuthEnabled;
+    pluginManager.loaded = originalLoaded;
+    pluginManager.plugins = originalPlugins;
+    env.URL = originalUrl;
+    sharedEnv.URL = originalSharedUrl;
+  };
+}
 
 describe("#auth.info", () => {
   it("should return current authentication", async () => {
@@ -44,6 +83,18 @@ describe("#auth.info", () => {
     expect(body.data.team.allowedDomains).toEqual([]);
   });
 
+  it("should include hasPassword for the current user", async () => {
+    const user = await buildUser();
+    await user.setPassword("correct horse battery staple");
+    await user.save();
+
+    const res = await server.post("/api/auth.info", user);
+    const body = await res.json();
+
+    expect(res.status).toEqual(200);
+    expect(body.data.user.hasPassword).toBe(true);
+  });
+
   it("should require the team to not be deleted", async () => {
     const team = await buildTeam();
     const user = await buildUser({ teamId: team.id });
@@ -74,7 +125,53 @@ describe("#auth.delete", () => {
   });
 });
 
-describe("#auth.config", () => {
+describe.sequential("#auth.config", () => {
+  describe("self hosted password auth", () => {
+    let teardown: (() => void) | undefined;
+
+    beforeEach(async () => {
+      teardown = await setupSelfHostedPasswordAuth();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      teardown?.();
+      teardown = undefined;
+    });
+
+    it("should return password provider when enabled in self-hosted mode", async () => {
+      const team = await buildTeam({
+        guestSignin: false,
+        authenticationProviders: [],
+      });
+
+      const res = await server.post("/api/auth.config", {
+        headers: {
+          host: new URL(team.url).host,
+        },
+      });
+      const body = await res.json();
+
+      expect(res.status).toEqual(200);
+      expect(
+        body.data.providers.some(
+          (provider: { id: string }) => provider.id === "password"
+        )
+      ).toBe(true);
+    });
+
+    it("should return no providers when self-hosted has no teams yet", async () => {
+      const findOne = vi.spyOn(Team, "findOne").mockResolvedValue(null);
+      const res = await server.post("/api/auth.config");
+      const body = await res.json();
+
+      expect(res.status).toEqual(200);
+      expect(body.data.name).toBeUndefined();
+      expect(body.data.providers).toEqual([]);
+      expect(findOne).toHaveBeenCalled();
+    });
+  });
+
   it("should return available SSO providers", async () => {
     const res = await server.post("/api/auth.config");
     const body = await res.json();

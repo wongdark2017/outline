@@ -1,5 +1,5 @@
 import type Token from "markdown-it/lib/token.mjs";
-import { DownloadIcon } from "outline-icons";
+import { DownloadIcon, OpenIcon } from "outline-icons";
 import type {
   NodeSpec,
   NodeType,
@@ -7,6 +7,8 @@ import type {
 } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
 import { NodeSelection } from "prosemirror-state";
+import { lazy, Suspense } from "react";
+import type { MouseEvent } from "react";
 import { Trans } from "react-i18next";
 import type { Primitive } from "utility-types";
 import { bytesToHumanReadable, getEventFiles } from "../../utils/files";
@@ -15,11 +17,13 @@ import insertFiles from "../commands/insertFiles";
 import toggleWrap from "../commands/toggleWrap";
 import FileExtension from "../components/FileExtension";
 import Widget from "../components/Widget";
+import { createActivePdfDocument } from "../lib/PdfDocument";
 import type { MarkdownSerializerState } from "../lib/markdown/serializer";
 import attachmentsRule from "../rules/links";
 import type { ComponentProps } from "../types";
 import Node from "./Node";
-import PdfViewer from "../components/PDF";
+
+const PdfViewer = lazy(() => import("../components/PDF"));
 
 export default class Attachment extends Node {
   get name() {
@@ -116,9 +120,30 @@ export default class Attachment extends Node {
       });
     };
 
+  handleOpenPdf =
+    ({ getPos, view }: ComponentProps) =>
+    (event?: MouseEvent) => {
+      event?.preventDefault();
+      event?.stopPropagation();
+
+      const pos = getPos();
+      const $pos = view.state.doc.resolve(pos);
+      const transaction = view.state.tr.setSelection(new NodeSelection($pos));
+      view.dispatch(transaction);
+
+      const document = createActivePdfDocument(view, pos, this.editor.props.id);
+
+      if (!document) {
+        return;
+      }
+
+      this.editor.updateActivePdfDocument(document);
+    };
+
   component = (props: ComponentProps) => {
     const { embedsDisabled } = this.editor.props;
     const { isSelected, isEditable, node } = props;
+    const isPdf = node.attrs.contentType === "application/pdf";
     const context = node.attrs.href ? (
       bytesToHumanReadable(node.attrs.size || "0")
     ) : (
@@ -126,27 +151,25 @@ export default class Attachment extends Node {
         <Trans>Uploading</Trans>…
       </>
     );
-
-    return node.attrs.preview &&
-      !embedsDisabled &&
-      node.attrs.contentType === "application/pdf" ? (
-      <PdfViewer
-        icon={<FileExtension title={node.attrs.title} />}
-        title={node.attrs.title}
-        context={context}
-        onChangeSize={this.handleChangeSize(props)}
-        {...props}
-      />
-    ) : (
+    const widget = (
       <Widget
         icon={<FileExtension title={node.attrs.title} />}
         href={node.attrs.href}
         title={node.attrs.title}
         onMouseDown={this.handleSelect(props)}
-        onDoubleClick={() => {
-          this.editor.commands.downloadAttachment();
-        }}
+        onDoubleClick={
+          isPdf
+            ? this.handleOpenPdf(props)
+            : () => {
+                this.editor.commands.downloadAttachment();
+              }
+        }
         onClick={(event) => {
+          if (!isEditable && isPdf) {
+            this.handleOpenPdf(props)(event);
+            return;
+          }
+
           if (isEditable) {
             event.preventDefault();
             event.stopPropagation();
@@ -155,8 +178,27 @@ export default class Attachment extends Node {
         context={context}
         isSelected={isSelected}
       >
-        {node.attrs.href && !isEditable && <DownloadIcon size={20} />}
+        {node.attrs.href && !isEditable && (
+          isPdf ? <OpenIcon size={20} /> : <DownloadIcon size={20} />
+        )}
       </Widget>
+    );
+
+    return node.attrs.preview &&
+      !embedsDisabled &&
+      node.attrs.contentType === "application/pdf" ? (
+      <Suspense fallback={widget}>
+        <PdfViewer
+          icon={<FileExtension title={node.attrs.title} />}
+          title={node.attrs.title}
+          context={context}
+          onChangeSize={this.handleChangeSize(props)}
+          onOpen={this.handleOpenPdf(props)}
+          {...props}
+        />
+      </Suspense>
+    ) : (
+      widget
     );
   };
 

@@ -4,8 +4,19 @@ import { buildTeam, buildUser } from "@server/test/factories";
 import userInviter from "./userInviter";
 import { withAPIContext } from "@server/test/support";
 import { TeamDomain } from "@server/models";
+import passwordEnv from "../../plugins/password/server/env";
+import InvitePasswordActivationEmail from "@server/emails/templates/InvitePasswordActivationEmail";
 
 describe("userInviter", () => {
+  beforeEach(() => {
+    passwordEnv.PASSWORD_AUTH_ENABLED = false;
+  });
+
+  afterEach(() => {
+    passwordEnv.PASSWORD_AUTH_ENABLED = false;
+    vi.restoreAllMocks();
+  });
+
   it("should return sent invites", async () => {
     const user = await buildUser();
     const response = await withAPIContext(user, (ctx) =>
@@ -142,5 +153,31 @@ describe("userInviter", () => {
       })
     );
     expect(response.sent.length).toEqual(0);
+  });
+
+  it("should send a password activation email when password auth is enabled", async () => {
+    passwordEnv.PASSWORD_AUTH_ENABLED = true;
+    const schedule = vi
+      .spyOn(InvitePasswordActivationEmail.prototype, "schedule")
+      .mockResolvedValue(undefined);
+    const team = await buildTeam({
+      authenticationProviders: [],
+    });
+    const user = await buildUser({ teamId: team.id });
+
+    const response = await withAPIContext(user, (ctx) =>
+      userInviter(ctx, {
+        invites: [
+          {
+            role: UserRole.Member,
+            email: faker.internet.email().toLowerCase(),
+            name: "Invited User",
+          },
+        ],
+      })
+    );
+
+    expect(response.sent.length).toEqual(1);
+    expect(schedule).toHaveBeenCalledTimes(1);
   });
 });

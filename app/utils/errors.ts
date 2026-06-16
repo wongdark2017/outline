@@ -4,6 +4,8 @@ export class AuthorizationError extends ExtendableError {}
 
 export class BadRequestError extends ExtendableError {}
 
+export class ConflictError extends ExtendableError {}
+
 export class NetworkError extends ExtendableError {}
 
 export class NotFoundError extends ExtendableError {}
