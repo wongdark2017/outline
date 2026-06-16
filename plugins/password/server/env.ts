@@ -8,7 +8,7 @@ class PasswordPluginEnvironment extends Environment {
    */
   @IsBoolean()
   public PASSWORD_AUTH_ENABLED = this.toBoolean(
-    environment.PASSWORD_AUTH_ENABLED ?? "false"
+    environment.PASSWORD_AUTH_ENABLED ?? "true"
   );
 }
 
