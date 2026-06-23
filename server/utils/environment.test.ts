@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { resolveFileSecrets } from "./environment";
+import {
+  getEnvironment,
+  hasExplicitEnvironmentValue,
+  resolveFileSecrets,
+  setEnvironmentValue,
+} from "./environment";
 
 describe("resolveFileSecrets", () => {
   let tmpDir: string;
@@ -116,5 +121,44 @@ describe("resolveFileSecrets", () => {
 
     expect(env.SECRET_KEY).toBe("value1");
     expect(env.DATABASE_PASSWORD).toBe("value2");
+  });
+});
+
+describe("environment helpers", () => {
+  const originalEnvironment = { ...getEnvironment() };
+  const originalProcessEnv = { ...process.env };
+
+  afterEach(() => {
+    for (const key of Object.keys(getEnvironment())) {
+      delete getEnvironment()[key];
+    }
+
+    Object.assign(getEnvironment(), originalEnvironment);
+    process.env = { ...originalProcessEnv };
+  });
+
+  it("should update the environment snapshot and process.env", () => {
+    setEnvironmentValue("TEST_SET_ENVIRONMENT_VALUE", "configured");
+
+    expect(getEnvironment().TEST_SET_ENVIRONMENT_VALUE).toBe("configured");
+    expect(process.env.TEST_SET_ENVIRONMENT_VALUE).toBe("configured");
+  });
+
+  it("should treat existing host env values as explicit", () => {
+    expect(hasExplicitEnvironmentValue("PATH")).toBe(true);
+  });
+
+  it("should not treat values set after initialization as explicit", () => {
+    setEnvironmentValue("TEST_DATABASE_BACKED_VALUE", "from-db");
+
+    expect(hasExplicitEnvironmentValue("TEST_DATABASE_BACKED_VALUE")).toBe(
+      false
+    );
+  });
+
+  it("should treat docker compose markers as explicit for mapped keys", () => {
+    setEnvironmentValue("OUTLINE_EXPLICIT_FILE_STORAGE", "true");
+
+    expect(hasExplicitEnvironmentValue("FILE_STORAGE")).toBe(true);
   });
 });

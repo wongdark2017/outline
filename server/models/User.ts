@@ -163,6 +163,10 @@ class User extends ParanoidModel<
   @Column(DataType.ENUM(...Object.values(UserRole)))
   role: UserRole;
 
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  isSystemAdmin: boolean;
+
   @Column(DataType.BLOB)
   @Encrypted
   jwtSecret: string;

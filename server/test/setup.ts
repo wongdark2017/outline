@@ -21,6 +21,7 @@ vi.mock("@aws-sdk/client-s3", () => ({
   DeleteObjectCommand: vi.fn(),
   GetObjectCommand: vi.fn(),
   ObjectCannedACL: {},
+  PutObjectCommand: vi.fn(),
 }));
 
 vi.mock("@aws-sdk/lib-storage", () => ({
@@ -42,19 +43,26 @@ vi.mock("@aws-sdk/s3-request-presigner", () => ({
 // would be hoisted ahead of it.
 await import("@server/storage/database");
 
-// Eagerly load plugin server entry points so that PluginManager.getHooks()
-// returns the registered plugins. Vitest does not support require() of TS
-// files with bare imports (e.g. `@server/...`), so we use Vite's
-// import.meta.glob to load them through the Vite resolver instead.
+// Load plugin server entry points so that PluginManager.getHooks() returns
+// registered plugins. Vitest does not support require() of TS files with bare
+// imports (e.g. `@server/...`), so we use Vite's import.meta.glob to load them
+// through the Vite resolver instead.
 const { PluginManager } = await import("@server/utils/PluginManager");
-const pluginModules = import.meta.glob(
-  "../../plugins/*/server/!(*.test|schema).{js,ts}",
-  { eager: true }
-);
-void pluginModules;
-// Mark as loaded so PluginManager.loadPlugins() (which uses require()) is a
-// no-op during tests.
+// Mark as loaded before plugins import. Some plugin entry points call
+// PluginManager.getHooks() while registering themselves, and that must not
+// trigger PluginManager.loadPlugins()'s Node require() fallback in Vitest.
 (PluginManager as unknown as { loaded: boolean }).loaded = true;
+const pluginModules = import.meta.glob(
+  "../../plugins/*/server/!(*.test|schema).{js,ts}"
+);
+await Promise.all(
+  Object.values(pluginModules)
+    .filter(
+      (loadPluginModule): loadPluginModule is () => Promise<unknown> =>
+        typeof loadPluginModule === "function"
+    )
+    .map((loadPluginModule) => loadPluginModule())
+);
 
 beforeEach(() => {
   env.URL = sharedEnv.URL = "https://app.outline.dev";

@@ -44,9 +44,7 @@ import { navigateToSubdomain } from "./urls";
 import lazyWithRetry from "~/utils/lazyWithRetry";
 import { getRedirectUrl } from "~/utils/urls";
 
-const WorkspaceSetup = lazyWithRetry(
-  () => import("./components/WorkspaceSetup")
-);
+const SetupWizard = lazyWithRetry(() => import("./components/SetupWizard"));
 
 type Props = {
   children?: (config?: Config) => React.ReactNode;
@@ -230,7 +228,7 @@ function Login({ children, onBack }: Props) {
   if (firstRun) {
     return (
       <React.Suspense fallback={null}>
-        <WorkspaceSetup
+        <SetupWizard
           onBack={onBack}
           isPasswordAuthEnabled={!!config.isPasswordAuthEnabled}
         />

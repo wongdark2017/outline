@@ -62,6 +62,8 @@ export { default as ShareSubscription } from "./ShareSubscription";
 
 export { default as Star } from "./Star";
 
+export { default as SystemSetting } from "./SystemSetting";
+
 export { default as Team } from "./Team";
 
 export { default as TeamDomain } from "./TeamDomain";

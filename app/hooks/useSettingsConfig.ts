@@ -46,6 +46,7 @@ const Preferences = lazy(() => import("~/scenes/Settings/Preferences"));
 const Profile = lazy(() => import("~/scenes/Settings/Profile"));
 const Security = lazy(() => import("~/scenes/Settings/Security"));
 const Shares = lazy(() => import("~/scenes/Settings/Shares"));
+const SystemInfo = lazy(() => import("~/scenes/Settings/SystemInfo"));
 const Templates = lazy(() => import("~/scenes/Settings/Templates"));
 const CustomEmojis = lazy(() => import("~/scenes/Settings/CustomEmojis"));
 const Embeds = lazy(() => import("~/scenes/Settings/Embeds"));
@@ -234,6 +235,16 @@ const useSettingsConfig = () => {
         group: t("Workspace"),
         icon: ExportIcon,
       },
+      // System
+      {
+        name: t("System Info"),
+        path: settingsPath("system-info"),
+        component: SystemInfo.Component,
+        preload: SystemInfo.preload,
+        enabled: user.isSystemAdmin,
+        group: t("System"),
+        icon: SettingsIcon,
+      },
       // Integrations
       {
         name: t("Embeds"),
@@ -283,7 +294,14 @@ const useSettingsConfig = () => {
     });
 
     return items;
-  }, [t, can.createApiKey, can.update, can.createImport, can.createExport]);
+  }, [
+    t,
+    user,
+    can.createApiKey,
+    can.update,
+    can.createImport,
+    can.createExport,
+  ]);
 
   return config.filter((item) => item.enabled);
 };

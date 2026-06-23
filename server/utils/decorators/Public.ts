@@ -22,13 +22,13 @@ export class PublicEnvironmentRegister {
   private static publicEnv: Record<string, any> = {};
 
   static registerEnv(env: Environment) {
-    process.nextTick(() => {
-      const vars: string[] = Reflect.getMetadata(key, env) ?? [];
-      vars.forEach((k: keyof Environment) => {
-        if (isUndefined(this.publicEnv[k])) {
-          this.publicEnv[k] = env[k];
-        }
-      });
+    this.publicEnv = {};
+
+    const vars: string[] = Reflect.getMetadata(key, env) ?? [];
+    vars.forEach((k: keyof Environment) => {
+      if (!isUndefined(env[k])) {
+        this.publicEnv[k] = env[k];
+      }
     });
   }
 

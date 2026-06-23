@@ -1,6 +1,28 @@
 ARG APP_PATH=/opt/outline
-ARG BASE_IMAGE=outlinewiki/outline-base
-FROM ${BASE_IMAGE} AS base
+ARG BASE_IMAGE=base
+
+FROM node:24.15.0 AS base
+
+ARG APP_PATH
+WORKDIR $APP_PATH
+COPY ./package.json ./yarn.lock ./.yarnrc.yml ./
+COPY ./patches ./patches
+
+RUN apt-get update && apt-get install -y cmake
+ENV NODE_OPTIONS="--max-old-space-size=24000"
+
+RUN corepack enable
+RUN yarn install --immutable --network-timeout 1000000 && \
+  yarn cache clean
+
+COPY . .
+ARG CDN_URL
+RUN yarn build
+
+RUN yarn workspaces focus --production && \
+  yarn cache clean
+
+FROM ${BASE_IMAGE} AS build
 
 ARG APP_PATH
 WORKDIR $APP_PATH
@@ -16,17 +38,17 @@ ENV NODE_ENV=production
 
 # Create a non-root user compatible with Debian and BusyBox based images
 RUN addgroup --gid 1001 nodejs && \
-    adduser --uid 1001 --ingroup nodejs nodejs && \
+    adduser --uid 1001 --ingroup nodejs --disabled-password --gecos "" nodejs && \
     mkdir -p /var/lib/outline && \
     chown -R nodejs:nodejs /var/lib/outline && \
     chown -R nodejs:nodejs $APP_PATH
 
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/build ./build
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/server ./server
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/public ./public
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/.sequelizerc ./.sequelizerc
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/node_modules ./node_modules
-COPY --from=base --chown=nodejs:nodejs $APP_PATH/package.json ./package.json
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/build ./build
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/server ./server
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/public ./public
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/.sequelizerc ./.sequelizerc
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/node_modules ./node_modules
+COPY --from=build --chown=nodejs:nodejs $APP_PATH/package.json ./package.json
 # Install wget to healthcheck the server
 RUN  apt-get update \
     && apt-get install -y wget \

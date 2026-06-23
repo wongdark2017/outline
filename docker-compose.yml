@@ -1,4 +1,30 @@
 services:
+  outline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://user:pass@postgres:5432/outline}
+      FILE_STORAGE_UPLOAD_MAX_SIZE: ${FILE_STORAGE_UPLOAD_MAX_SIZE:-262144000}
+      FILE_STORAGE: ${FILE_STORAGE:-local}
+      FILE_STORAGE_LOCAL_ROOT_DIR: /var/lib/outline/data
+      FORCE_HTTPS: ${FORCE_HTTPS:-false}
+      NODE_ENV: production
+      OUTLINE_EXPLICIT_FILE_STORAGE: ${FILE_STORAGE:+true}
+      OUTLINE_EXPLICIT_FORCE_HTTPS: ${FORCE_HTTPS:+true}
+      PASSWORD_AUTH_ENABLED: ${PASSWORD_AUTH_ENABLED:-true}
+      PGSSLMODE: ${PGSSLMODE:-disable}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      SECRET_KEY: ${SECRET_KEY:?SECRET_KEY must be set to a 64 character hex string}
+      URL: ${URL:-http://localhost:3000}
+      UTILS_SECRET: ${UTILS_SECRET:?UTILS_SECRET must be set}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - outline_data:/var/lib/outline/data
   redis:
     image: redis
     ports:
@@ -13,3 +39,9 @@ services:
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: outline
     user: "postgres:postgres"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  outline_data:
+  postgres_data:

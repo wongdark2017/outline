@@ -942,4 +942,25 @@ export class Environment {
   }
 }
 
-export default new Environment();
+const env = new Environment();
+
+/**
+ * Reloads the exported environment singleton from the current raw environment
+ * snapshot while preserving the default export object reference.
+ *
+ * @returns the refreshed environment singleton.
+ */
+export function reloadEnvironment() {
+  const next = new Environment();
+
+  for (const key of Object.keys(env)) {
+    Reflect.deleteProperty(env, key);
+  }
+
+  Object.assign(env, next);
+  PublicEnvironmentRegister.registerEnv(env);
+
+  return env;
+}
+
+export default env;

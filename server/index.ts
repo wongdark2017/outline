@@ -1,9 +1,6 @@
 /* oxlint-disable @typescript-eslint/no-misused-promises */
 /* oxlint-disable import/order */
-import env from "./env";
-
-import "./logging/tracer"; // must come before importing any instrumented module
-
+import cluster from "node:cluster";
 import http from "node:http";
 import https from "node:https";
 import type { Context } from "koa";
@@ -15,39 +12,66 @@ import type { AddressInfo } from "node:net";
 import stoppable from "stoppable";
 import throng from "throng";
 import { escape } from "es-toolkit/compat";
-import Logger from "./logging/Logger";
-import services from "./services";
-import { getArg } from "./utils/args";
-import { getSSLOptions } from "./utils/ssl";
-import { defaultRateLimiter } from "@server/middlewares/rateLimiter";
-import { printEnv, checkPendingMigrations } from "./utils/startup";
-import { checkUpdates } from "./utils/updates";
-import onerror from "./onerror";
-import ShutdownHelper, { ShutdownOrder } from "./utils/ShutdownHelper";
-import { checkConnection, sequelize } from "./storage/database";
-import Redis from "@server/storage/redis";
-import Metrics from "@server/logging/Metrics";
-import { CacheHelper } from "./utils/CacheHelper";
-import { RedisPrefixHelper } from "./utils/RedisPrefixHelper";
-import { PluginManager } from "./utils/PluginManager";
+import type * as EnvModule from "./env";
+import type * as LoggerModule from "./logging/Logger";
+import type * as ServicesModule from "./services";
+import type * as ArgsModule from "./utils/args";
+import type * as SslModule from "./utils/ssl";
+import type * as RateLimiterModule from "@server/middlewares/rateLimiter";
+import type * as StartupModule from "./utils/startup";
+import type * as UpdatesModule from "./utils/updates";
+import type * as OnErrorModule from "./onerror";
+import type * as ShutdownHelperModule from "./utils/ShutdownHelper";
+import type * as DatabaseModule from "./storage/database";
+import type * as RedisModule from "@server/storage/redis";
+import type * as MetricsModule from "@server/logging/Metrics";
+import type * as CacheHelperModule from "./utils/CacheHelper";
+import type * as RedisPrefixHelperModule from "./utils/RedisPrefixHelper";
+import type * as PluginManagerModule from "./utils/PluginManager";
+import {
+  bootstrapSystemSettings,
+  runPreBootstrapMigrations,
+} from "./utils/systemSettingsBootstrap";
+
+interface RuntimeModules {
+  Logger: typeof LoggerModule.default;
+  services: typeof ServicesModule.default;
+  getArg: typeof ArgsModule.getArg;
+  getSSLOptions: typeof SslModule.getSSLOptions;
+  defaultRateLimiter: typeof RateLimiterModule.defaultRateLimiter;
+  printEnv: typeof StartupModule.printEnv;
+  checkPendingMigrations: typeof StartupModule.checkPendingMigrations;
+  checkUpdates: typeof UpdatesModule.checkUpdates;
+  onerror: typeof OnErrorModule.default;
+  ShutdownHelper: typeof ShutdownHelperModule.default;
+  ShutdownOrder: typeof ShutdownHelperModule.ShutdownOrder;
+  checkConnection: typeof DatabaseModule.checkConnection;
+  sequelize: typeof DatabaseModule.sequelize;
+  Redis: typeof RedisModule.default;
+  Metrics: typeof MetricsModule.default;
+  CacheHelper: typeof CacheHelperModule.CacheHelper;
+  RedisPrefixHelper: typeof RedisPrefixHelperModule.RedisPrefixHelper;
+  PluginManager: typeof PluginManagerModule.PluginManager;
+}
+
+let runtimeModules: RuntimeModules | undefined;
+let envModule: typeof EnvModule | undefined;
 
 // The number of processes to run, defaults to the number of CPU's available
 // for the web service, and 1 for collaboration unless REDIS_COLLABORATION_URL is set.
-let webProcessCount = env.WEB_CONCURRENCY;
-
-if (env.SERVICES.includes("collaboration") && !env.REDIS_COLLABORATION_URL) {
-  if (webProcessCount !== 1) {
-    Logger.info(
-      "lifecycle",
-      "Note: Restricting process count to 1 due to use of collaborative service without REDIS_COLLABORATION_URL"
-    );
-  }
-
-  webProcessCount = 1;
-}
+let webProcessCount: number | undefined;
 
 // This function will only be called once in the original process
 async function master() {
+  const {
+    checkConnection,
+    checkPendingMigrations,
+    checkUpdates,
+    printEnv,
+    sequelize,
+  } = await loadRuntimeModules();
+  const env = await loadEnv();
+
   await checkConnection(sequelize);
   await checkPendingMigrations();
   await printEnv();
@@ -60,6 +84,24 @@ async function master() {
 
 // This function will only be called in each forked process
 async function start(_id: number, disconnect: () => void) {
+  const {
+    CacheHelper,
+    defaultRateLimiter,
+    getArg,
+    getSSLOptions,
+    Logger,
+    Metrics,
+    onerror,
+    PluginManager,
+    Redis,
+    RedisPrefixHelper,
+    services,
+    sequelize,
+    ShutdownHelper,
+    ShutdownOrder,
+  } = await loadRuntimeModules();
+  const env = await loadEnv();
+
   // Ensure plugins are loaded
   PluginManager.loadPlugins();
 
@@ -253,13 +295,123 @@ async function start(_id: number, disconnect: () => void) {
   process.once("SIGINT", () => ShutdownHelper.execute());
 }
 
-const isWebProcess =
-  env.SERVICES.includes("web") ||
-  env.SERVICES.includes("api") ||
-  env.SERVICES.includes("collaboration");
+void startServer();
 
-void throng({
-  master,
-  worker: start,
-  count: isWebProcess ? webProcessCount : undefined,
-});
+async function startServer() {
+  if (!cluster.isWorker) {
+    await runPreBootstrapMigrations();
+  }
+
+  await bootstrapSystemSettings();
+  const env = await reloadEnv();
+
+  await loadRuntimeModules();
+
+  webProcessCount = env.WEB_CONCURRENCY;
+
+  if (env.SERVICES.includes("collaboration") && !env.REDIS_COLLABORATION_URL) {
+    if (webProcessCount !== 1) {
+      const { Logger } = await loadRuntimeModules();
+      Logger.info(
+        "lifecycle",
+        "Note: Restricting process count to 1 due to use of collaborative service without REDIS_COLLABORATION_URL"
+      );
+    }
+
+    webProcessCount = 1;
+  }
+
+  const isWebProcess =
+    env.SERVICES.includes("web") ||
+    env.SERVICES.includes("api") ||
+    env.SERVICES.includes("collaboration");
+
+  void throng({
+    master,
+    worker: start,
+    count: isWebProcess ? webProcessCount : undefined,
+  });
+}
+
+async function loadRuntimeModules() {
+  if (runtimeModules) {
+    return runtimeModules;
+  }
+
+  await import("./logging/tracer"); // must come before importing instrumented modules
+
+  const [
+    LoggerModule,
+    servicesModule,
+    argsModule,
+    sslModule,
+    rateLimiterModule,
+    startupModule,
+    updatesModule,
+    onerrorModule,
+    shutdownHelperModule,
+    databaseModule,
+    redisModule,
+    metricsModule,
+    cacheHelperModule,
+    redisPrefixHelperModule,
+    pluginManagerModule,
+  ] = await Promise.all([
+    import("./logging/Logger"),
+    import("./services"),
+    import("./utils/args"),
+    import("./utils/ssl"),
+    import("@server/middlewares/rateLimiter"),
+    import("./utils/startup"),
+    import("./utils/updates"),
+    import("./onerror"),
+    import("./utils/ShutdownHelper"),
+    import("./storage/database"),
+    import("@server/storage/redis"),
+    import("@server/logging/Metrics"),
+    import("./utils/CacheHelper"),
+    import("./utils/RedisPrefixHelper"),
+    import("./utils/PluginManager"),
+  ]);
+
+  runtimeModules = {
+    Logger: LoggerModule.default,
+    services: servicesModule.default,
+    getArg: argsModule.getArg,
+    getSSLOptions: sslModule.getSSLOptions,
+    defaultRateLimiter: rateLimiterModule.defaultRateLimiter,
+    printEnv: startupModule.printEnv,
+    checkPendingMigrations: startupModule.checkPendingMigrations,
+    checkUpdates: updatesModule.checkUpdates,
+    onerror: onerrorModule.default,
+    ShutdownHelper: shutdownHelperModule.default,
+    ShutdownOrder: shutdownHelperModule.ShutdownOrder,
+    checkConnection: databaseModule.checkConnection,
+    sequelize: databaseModule.sequelize,
+    Redis: redisModule.default,
+    Metrics: metricsModule.default,
+    CacheHelper: cacheHelperModule.CacheHelper,
+    RedisPrefixHelper: redisPrefixHelperModule.RedisPrefixHelper,
+    PluginManager: pluginManagerModule.PluginManager,
+  };
+
+  return runtimeModules;
+}
+
+async function loadEnv() {
+  if (envModule) {
+    return envModule.default;
+  }
+
+  envModule = await import("./env");
+  return envModule.default;
+}
+
+async function reloadEnv() {
+  if (!envModule) {
+    envModule = await import("./env");
+    return envModule.default;
+  }
+
+  return envModule.reloadEnvironment();
+}
