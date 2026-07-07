@@ -5,6 +5,10 @@ import type { EditorView } from "prosemirror-view";
 
 const MAX_MATCH = 500;
 
+function getQuery(match: RegExpExecArray | null) {
+  return match?.[1] ?? "";
+}
+
 type ExtensionState = {
   open: boolean;
   query: string;
@@ -38,7 +42,7 @@ export class SuggestionsMenuPlugin extends Plugin {
                   if (match[0].length <= 2) {
                     extensionState.open = true;
                   }
-                  extensionState.query = match[1];
+                  extensionState.query = getQuery(match);
                 }
               })();
             }, 0);
@@ -61,7 +65,7 @@ export class SuggestionsMenuPlugin extends Plugin {
                 openRegex,
                 action((_, match) => {
                   if (match) {
-                    extensionState.query = match[1];
+                    extensionState.query = getQuery(match);
                   } else {
                     extensionState.open = false;
                   }
@@ -94,7 +98,7 @@ export class SuggestionsMenuPlugin extends Plugin {
                     if (match[0].length <= 2) {
                       extensionState.open = true;
                     }
-                    extensionState.query = match[1];
+                    extensionState.query = getQuery(match);
                   }
                   return null;
                 })

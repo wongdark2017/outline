@@ -43,6 +43,7 @@ import {
   Notification,
   SearchQuery,
   Pin,
+  Memo,
   Comment,
   Import,
   OAuthAuthorizationCode,
@@ -51,6 +52,7 @@ import {
   Relationship,
   Template,
 } from "@server/models";
+import { MemoVisibility } from "@server/models/Memo";
 import { RelationshipType } from "@server/models/Relationship";
 import AttachmentHelper from "@server/models/helpers/AttachmentHelper";
 import { hash } from "@server/utils/crypto";
@@ -791,6 +793,35 @@ export async function buildPin(overrides: Partial<Pin> = {}): Promise<Pin> {
   }
 
   return Pin.create(overrides);
+}
+
+export async function buildMemo(overrides: Partial<Memo> = {}): Promise<Memo> {
+  if (!overrides.teamId) {
+    const team = await buildTeam();
+    overrides.teamId = team.id;
+  }
+
+  if (!overrides.userId) {
+    const user = await buildUser({
+      teamId: overrides.teamId,
+    });
+    overrides.userId = user.id;
+  }
+
+  return Memo.create({
+    content: {
+      type: "doc",
+      content: [
+        {
+          type: "paragraph",
+          content: [{ type: "text", text: "memo content" }],
+        },
+      ],
+    },
+    tags: [],
+    visibility: MemoVisibility.Private,
+    ...overrides,
+  });
 }
 
 export async function buildOAuthClient(overrides: Partial<OAuthClient> = {}) {

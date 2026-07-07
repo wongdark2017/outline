@@ -22,8 +22,6 @@ import { loadPublicShare } from "@server/commands/shareLoader";
 
 const readFile = util.promisify(fs.readFile);
 const entry = "app/index.tsx";
-const viteHost = env.URL.replace(`:${env.PORT}`, ":3001");
-
 let indexHtmlCache: Buffer | undefined;
 
 /**
@@ -128,14 +126,14 @@ export const renderApp = async (
         env.CDN_URL || ""
       }/static/${readManifestFile()[entry]["file"]}"></script>`
     : `<script type="module" nonce="${ctx.state.cspNonce}">
-        import RefreshRuntime from "${viteHost}/static/@react-refresh"
+        import RefreshRuntime from "/static/@react-refresh"
         RefreshRuntime.injectIntoGlobalHook(window)
         window.$RefreshReg$ = () => { }
         window.$RefreshSig$ = () => (type) => type
         window.__vite_plugin_react_preamble_installed__ = true
       </script>
-      <script type="module" nonce="${ctx.state.cspNonce}" src="${viteHost}/static/@vite/client"></script>
-      <script type="module" nonce="${ctx.state.cspNonce}" src="${viteHost}/static/${entry}"></script>
+      <script type="module" nonce="${ctx.state.cspNonce}" src="/static/@vite/client"></script>
+      <script type="module" nonce="${ctx.state.cspNonce}" src="/static/${entry}"></script>
     `;
 
   let headTags = `

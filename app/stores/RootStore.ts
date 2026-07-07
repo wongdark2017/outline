@@ -18,6 +18,7 @@ import GroupsStore from "./GroupsStore";
 import ImportsStore from "./ImportsStore";
 import IntegrationsStore from "./IntegrationsStore";
 import JournalEntriesStore from "./JournalEntriesStore";
+import MemosStore from "./MemosStore";
 import MembershipsStore from "./MembershipsStore";
 import NotificationsStore from "./NotificationsStore";
 import OAuthAuthenticationsStore from "./OAuthAuthenticationsStore";
@@ -54,6 +55,7 @@ export default class RootStore {
   imports: ImportsStore;
   integrations: IntegrationsStore;
   journalEntries: JournalEntriesStore;
+  memos: MemosStore;
   memberships: MembershipsStore;
   notifications: NotificationsStore;
   oauthAuthentications: OAuthAuthenticationsStore;
@@ -90,6 +92,7 @@ export default class RootStore {
     this.registerStore(ImportsStore);
     this.registerStore(IntegrationsStore);
     this.registerStore(JournalEntriesStore);
+    this.registerStore(MemosStore);
     this.registerStore(MembershipsStore);
     this.registerStore(NotificationsStore);
     this.registerStore(OAuthAuthenticationsStore, "oauthAuthentications");

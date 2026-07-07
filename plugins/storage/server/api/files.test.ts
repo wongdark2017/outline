@@ -313,6 +313,51 @@ describe("#files.get", () => {
     );
   });
 
+  it("should succeed with status 200 ok when image attachment is requested using redirect signature", async () => {
+    const user = await buildUser();
+    const fileName = "avatar.jpg";
+
+    const attachment = await buildAttachment(
+      {
+        teamId: user.teamId,
+        userId: user.id,
+        contentType: "image/jpg",
+        acl: "private",
+      },
+      fileName
+    );
+
+    const content = await readFile(
+      path.resolve(__dirname, "..", "test", "fixtures", fileName)
+    );
+    const form = new FormData();
+    form.append("key", attachment.key);
+    form.append("file", content, fileName);
+    form.append("token", user.getSessionToken());
+
+    await server.post(`/api/files.create`, {
+      headers: form.getHeaders(),
+      body: form,
+    });
+
+    const redirect = await server.post(attachment.redirectUrl, user, {
+      redirect: "manual",
+    });
+    expect(redirect.status).toEqual(302);
+
+    const redirectLocation = redirect.headers.get("Location");
+    expect(redirectLocation).toBeTruthy();
+
+    const url = new URL(redirectLocation as string);
+    const res = await server.get(url.pathname + url.search);
+
+    expect(res.status).toEqual(200);
+    expect(res.headers.get("Content-Type")).toEqual("image/jpg");
+    expect(res.headers.get("Content-Disposition")).toEqual(
+      'attachment; filename="avatar.jpg"'
+    );
+  });
+
   it("should succeed with status 200 ok when file is requested using signature", async () => {
     const user = await buildUser();
     const fileName = "images.docx";

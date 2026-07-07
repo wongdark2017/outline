@@ -33,6 +33,7 @@ const Document = lazy(() => import("~/scenes/Document"));
 const Drafts = lazy(() => import("~/scenes/Drafts"));
 const Home = lazy(() => import("~/scenes/Home"));
 const Journal = lazy(() => import("~/scenes/Journal"));
+const Memos = lazy(() => import("~/scenes/Memos"));
 const Search = lazy(() => import("~/scenes/Search"));
 const Trash = lazy(() => import("~/scenes/Trash"));
 const Debug = lazy(() => import("~/scenes/Developer/Debug"));
@@ -103,6 +104,7 @@ function AuthenticatedRoutes() {
 
             <Route exact path="/journal" component={Journal} />
             <Route exact path="/journal/:date" component={Journal} />
+            <Route exact path="/memos" component={Memos} />
 
             {/* 旧路径重定向：保持向后兼容 */}
             <Redirect from="/dashboard" to={homePath()} />

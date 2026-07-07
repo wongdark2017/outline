@@ -1,0 +1,29 @@
+{
+  "id": "memos-module",
+  "name": "memos-module",
+  "title": "Outline usememos-style memos module",
+  "description": "Plan a full usememos-style memos module in Outline, building on the existing quick-capture MVP.",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "outline",
+  "assignee": "outline",
+  "createdAt": "2026-06-29",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "06-25-memos-quick-capture",
+    "06-29-memos-capture-timeline-ux"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

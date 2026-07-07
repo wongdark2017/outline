@@ -13,6 +13,7 @@ import "./fileOperation";
 import "./import";
 import "./integration";
 import "./journalEntry";
+import "./memo";
 import "./notification";
 import "./oauthClient";
 import "./oauthAuthentication";

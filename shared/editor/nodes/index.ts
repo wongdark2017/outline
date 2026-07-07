@@ -31,6 +31,7 @@ import Image from "./Image";
 import ListItem from "./ListItem";
 import Math from "./Math";
 import MathBlock from "./MathBlock";
+import MemoTag from "./MemoTag";
 import Mention from "./Mention";
 import Notice from "./Notice";
 import OrderedList from "./OrderedList";
@@ -115,6 +116,7 @@ export const richExtensions: Nodes = [
   TemplatePlaceholder,
   Math,
   MathBlock,
+  MemoTag,
   Mention,
   ToggleBlock,
   // Container type nodes should be last so that key handlers are registered for content inside

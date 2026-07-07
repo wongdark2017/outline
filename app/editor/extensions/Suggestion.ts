@@ -44,6 +44,16 @@ export default class Suggestion<
   TOptions extends SuggestionOptions = SuggestionOptions,
 > extends Extension<TOptions> {
   /**
+   * Converts a regex match into the string query used by suggestion menus.
+   *
+   * @param match the regex match for the trigger expression.
+   * @returns the captured query or an empty string if only the trigger matched.
+   */
+  protected getQuery(match: RegExpMatchArray | RegExpExecArray | null) {
+    return match?.[1] ?? "";
+  }
+
+  /**
    * 构造函数
    *
    * 初始化建议扩展，构建用于匹配触发字符和搜索词的正则表达式。
@@ -140,7 +150,7 @@ export default class Suggestion<
             this.state.open = true;
           }
           // 更新搜索查询词（正则表达式的第一个捕获组）
-          this.state.query = match[1];
+          this.state.query = this.getQuery(match);
         }
         // 返回 null 表示不修改文档内容
         return null;

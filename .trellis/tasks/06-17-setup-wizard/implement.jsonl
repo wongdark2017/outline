@@ -1,0 +1,13 @@
+{"file": ".trellis/tasks/06-17-setup-wizard/prd.md", "reason": "Requirements and acceptance criteria for the setup wizard feature"}
+{"file": ".trellis/tasks/06-17-setup-wizard/design.md", "reason": "Technical design: data model, API contracts, frontend architecture, startup overlay"}
+{"file": ".trellis/tasks/06-17-setup-wizard/implement.md", "reason": "Ordered implementation checklist with phases A-D and validation commands"}
+{"file": "server/models/User.ts", "reason": "Must add isSystemAdmin column to this model"}
+{"file": "server/models/base/IdModel.ts", "reason": "Base model that SystemSetting will extend"}
+{"file": "server/routes/api/installation/installation.ts", "reason": "Existing installation.create route — add installation.setup and installation.testStorage here"}
+{"file": "server/routes/api/installation/index.ts", "reason": "Route registration — register new routes here"}
+{"file": "server/utils/startup.ts", "reason": "Must add SystemSetting env overlay during startup sequence"}
+{"file": "server/env.ts", "reason": "Environment class — understand which keys map to config, do NOT modify this file"}
+{"file": "app/scenes/Login/Login.tsx", "reason": "Entry point for first-run detection — swap WorkspaceSetup with SetupWizard"}
+{"file": "app/scenes/Login/components/WorkspaceSetup.tsx", "reason": "Existing first-run component — reference for patterns and styling"}
+{"file": "server/models/index.ts", "reason": "Model registry — register SystemSetting here"}
+{"file": "server/storage/files/index.ts", "reason": "Storage selection logic — understand S3 client instantiation patterns for testStorage"}

@@ -1,5 +1,6 @@
 import { buildShare, buildDocument } from "@server/test/factories";
 import { getTestServer } from "@server/test/support";
+import { vi } from "vitest";
 
 const server = getTestServer();
 
@@ -194,5 +195,44 @@ describe("scanner path 404s", () => {
     expect(res.status).toEqual(200);
     const body = await res.json();
     expect(body.issuer).toBeDefined();
+  });
+});
+
+describe("development app shell assets", () => {
+  it("serves same-origin Vite entrypoints in the app shell", async () => {
+    const res = await server.get("/memos");
+    const body = await res.text();
+
+    expect(res.status).toEqual(200);
+    expect(body).toContain('src="/static/@vite/client"');
+    expect(body).toContain('src="/static/app/index.tsx"');
+    expect(body).not.toContain("http://localhost:3001");
+  });
+
+  it("proxies Vite asset requests through the app origin", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response('console.log("vite proxy");', {
+          status: 200,
+          headers: {
+            "content-type": "text/javascript",
+            "cache-control": "no-cache",
+          },
+        })
+      );
+
+    const res = await server.get("/static/@vite/client?direct=1");
+    const body = await res.text();
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy.mock.calls[0][0].toString()).toBe(
+      "http://localhost:3001/static/@vite/client?direct=1"
+    );
+    expect(res.status).toEqual(200);
+    expect(res.headers.get("content-type")).toContain("text/javascript");
+    expect(body).toContain('console.log("vite proxy");');
+
+    fetchSpy.mockRestore();
   });
 });
