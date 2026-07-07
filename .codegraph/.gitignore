@@ -12,6 +12,7 @@ cache/
 # Logs
 *.log
 *.pid
+*.lock
 
 # Hook markers
 .dirty
