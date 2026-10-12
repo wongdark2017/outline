@@ -25,6 +25,7 @@ import { ValidationError } from "@server/errors";
 import FileStorage from "@server/storage/files";
 import { ValidateKey } from "@server/validation";
 import Document from "./Document";
+import Memo from "./Memo";
 import Team from "./Team";
 import User from "./User";
 import IdModel from "./base/IdModel";
@@ -257,6 +258,13 @@ class Attachment extends IdModel<
   @ForeignKey(() => Document)
   @Column(DataType.UUID)
   documentId: string | null;
+
+  @BelongsTo(() => Memo, "memoId")
+  memo: Memo | null;
+
+  @ForeignKey(() => Memo)
+  @Column(DataType.UUID)
+  memoId: string | null;
 
   @BelongsTo(() => User, "userId")
   user: User;

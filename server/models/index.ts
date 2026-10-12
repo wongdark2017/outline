@@ -40,6 +40,8 @@ export { default as IntegrationAuthentication } from "./IntegrationAuthenticatio
 
 export { default as JournalEntry } from "./JournalEntry";
 
+export { default as Memo } from "./Memo";
+
 export { default as Notification } from "./Notification";
 
 export { default as OAuthAuthentication } from "./oauth/OAuthAuthentication";

@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import path from "node:path";
+import { Readable } from "node:stream";
 import { formatRFC7231 } from "date-fns";
 import Koa from "koa";
 import Router from "koa-router";
@@ -23,6 +24,7 @@ import errors from "./errors";
 
 const koa = new Koa();
 const router = new Router();
+const viteHost = env.URL.replace(`:${env.PORT}`, ":3001");
 
 // serve public assets
 router.use(["/images/*", "/email/*", "/fonts/*"], async (ctx, next) => {
@@ -59,37 +61,52 @@ router.use(
   }
 );
 
-if (env.isProduction) {
-  router.get("/static/*", async (ctx) => {
-    try {
-      const pathname = ctx.path.substring(8);
-      if (!pathname) {
-        throw NotFoundError();
-      }
+router.get("/static/*", async (ctx) => {
+  if (!env.isProduction) {
+    const response = await fetch(`${viteHost}${ctx.path}${ctx.request.URL.search}`);
 
-      await send(ctx, pathname, {
-        root: path.join(__dirname, "../../app/"),
-        // Hashed static assets get 1 year expiry plus immutable flag
-        maxAge: Day.ms * 365,
-        immutable: true,
-        setHeaders: (res) => {
-          res.setHeader("Service-Worker-Allowed", "/");
-          res.setHeader("Access-Control-Allow-Origin", "*");
-        },
-      });
-    } catch (err) {
-      if (err.status === 404) {
-        // Serve a bad request instead of not found if the file doesn't exist
-        // This prevents CDN's from caching the response, allowing them to continue
-        // serving old file versions
-        ctx.status = 400;
-        return;
-      }
+    ctx.status = response.status;
 
-      throw err;
+    response.headers.forEach((value, key) => {
+      ctx.set(key, value);
+    });
+
+    if (!response.body) {
+      return;
     }
-  });
-}
+
+    ctx.body = Readable.fromWeb(response.body as globalThis.ReadableStream);
+    return;
+  }
+
+  try {
+    const pathname = ctx.path.substring(8);
+    if (!pathname) {
+      throw NotFoundError();
+    }
+
+    await send(ctx, pathname, {
+      root: path.join(__dirname, "../../app/"),
+      // Hashed static assets get 1 year expiry plus immutable flag
+      maxAge: Day.ms * 365,
+      immutable: true,
+      setHeaders: (res) => {
+        res.setHeader("Service-Worker-Allowed", "/");
+        res.setHeader("Access-Control-Allow-Origin", "*");
+      },
+    });
+  } catch (err) {
+    if (err.status === 404) {
+      // Serve a bad request instead of not found if the file doesn't exist
+      // This prevents CDN's from caching the response, allowing them to continue
+      // serving old file versions
+      ctx.status = 400;
+      return;
+    }
+
+    throw err;
+  }
+});
 
 router.get("/locales/:lng.json", async (ctx) => {
   const { lng } = ctx.params;

@@ -258,6 +258,16 @@ export default abstract class BaseStorage {
 
   public abstract getFileExists(key: string): Promise<boolean>;
 
+  /**
+   * Returns metadata for a file from the storage provider.
+   *
+   * @param key The path to the file
+   * @returns Metadata including the file size in bytes
+   */
+  public abstract stat(key: string): Promise<{
+    size: number;
+  }>;
+
   public abstract moveFile(fromKey: string, toKey: string): Promise<void>;
 
   /**

@@ -42,6 +42,10 @@ class FileStorage extends BaseStorage {
     return currentStorage.getFileExists(...args);
   }
 
+  public stat(...args: Parameters<BaseStorage["stat"]>) {
+    return currentStorage.stat(...args);
+  }
+
   public moveFile(...args: Parameters<BaseStorage["moveFile"]>) {
     return currentStorage.moveFile(...args);
   }
