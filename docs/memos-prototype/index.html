@@ -441,6 +441,7 @@ const S = {
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const byId = (id) => memos.find((m) => m.id === id);
 const comments = (id) => memos.filter((m) => m.parentId === id).sort((a, b) => a.created - b.created);
 const dayKey = (d) => d.toISOString().slice(0, 10);
@@ -1273,7 +1274,7 @@ document.addEventListener('click', (e) => {
       const t = el.dataset.tag;
       const n = prompt(`Rename #${t} in all of your memos to:`, t);
       if (n && n !== t) {
-        const re = new RegExp(`(^|\\s)#${t.replace(/[/-]/g, '\\$&')}(?=[\\s/]|$)`, 'gi');
+        const re = new RegExp(`(^|\\s)#${escapeRegExp(t)}(?=[\\s/]|$)`, 'gi');
         memos.forEach((m) => { if (m.creator === ME) m.text = m.text.replace(re, `$1#${n}`); });
         if (S.filters.tag === t) S.filters.tag = n;
         render(); toast(`${I.check} Renamed #${esc(t)} to #${esc(n)}`);
@@ -1283,7 +1284,7 @@ document.addEventListener('click', (e) => {
     case 'tag-delete': {
       closeFloat();
       const t = el.dataset.tag;
-      const re = new RegExp(`(^|\\s)#${t.replace(/[/-]/g, '\\$&')}(?=\\s|$)`, 'gi');
+      const re = new RegExp(`(^|\\s)#${escapeRegExp(t)}(?=\\s|$)`, 'gi');
       memos.forEach((m) => { if (m.creator === ME) m.text = m.text.replace(re, '$1').trim(); });
       if (S.filters.tag === t) S.filters.tag = null;
       render(); toast(`Removed #${esc(t)} from your memos`);
