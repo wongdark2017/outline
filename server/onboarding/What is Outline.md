@@ -1,19 +1,19 @@
-Outline is a place to build your team knowledge base, you could think of it like your team’s shared library – a place for important documentation, notes, and ideas to live and be discovered. Some things you might want to keep in Outline include:
+Outline 是一个用来搭建团队知识库的地方——你可以把它理解为团队的共享图书馆：重要的文档、笔记和想法都汇聚在这里，并能被轻松找到。你可能想在 Outline 中沉淀的内容包括：
 
 \
 
-- Documentation
-- Support knowledge base
-- Product plans and RFCs
-- Sales playbooks
-- Onboarding checklists
-- Company policies
-- Meeting notes
+- 文档
+- 客服支持知识库
+- 产品计划和 RFC
+- 销售手册（Sales playbooks）
+- 入职引导清单
+- 公司制度
+- 会议记录
 
-## Structure
+## 结构
 
-Outline allows you to organize documents in "collections", for example these could represent topics like Sales, Product, or HR. You can assign users or groups access to collections. Within collections documents can be interlinked and deeply nested to easily build relationships within your knowledge base.
+Outline 允许你用"集合（collection）"来组织文档——例如集合可以对应 Sales、Product、HR 等主题。你可以为集合分配用户或用户组的访问权限。在集合内部，文档可以相互链接、深度嵌套，从而轻松在知识库中建立关联。
 
-## Search
+## 搜索
 
-Outline is built from the ground up to be really fast, and that includes [search](/search). You can start searching from anywhere with the `CMD+K` shortcut – then filter by time, author, and more to find the information you need. Or you can search from within Slack with the `/outline` slash command.
+Outline 从底层设计就以速度为目标，[搜索](/search)也不例外。你可以在任何地方通过 `CMD+K` 快捷键唤起搜索，然后按时间、作者等条件过滤，找到你需要的信息。也可以在 Slack 中通过 `/outline` 斜杠命令直接搜索。
