@@ -1,17 +1,17 @@
-Some ideas to get you and your team started with learning the basics of Outline, feel free to check them off as you go!
+下面这些点子可以帮助你和你的团队快速掌握 Outline 的基础用法，可以一边做一边勾选！
 
-## Learn the basics
+## 学习基础
 
-- [x] Create an Outline account
-- [ ] **Create a collection** from the left sidebar
-- [ ] **Create a new doc** from the top right of home or any collection
-- [ ] Try drag and drop to nest and move documents
-- [ ] Share a document
-- [ ] Invite a co-worker 👋
+- [x] 创建 Outline 账号
+- [ ] 从左侧边栏**创建一个集合**
+- [ ] 从首页或任意集合的右上角**新建一篇文档**
+- [ ] 试试拖拽来嵌套和移动文档
+- [ ] 分享一篇文档
+- [ ] 邀请一位同事 👋
 
-## More to try
+## 更多可以尝试的事
 
-- [ ] Setup the [Slack integration](/settings/integrations/slack)
-- [ ] **Create a template** to share a writing structure with your team
-- [ ] Create a check list to track tasks
-- [ ] Try embedding a supported [integration](https://www.getoutline.com/integrations)
+- [ ] 配置 [Slack 集成](/settings/integrations/slack)
+- [ ] **创建一个模板**，与团队分享一套写作结构
+- [ ] 创建一个清单来追踪任务
+- [ ] 试试嵌入一个受支持的[集成](https://www.getoutline.com/integrations)

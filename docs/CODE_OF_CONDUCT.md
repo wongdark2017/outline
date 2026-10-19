@@ -1,46 +1,46 @@
-# Contributor Covenant Code of Conduct
+# 贡献者契约行为准则
 
-## Our Pledge
+## 我们的承诺
 
-In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to making participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
+为了营造一个开放、友好的环境，作为贡献者和维护者，我们承诺让每位参与本项目及社区的人都能获得不受骚扰的体验——无论其年龄、体型、残疾情况、民族、性别认同与表达、经验水平、国籍、个人外貌、种族、宗教信仰，或性认同与性取向如何。
 
-## Our Standards
+## 我们的标准
 
-Examples of behavior that contributes to creating a positive environment include:
+有助于营造积极环境的行为包括：
 
-- Using welcoming and inclusive language
-- Being respectful of differing viewpoints and experiences
-- Gracefully accepting constructive criticism
-- Focusing on what is best for the community
-- Showing empathy towards other community members
+- 使用友好、包容的语言
+- 尊重不同的观点和经历
+- 优雅地接受建设性的批评
+- 关注对社区最有利的事情
+- 对其他社区成员表现出同理心
 
-Examples of unacceptable behavior by participants include:
+不可接受的行为包括：
 
-- The use of sexualized language or imagery and unwelcome sexual attention or advances
-- Trolling, insulting/derogatory comments, and personal or political attacks
-- Public or private harassment
-- Publishing others' private information, such as a physical or electronic address, without explicit permission
-- Other conduct which could reasonably be considered inappropriate in a professional setting
+- 使用带性暗示的语言或图像，以及不受欢迎的性关注或示好
+- 挑衅、侮辱/贬损性评论，以及人身攻击或政治攻击
+- 公开或私下骚扰
+- 未经明确许可，公开他人的私人信息（例如物理地址或电子地址）
+- 其他在专业场景下可被合理认定为不当的行为
 
-## Our Responsibilities
+## 我们的责任
 
-Project maintainers are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
+项目维护者负责澄清可接受行为的标准，并应针对任何不可接受的行为采取适当且公平的纠正措施。
 
-Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.
+项目维护者有权利也有责任删除、编辑或拒绝与本行为准则不符的评论、提交、代码、Wiki 编辑、issue 及其他贡献；也可以因其他他们认为不当、威胁、冒犯或有害的行为，临时或永久封禁任何贡献者。
 
-## Scope
+## 适用范围
 
-This Code of Conduct applies both within project spaces and in public spaces when an individual is representing the project or its community. Examples of representing a project or community include using an official project e-mail address, posting via an official social media account, or acting as an appointed representative at an online or offline event. Representation of a project may be further defined and clarified by project maintainers.
+本行为准则既适用于项目空间内，也适用于个人在公共场合代表项目或其社区时。代表项目或社区的例子包括：使用官方项目邮箱、通过官方社交媒体账号发帖，或在在线/线下活动中担任指定代表。项目维护者可以进一步明确和澄清"代表项目"的具体含义。
 
-## Enforcement
+## 执行
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team at hello@getoutline.com. The project team will review and investigate all complaints, and will respond in a way that it deems appropriate to the circumstances. The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
+如遇辱骂、骚扰或其他不可接受的行为，可通过 hello@getoutline.com 联系项目团队进行举报。项目团队会审查并调查所有投诉，并以其认为适合具体情况的方式作出回应。项目团队有义务对事件举报人的身份保密。具体执行政策的更多细节可能会另行发布。
 
-Project maintainers who do not follow or enforce the Code of Conduct in good faith may face temporary or permanent repercussions as determined by other members of the project's leadership.
+不善意遵守或执行本行为准则的项目维护者，可能面临由项目领导层其他成员决定的临时或永久性处理。
 
-## Attribution
+## 致谢
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage], version 1.4, available at [http://contributor-covenant.org/version/1/4][version]
+本行为准则改编自 [Contributor Covenant][homepage] 1.4 版本，原文可见于 [http://contributor-covenant.org/version/1/4][version]
 
 [homepage]: http://contributor-covenant.org
 [version]: http://contributor-covenant.org/version/1/4/

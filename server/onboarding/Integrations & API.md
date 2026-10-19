@@ -1,30 +1,30 @@
-## Integrations
+## 集成
 
-Outline supports many of the most popular tools on the market without any additional settings or configuration. Just paste links to a YouTube video, Figma file, or Google Spreadsheet to get instant live-embeds in your documents. Take a look at the [integrations directory](https://www.getoutline.com/integrations) for a list of all of the tools that are supported.
+Outline 原生支持市面上许多最流行的工具，无需任何额外设置或配置。只要粘贴一个 YouTube 视频、Figma 文件或 Google 表格的链接，就能在文档中得到即时活嵌（live-embed）。完整的支持列表请查看[集成目录](https://www.getoutline.com/integrations)。
 
 \
-Our integration code is also [open-source](https://github.com/outline/outline) and we encourage third party developers and the community to build support for additional tools!
+我们的集成代码也是[开源](https://github.com/outline/outline)的，我们鼓励第三方开发者和社区为更多工具构建支持！
 
 \
 
 :::info
-Most integrations work by simply pasting a link from a supported service into a document.
+大多数集成只需把来自受支持服务的链接粘贴到文档里即可工作。
 :::
 
 ## Slack
 
-If your team is using Slack to communicate then you’ll definitely want to enable our [Slack Integration](/settings/integrations/slack) to get instant link unfurling for Outline documents and access to the `/outline` slash command to search your knowledge base directly from Slack.
+如果你的团队正在使用 Slack 沟通，那你一定会想启用我们的 [Slack 集成](/settings/integrations/slack)——它能为 Outline 文档提供即时的链接展开（link unfurling），并支持 `/outline` 斜杠命令，让你直接在 Slack 中搜索知识库。
 
 ## API
 
-Have some technical skills? Outline is built on a fully featured RPC-style [API](https://www.getoutline.com/developers). Create (or even append to) documents, collections, provision users, and more programmatically. All documents are edited and stored in markdown format – try out this example CURL request to get started:
+具备一些技术能力？Outline 构建在一个功能完备的 RPC 风格 [API](https://www.getoutline.com/developers) 之上。你可以通过编程方式创建（甚至追加内容到）文档、集合、开通用户等等。所有文档都以 Markdown 格式编辑和存储——试试下面这个 CURL 示例开始上手：
 
 ```bash
 curl -XPOST -H "Content-type: application/json" -d '{
   "title": "My first document",
   "text": "Hello from the API 👋",
-  "collectionId": "COLLECTION_ID", // find the collection id in the URL bar
-  "token": "API_TOKEN", // get an API token from https://www.getoutline.com/settings/tokens
+  "collectionId": "COLLECTION_ID", // 在浏览器地址栏 URL 中找到 collection id
+  "token": "API_TOKEN", // 在 https://www.getoutline.com/settings/tokens 获取 API token
   "publish": true
 }' 'https://www.getoutline.com/api/documents.create'
 ```
