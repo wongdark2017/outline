@@ -337,6 +337,16 @@ export function useDocumentSave({
     prevReadOnlyRef.current = readOnly;
   }, [readOnly, updateIsDirty]);
 
+  // StrictMode unmounts and immediately remounts every component once in
+  // development, so the unmount handler below checks this before acting.
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Auto-delete/auto-save on unmount + debounce cleanup
   useEffect(
     () => () => {
@@ -344,25 +354,31 @@ export function useDocumentSave({
       const currentDoc = editorRef.current?.view.state.doc;
       const isEditorEmpty =
         !currentDoc || ProsemirrorHelper.isEmpty(currentDoc);
+      const shouldDelete = shouldAutoDeleteDraftOnUnmount({
+        isEditorEmpty,
+        title: titleRef.current,
+        createdById: document.createdBy?.id,
+        currentUserId: auth.user?.id,
+        isDraft: document.isDraft,
+        isActive: document.isActive,
+        hasEmptyTitle: document.hasEmptyTitle,
+        isPersistedOnce: document.isPersistedOnce,
+      });
 
-      if (
-        shouldAutoDeleteDraftOnUnmount({
-          isEditorEmpty,
-          title: titleRef.current,
-          createdById: document.createdBy?.id,
-          currentUserId: auth.user?.id,
-          isDraft: document.isDraft,
-          isActive: document.isActive,
-          hasEmptyTitle: document.hasEmptyTitle,
-          isPersistedOnce: document.isPersistedOnce,
-        })
-      ) {
-        void document.delete();
-      } else if (document.isDirty()) {
-        void document.save(undefined, {
-          autosave: true,
-        });
-      }
+      // Wait a tick: after a simulated unmount the component is mounted again
+      // by then, and a new empty draft must not be trashed.
+      setTimeout(() => {
+        if (isMountedRef.current) {
+          return;
+        }
+        if (shouldDelete) {
+          void document.delete();
+        } else if (document.isDirty()) {
+          void document.save(undefined, {
+            autosave: true,
+          });
+        }
+      }, 0);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []

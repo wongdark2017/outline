@@ -1,0 +1,1396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Outline · Memos (native) — UI prototype</title>
+<style>
+  :root {
+    --almost-black: #111319;
+    --slate: #66778f;
+    --slate-light: #dae1e9;
+    --slate-dark: #394351;
+    --smoke: #f4f7fa;
+    --smoke-dark: #e8ebed;
+    --accent: #0366d6;
+    --danger: #ed2651;
+    --warm-grey: hsl(212 31% 95%);
+    --sidebar: hsl(212 31% 95%);
+    --radius: 6px;
+    --font: -apple-system, BlinkMacSystemFont, Inter, "Segoe UI", Roboto, Oxygen, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { font-family: var(--font); color: var(--almost-black); font-size: 15px; background: #fff; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent); text-decoration: none; cursor: pointer; }
+  button { font: inherit; }
+  .app { display: flex; height: 100vh; }
+
+  /* ---------- Outline sidebar ---------- */
+  aside.sb { width: 260px; flex-shrink: 0; background: var(--sidebar); padding: 12px 8px; overflow-y: auto; font-size: 14px; display: flex; flex-direction: column; }
+  .team { display: flex; align-items: center; gap: 8px; padding: 6px 8px 14px; font-weight: 600; position: relative; }
+  .team-logo { width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+  .team .bell { margin-left: auto; position: relative; border: 0; background: none; cursor: pointer; color: var(--slate); padding: 3px; border-radius: 4px; display: grid; }
+  .team .bell:hover { background: rgba(0,0,0,.06); }
+  .team .bell svg { width: 20px; height: 20px; }
+  .team .bell .dot { position: absolute; top: 2px; right: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); border: 2px solid var(--sidebar); }
+  .nav-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 4px; color: var(--slate-dark); cursor: pointer; user-select: none; }
+  .nav-item:hover { background: rgba(0,0,0,.05); }
+  .nav-item.active { background: rgba(0,0,0,.07); color: var(--almost-black); font-weight: 500; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; color: var(--slate); }
+  .nav-item .count { margin-left: auto; font-size: 12px; color: var(--slate); }
+  .nav-item .kb { margin-left: auto; font-size: 11px; color: var(--slate); font-family: var(--mono); }
+  .nav-header { font-size: 12px; color: var(--slate); font-weight: 600; padding: 16px 8px 4px; letter-spacing: .02em; }
+  .nav-new { margin-left: auto; font-size: 10px; background: var(--accent); color: #fff; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+
+  /* ---------- Main ---------- */
+  main { flex: 1; overflow-y: auto; position: relative; }
+  .titlebar { height: 56px; display: flex; align-items: center; gap: 8px; padding: 0 20px; position: sticky; top: 0; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); z-index: 20; font-size: 14px; color: var(--slate); }
+  .titlebar b { color: var(--almost-black); font-weight: 500; }
+  .titlebar .spacer { flex: 1; }
+  h1 { font-size: 30px; font-weight: 600; margin: 4px 0 4px; }
+  .muted { color: var(--slate); }
+  .small { font-size: 13px; }
+
+  .tabs { display: flex; gap: 22px; border-bottom: 1px solid var(--slate-light); margin: 10px 0 20px; }
+  .tab { padding: 8px 0 10px; font-size: 14px; font-weight: 500; color: var(--slate); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; display: flex; gap: 6px; align-items: center; }
+  .tab:hover { color: var(--almost-black); }
+  .tab.active { color: var(--almost-black); border-color: var(--almost-black); }
+  .tab .n { font-size: 12px; color: var(--slate); font-weight: 400; }
+
+  .memos-wrap { display: flex; gap: 40px; max-width: 1060px; margin: 0 auto; padding: 8px 32px 140px; }
+  .memos-col { flex: 1; min-width: 0; max-width: 680px; }
+  .memos-side { width: 260px; flex-shrink: 0; position: sticky; top: 72px; align-self: flex-start; max-height: calc(100vh - 90px); overflow-y: auto; padding-bottom: 20px; }
+  .narrow { max-width: 46em; margin: 0 auto; padding: 24px 32px 120px; }
+
+  /* ---------- Buttons & inputs ---------- */
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: var(--radius); border: 0; background: var(--accent); color: #fff; font-weight: 500; font-size: 14px; cursor: pointer; white-space: nowrap; }
+  .btn:hover { filter: brightness(1.08); }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; filter: none; }
+  .btn.neutral { background: #fff; color: var(--almost-black); box-shadow: inset 0 0 0 1px var(--slate-light); }
+  .btn.neutral:hover { background: var(--smoke); filter: none; }
+  .btn.danger { background: var(--danger); }
+  .btn.ghost { background: transparent; color: var(--slate-dark); box-shadow: none; padding: 0 8px; }
+  .btn.ghost:hover { background: rgba(0,0,0,.05); filter: none; }
+  .btn.small { height: 26px; padding: 0 8px; font-size: 13px; }
+  .btn svg { width: 16px; height: 16px; }
+  .icon-btn { border: 0; background: none; cursor: pointer; color: var(--slate); width: 28px; height: 28px; border-radius: 5px; display: inline-grid; place-items: center; position: relative; }
+  .icon-btn:hover { background: rgba(0,0,0,.06); color: var(--almost-black); }
+  .icon-btn.on { color: var(--accent); background: rgba(3,102,214,.08); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .input { width: 100%; height: 34px; padding: 0 10px; border-radius: var(--radius); border: 1px solid var(--slate-light); font: inherit; font-size: 14px; color: var(--almost-black); background: #fff; outline: none; }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(3,102,214,.15); }
+  select.input { appearance: auto; }
+  .seg { display: inline-flex; border: 1px solid var(--slate-light); border-radius: var(--radius); overflow: hidden; }
+  .seg button { border: 0; background: #fff; height: 28px; width: 32px; cursor: pointer; color: var(--slate); display: grid; place-items: center; }
+  .seg button + button { border-left: 1px solid var(--slate-light); }
+  .seg button.on { background: var(--smoke-dark); color: var(--almost-black); }
+  .seg svg { width: 16px; height: 16px; }
+
+  .switch { width: 34px; height: 20px; background: var(--slate-light); border-radius: 12px; position: relative; cursor: pointer; border: 0; padding: 0; flex-shrink: 0; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .switch.on { background: var(--accent); }
+  .switch.on::after { transform: translateX(14px); }
+
+  /* ---------- Composer ---------- */
+  .composer { border: 1px solid var(--slate-light); border-radius: 10px; background: #fff; padding: 12px 14px 8px; transition: border-color .15s, box-shadow .15s; position: relative; }
+  .composer:focus-within { border-color: #9fc3ef; box-shadow: 0 0 0 3px rgba(3,102,214,.08); }
+  .composer textarea { width: 100%; border: 0; outline: none; resize: none; font: inherit; font-size: 15px; line-height: 1.6; min-height: 48px; color: var(--almost-black); background: transparent; }
+  .composer textarea::placeholder { color: #9aa7b8; }
+  .composer .att-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; }
+  .att-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; background: var(--smoke); border: 1px solid var(--slate-light); border-radius: 6px; padding: 3px 8px; color: var(--slate-dark); }
+  .att-pill button { border: 0; background: none; cursor: pointer; color: var(--slate); padding: 0; }
+  .composer .bar { display: flex; align-items: center; gap: 2px; border-top: 1px solid var(--smoke-dark); padding-top: 8px; margin-top: 4px; }
+  .composer .bar .spacer { flex: 1; }
+  .composer .hint { font-size: 12px; color: var(--slate); margin-right: 8px; }
+  .vis-select { border: 0; background: none; font: inherit; font-size: 13px; color: var(--slate-dark); cursor: pointer; padding: 4px 6px; border-radius: 5px; }
+  .vis-select:hover { background: var(--smoke); }
+  .suggest { position: absolute; z-index: 40; background: #fff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.14); padding: 4px; min-width: 180px; font-size: 14px; }
+  .suggest .si { padding: 5px 10px; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+  .suggest .si.sel, .suggest .si:hover { background: var(--warm-grey); }
+  .suggest .si .c { color: var(--slate); font-size: 12px; }
+
+  /* ---------- Filter bar ---------- */
+  .filterbar { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px; flex-wrap: wrap; min-height: 28px; }
+  .fchip { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 6px 0 10px; border-radius: 13px; background: #e6f0fc; color: var(--accent); font-size: 13px; font-weight: 500; }
+  .fchip button { border: 0; background: none; cursor: pointer; color: var(--accent); font-size: 15px; line-height: 1; padding: 0 2px; }
+  .filterbar .spacer { flex: 1; }
+
+  /* ---------- Memo card ---------- */
+  .list.masonry { columns: 2; column-gap: 14px; }
+  .list.masonry .memo { break-inside: avoid; }
+  .memo { border: 1px solid var(--slate-light); border-radius: 10px; padding: 12px 16px 12px; margin-bottom: 12px; background: #fff; position: relative; transition: border-color .15s, box-shadow .15s; }
+  .memo:hover { border-color: #c9d3de; }
+  .memo.pinned { border-color: #f3dc9a; background: #fffdf5; }
+  .memo.flash { animation: flash 1.2s ease-out; }
+  @keyframes flash { from { box-shadow: 0 0 0 3px rgba(3,102,214,.35); } to { box-shadow: 0 0 0 3px rgba(3,102,214,0); } }
+  .memo .mh { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--slate); min-height: 28px; }
+  .memo .mh .time { cursor: pointer; }
+  .memo .mh .time:hover { color: var(--almost-black); text-decoration: underline; }
+  .memo .mh .author { display: flex; align-items: center; gap: 6px; color: var(--almost-black); font-weight: 500; cursor: pointer; }
+  .memo .mh .author:hover { text-decoration: underline; }
+  .memo .mh .spacer { flex: 1; }
+  .memo .mh > * { white-space: nowrap; flex-shrink: 0; }
+  .memo .mh .loc { overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
+  .list.masonry .memo .mh .loc { display: none; }
+  .list.masonry .memo .mh .acts { display: none; }
+  .memo .mh .author { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .memo .mh .acts { display: flex; gap: 0; opacity: .0; transition: opacity .1s; }
+  .memo:hover .mh .acts, .memo .mh .acts.keep { opacity: 1; }
+  .memo .mh .pin { color: #c58b00; display: inline-flex; }
+  .memo .mh .pin svg { width: 14px; height: 14px; }
+  .memo .mh .ccount { display: inline-flex; align-items: center; gap: 3px; cursor: pointer; }
+  .memo .mh .ccount svg { width: 15px; height: 15px; }
+  .vis-ic { display: inline-flex; }
+  .vis-ic svg { width: 14px; height: 14px; }
+
+  .mc { font-size: 15px; line-height: 1.65; word-wrap: break-word; color: var(--almost-black); margin-top: 2px; }
+  .mc p { margin: 0 0 6px; }
+  .mc p:last-child { margin-bottom: 0; }
+  .mc ul { margin: 2px 0 8px; padding-left: 22px; }
+  .mc ul.tasks { list-style: none; padding-left: 2px; }
+  .mc ul.tasks li { display: flex; gap: 8px; align-items: flex-start; }
+  .mc ul.tasks input { margin: 6px 0 0; accent-color: var(--accent); cursor: pointer; }
+  .mc ul.tasks li.done span { color: var(--slate); text-decoration: line-through; }
+  .mc code { font-family: var(--mono); font-size: 13px; background: var(--smoke); border-radius: 4px; padding: 1px 5px; }
+  .mc pre { font-family: var(--mono); font-size: 13px; background: var(--smoke); border-radius: 6px; padding: 10px 12px; overflow-x: auto; margin: 4px 0 8px; line-height: 1.5; }
+  .mc blockquote { margin: 4px 0 8px; padding-left: 12px; border-left: 3px solid var(--slate-light); color: var(--slate-dark); }
+  .mc h3 { font-size: 16px; margin: 4px 0 4px; }
+  .mc .tag { color: var(--accent); cursor: pointer; }
+  .mc .tag:hover { text-decoration: underline; }
+  .mc .mention-u { background: #e6f0fc; color: var(--accent); border-radius: 4px; padding: 0 4px; font-weight: 500; }
+  .mc .doclink { display: inline-flex; align-items: center; gap: 4px; background: var(--smoke); border-radius: 4px; padding: 0 6px 0 4px; font-weight: 500; color: var(--almost-black); }
+  .mc .doclink svg { width: 15px; height: 15px; color: var(--slate); }
+  .mc.clamped { max-height: 220px; overflow: hidden; position: relative; }
+  .mc.clamped::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48px; background: linear-gradient(rgba(255,255,255,0), #fff); }
+  .memo.pinned .mc.clamped::after { background: linear-gradient(rgba(255,253,245,0), #fffdf5); }
+  .show-more { font-size: 13px; margin-top: 4px; display: inline-block; }
+
+  .atts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+  .atts .img { aspect-ratio: 4/3; border-radius: 6px; display: grid; place-items: center; font-size: 12px; color: #fff; font-weight: 500; cursor: zoom-in; position: relative; overflow: hidden; }
+  .atts .img span { background: rgba(0,0,0,.35); padding: 2px 6px; border-radius: 4px; }
+  .file-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  .rels { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .rel { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--slate-dark); background: var(--smoke); border-radius: 6px; padding: 5px 8px; cursor: pointer; }
+  .rel:hover { background: var(--smoke-dark); }
+  .rel svg { width: 14px; height: 14px; color: var(--slate); flex-shrink: 0; }
+  .rel .tx { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+  .reactions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .rx { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 8px; border-radius: 13px; border: 1px solid var(--slate-light); background: #fff; font-size: 13px; cursor: pointer; color: var(--slate-dark); }
+  .rx:hover { border-color: #b9c6d4; }
+  .rx.mine { background: #e6f0fc; border-color: #b5d2f5; color: var(--accent); }
+
+  .memo .edit-wrap { margin-top: 6px; }
+
+  .empty { text-align: center; color: var(--slate); padding: 48px 0; font-size: 14px; }
+  .empty .big { font-size: 34px; margin-bottom: 8px; }
+
+  /* ---------- Right panel ---------- */
+  .side-sec { margin-bottom: 22px; }
+  .side-sec .sh { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--slate); margin-bottom: 8px; letter-spacing: .02em; }
+  .side-sec .sh button { border: 0; background: none; color: var(--slate); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px; border-radius: 4px; }
+  .side-sec .sh button:hover { background: var(--smoke-dark); }
+  .search { position: relative; }
+  .search svg { position: absolute; left: 9px; top: 9px; width: 16px; height: 16px; color: var(--slate); }
+  .search input { padding-left: 32px; background: var(--smoke); border-color: transparent; }
+  .search input:focus { background: #fff; }
+  .heat { display: grid; grid-template-rows: repeat(7, 12px); grid-auto-flow: column; grid-auto-columns: 12px; gap: 3px; }
+  .heat .d { width: 12px; height: 12px; border-radius: 3px; background: var(--smoke-dark); cursor: pointer; }
+  .heat .d:hover { outline: 1px solid var(--slate); }
+  .heat .d.l1 { background: #c6dcf7; } .heat .d.l2 { background: #8bb8ec; } .heat .d.l3 { background: #3f8ae0; } .heat .d.l4 { background: #0353b0; }
+  .heat .d.today { outline: 1.5px solid var(--almost-black); }
+  .heat .d.sel { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .heat .d.future { background: transparent; cursor: default; }
+  .heat-legend { display: flex; justify-content: space-between; font-size: 11px; color: var(--slate); margin-top: 6px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .stat { background: var(--smoke); border-radius: 8px; padding: 8px 10px; }
+  .stat .v { font-weight: 600; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .stat .k { font-size: 11.5px; color: var(--slate); }
+  .props { display: flex; flex-wrap: wrap; gap: 6px; }
+  .prop { font-size: 12.5px; border: 1px solid var(--slate-light); border-radius: 13px; padding: 2px 10px; cursor: pointer; color: var(--slate-dark); background: #fff; }
+  .prop:hover { border-color: #b9c6d4; }
+  .prop.on { background: #e6f0fc; border-color: #b5d2f5; color: var(--accent); }
+  .side-item { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border-radius: 5px; cursor: pointer; font-size: 14px; color: var(--slate-dark); }
+  .side-item:hover { background: var(--smoke); }
+  .side-item.on { background: #e6f0fc; color: var(--accent); }
+  .side-item .c { margin-left: auto; font-size: 12px; color: var(--slate); }
+  .side-item .hash { color: var(--slate); width: 12px; text-align: center; }
+  .side-item .tw { width: 12px; color: var(--slate); font-size: 10px; text-align: center; }
+  .side-item .more { opacity: 0; border: 0; background: none; cursor: pointer; color: var(--slate); padding: 0 2px; }
+  .side-item:hover .more { opacity: 1; }
+
+  /* ---------- Detail ---------- */
+  .back { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; color: var(--slate); cursor: pointer; margin-bottom: 14px; }
+  .back:hover { color: var(--almost-black); }
+  .back svg { width: 16px; height: 16px; }
+  .section-h { font-size: 14px; font-weight: 600; margin: 26px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .section-h .n { color: var(--slate); font-weight: 400; }
+  .comment { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--smoke-dark); }
+  .comment .body { flex: 1; min-width: 0; }
+  .comment .who { font-size: 13px; color: var(--slate); margin-bottom: 2px; }
+  .comment .who b { color: var(--almost-black); font-weight: 500; }
+
+  /* ---------- Profile ---------- */
+  .profile-head { display: flex; align-items: center; gap: 16px; margin: 6px 0 4px; }
+  .profile-head .av { width: 64px; height: 64px; font-size: 26px; }
+
+  /* ---------- Attachments ---------- */
+  .att-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .att-tile { border: 1px solid var(--slate-light); border-radius: 8px; overflow: hidden; font-size: 12.5px; background: #fff; }
+  .att-tile .pv { aspect-ratio: 4/3; display: grid; place-items: center; color: #fff; font-size: 22px; }
+  .att-tile .nm { padding: 6px 8px 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .att-tile .mt { padding: 0 8px 8px; color: var(--slate); }
+  .month { font-size: 13px; font-weight: 600; color: var(--slate); margin: 22px 0 10px; }
+
+  /* ---------- Settings ---------- */
+  .row { display: flex; gap: 24px; padding: 18px 0; border-bottom: 1px solid var(--slate-light); align-items: center; }
+  .row .label { flex: 1; }
+  .row .label .t { font-weight: 500; font-size: 14px; }
+  .row .label .d { font-size: 13px; color: var(--slate); margin-top: 3px; line-height: 1.45; }
+  .row .control { width: 300px; display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+  h2 { font-size: 18px; font-weight: 600; margin: 32px 0 4px; }
+  .emoji-chip { font-size: 18px; border: 1px solid var(--slate-light); border-radius: 6px; width: 34px; height: 32px; display: inline-grid; place-items: center; background: #fff; cursor: pointer; position: relative; }
+  .emoji-chip:hover::after { content: "×"; position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--slate-dark); color: #fff; font-size: 12px; display: grid; place-items: center; line-height: 1; }
+
+  /* ---------- Menus / popovers ---------- */
+  .menu { position: absolute; background: #fff; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.14), 0 2px 6px rgba(0,0,0,.06); padding: 6px; min-width: 200px; z-index: 60; font-size: 14px; }
+  .menu .mi { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 5px; cursor: pointer; color: var(--almost-black); white-space: nowrap; }
+  .menu .mi:hover { background: var(--warm-grey); }
+  .menu .mi svg { width: 17px; height: 17px; color: var(--slate); }
+  .menu .mi .kb { margin-left: auto; font-size: 12px; color: var(--slate); padding-left: 16px; }
+  .menu .sep { height: 1px; background: var(--slate-light); margin: 6px 4px; }
+  .menu .mi.danger { color: var(--danger); }
+  .menu .mi.danger svg { color: var(--danger); }
+  .menu .mh2 { font-size: 11px; font-weight: 600; color: var(--slate); padding: 6px 10px 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .emoji-pop { display: flex; gap: 2px; padding: 4px; }
+  .emoji-pop button { border: 0; background: none; font-size: 20px; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; }
+  .emoji-pop button:hover { background: var(--warm-grey); }
+
+  .notif { width: 360px; padding: 0; }
+  .notif .nh { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px 8px; font-weight: 600; }
+  .notif .ni { display: flex; gap: 10px; padding: 10px 14px; cursor: pointer; border-top: 1px solid var(--smoke-dark); font-size: 13.5px; line-height: 1.45; }
+  .notif .ni:hover { background: var(--smoke); }
+  .notif .ni.unread { background: #f3f8fe; }
+  .notif .ni .t { color: var(--slate); font-size: 12px; margin-top: 2px; }
+  .notif .ni .q { color: var(--slate-dark); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 270px; }
+
+  .av { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .av.s18 { width: 18px; height: 18px; font-size: 10px; }
+  .av.s28 { width: 28px; height: 28px; font-size: 12px; }
+
+  /* modal */
+  .backdrop { position: fixed; inset: 0; background: rgba(17,19,25,.35); display: grid; place-items: center; z-index: 100; animation: fadein .12s; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(4px); } }
+  .modal { background: #fff; border-radius: 12px; width: 560px; max-width: calc(100vw - 32px); box-shadow: 0 20px 60px rgba(0,0,0,.25); max-height: calc(100vh - 64px); overflow: auto; }
+  .modal .mhd { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 6px; font-weight: 600; font-size: 17px; }
+  .modal .mb { padding: 8px 20px 4px; font-size: 14px; line-height: 1.55; color: var(--slate-dark); }
+  .modal .mf { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 20px 18px; }
+  .x { border: 0; background: none; cursor: pointer; color: var(--slate); font-size: 20px; line-height: 1; padding: 2px 6px; border-radius: 4px; }
+  .x:hover { background: rgba(0,0,0,.06); }
+  .pick-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--slate-light); border-radius: 8px; margin-top: 8px; }
+  .pick { display: flex; gap: 10px; padding: 8px 12px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--smoke-dark); align-items: center; }
+  .pick:last-child { border-bottom: 0; }
+  .pick:hover { background: var(--smoke); }
+  .pick .tx { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--almost-black); }
+  .pick .tm { font-size: 12px; color: var(--slate); }
+  .lightbox { background: #111; border-radius: 10px; width: 720px; aspect-ratio: 4/3; display: grid; place-items: center; color: #fff; font-size: 15px; }
+
+  /* toasts */
+  #toasts { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 200; align-items: center; }
+  .toast { background: var(--almost-black); color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.25); animation: fadein .15s; }
+  .toast a { color: #8ec5ff; font-weight: 500; }
+
+  /* Document stub */
+  .doc-title { font-size: 34px; font-weight: 600; margin: 16px 0 6px; }
+  .doc-meta { font-size: 13px; color: var(--slate); margin-bottom: 24px; }
+  .notice { border-radius: 8px; padding: 10px 14px; font-size: 14px; background: var(--smoke); border: 1px solid var(--slate-light); display: flex; gap: 10px; align-items: center; }
+
+  /* prototype panel */
+  #proto { position: fixed; left: 16px; bottom: 16px; width: 240px; background: #fff; border: 1px solid var(--slate-light); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.12); font-size: 13px; z-index: 150; overflow: hidden; }
+  #proto .ph { background: var(--almost-black); color: #fff; padding: 9px 12px; font-weight: 600; display: flex; justify-content: space-between; cursor: pointer; font-size: 12.5px; }
+  #proto .pb { padding: 6px; }
+  #proto.collapsed .pb { display: none; }
+  #proto .pn { padding: 5px 8px; border-radius: 5px; cursor: pointer; }
+  #proto .pn:hover { background: var(--smoke); }
+  #proto .pn.active { background: #e6f0fc; color: var(--accent); font-weight: 500; }
+  #proto .tip { color: var(--slate); font-size: 12px; padding: 6px 8px 4px; line-height: 1.45; border-top: 1px solid var(--smoke-dark); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sb" id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+<div id="proto"></div>
+<div id="toasts"></div>
+<div id="overlay"></div>
+<div id="float"></div>
+
+<script>
+/* =====================================================================
+   Outline · Memos (native module) — clickable UI prototype
+   Everything is simulated in memory; no backend.
+   ===================================================================== */
+
+const NOW = new Date('2026-10-19T15:00:00');
+const DAY = 86400000;
+
+const I = {
+  memo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5.5A1.5 1.5 0 0 1 6.5 4h11A1.5 1.5 0 0 1 19 5.5V15l-5 5H6.5A1.5 1.5 0 0 1 5 18.5z" stroke-linejoin="round"/><path d="M14 20v-3.5a1.5 1.5 0 0 1 1.5-1.5H19M9 9h6M9 12.5h4" stroke-linecap="round"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5" stroke-linecap="round"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" stroke-linejoin="round"/></svg>',
+  drafts: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h7l4 4v12H7z" stroke-linejoin="round"/><path d="M14 4v4h4"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" stroke-linecap="round"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z" stroke-linejoin="round"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+  collection: (c) => `<svg viewBox="0 0 24 24" fill="none"><path d="M5 5a2 2 0 0 1 2-2h11v15H7a2 2 0 0 0-2 2z" fill="${c}"/><path d="M5 20a2 2 0 0 1 2-2h11v3H7a2 2 0 0 1-2-1z" fill="${c}" opacity=".55"/></svg>`,
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h7l4 4v12H7z" stroke-linejoin="round"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m14 6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18" cy="12" r="1.6"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 3.5 20.5 9l-2 .5-3 3 .5 4.5-1.5 1.5-3.5-3.5L6 20l-1-1 5-5-3.5-3.5L8 9l4.5.5 3-3z"/></svg>',
+  pinO: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 3.5 20.5 9l-2 .5-3 3 .5 4.5-1.5 1.5-8-8L8 9l4.5.5 3-3zM9.5 14.5 5 19" stroke-linejoin="round" stroke-linecap="round"/></svg>',
+  edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19h4L19 9l-4-4L5 15z" stroke-linejoin="round"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" stroke-linecap="round"/></svg>',
+  archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="4" rx="1"/><path d="M5 9v10h14V9M10 13h4" stroke-linecap="round"/></svg>',
+  trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 3 2.5 14 0 17M12 3.5c-2.5 3-2.5 14 0 17"/></svg>',
+  comment: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h14v10H10l-5 4z" stroke-linejoin="round"/></svg>',
+  smile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14c1 1.5 2.2 2 3.5 2s2.5-.5 3.5-2" stroke-linecap="round"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="15" cy="10" r=".8" fill="currentColor"/></svg>',
+  hash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 4 7 20M17 4l-2 16M4.5 9h16M3.5 15h16" stroke-linecap="round"/></svg>',
+  clip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m19 11-7 7a4.5 4.5 0 0 1-6.4-6.4l7.5-7.5a3 3 0 0 1 4.2 4.2l-7.4 7.4a1.5 1.5 0 0 1-2.1-2.1L14.5 7" stroke-linecap="round"/></svg>',
+  task: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 8-4 4 4 4M15 8l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  rel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 7h7a4 4 0 0 1 0 8H9" stroke-linecap="round"/><path d="m11 12-3 3 3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  pinmap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6 7-11a7 7 0 0 0-14 0c0 5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 7h14M5 12h14M5 17h14" stroke-linecap="round"/></svg>',
+  grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="9" rx="1.5"/><rect x="13" y="4" width="7" height="6" rx="1.5"/><rect x="4" y="15" width="7" height="5" rx="1.5"/><rect x="13" y="12" width="7" height="8" rx="1.5"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>',
+  convert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h7l4 4v12H7z" stroke-linejoin="round"/><path d="M10 13h5m-2-2 2 2-2 2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  restore: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 1 0 2-5M5 4v3.5h3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="9" r="3.5"/><path d="M5 20c1.2-3.5 4-5 7-5s5.8 1.5 7 5" stroke-linecap="round"/></svg>',
+  team: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="3"/><circle cx="17" cy="10" r="2.5"/><path d="M3 19c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5M15 15c2.5-.3 4.5.8 5.5 3.5" stroke-linecap="round"/></svg>',
+  plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3v4m6-4v4M7 7h10v4a5 5 0 0 1-10 0zM12 16v5" stroke-linecap="round"/></svg>',
+  imp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16"><path d="m5 12 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h7l4 4v12H7z" stroke-linejoin="round"/><path d="M14 4v4h4"/></svg>',
+};
+
+const VIS = {
+  PRIVATE: { label: 'Private', hint: 'Only you', icon: I.lock },
+  TEAM: { label: 'Workspace', hint: 'Everyone in Acme Inc', icon: I.team },
+  PUBLIC: { label: 'Public', hint: 'Anyone with the link', icon: I.share },
+};
+
+const USERS = {
+  u1: { name: 'Alice Chen', handle: 'alice', color: '#e5508c', initial: 'A' },
+  u2: { name: 'Sam Rivera', handle: 'sam', color: '#2fa36b', initial: 'S' },
+  u3: { name: 'Priya Nair', handle: 'priya', color: '#8b5cf6', initial: 'P' },
+};
+const ME = 'u1';
+
+const ago = (d, h = 0, m = 0) => new Date(NOW - d * DAY - h * 3600000 - m * 60000);
+
+let seq = 100;
+const M = (o) => ({ id: 'm' + (++seq), reactions: {}, attachments: [], relations: [], pinned: false, archived: false, parentId: null, location: null, ...o });
+
+let memos = [
+  M({ id: 'm1', creator: 'u1', vis: 'TEAM', pinned: true, created: ago(2, 3), text: '### Weekly review template\nEvery Friday:\n- what shipped\n- what’s blocked\n- [ ] plan next week\n- [x] clear inbox\n\nRelated doc: [[Team rituals]]\n#review #weekly', reactions: { '👍': ['u2', 'u3'], '🎉': ['u2'] }, attachments: [{ name: 'whiteboard.png', type: 'img', color: '#5b8def' }] }),
+  M({ id: 'm2', creator: 'u1', vis: 'PRIVATE', created: ago(0, 1, 12), text: 'Idea: a #reading list that pulls in Kindle highlights automatically. Look at https://example.com/kindle-api first.' }),
+  M({ id: 'm3', creator: 'u1', vis: 'TEAM', created: ago(0, 5), text: 'Bug: export drops emoji in titles. Repro on staging with `🚀 Launch plan`. #bug #work/eng', attachments: [{ name: 'screenshot.png', type: 'img', color: '#e0795b' }, { name: 'export.log', type: 'file' }], relations: ['m5'] }),
+  M({ id: 'm4', creator: 'u2', vis: 'TEAM', created: ago(0, 3), text: 'Coffee chat with @alice: API docs needed by Friday. Owner TBD. #work/meetings', location: 'Blue Bottle, Market St' }),
+  M({ id: 'm5', creator: 'u1', vis: 'TEAM', created: ago(1, 2), text: '```\nyarn sequelize db:migrate\nyarn dev:watch\n```\nRun migrations before seeding, or the dev server crashes on boot. #dev #work/eng' }),
+  M({ id: 'm6', creator: 'u3', vis: 'PUBLIC', created: ago(1, 6), text: 'Shipped the new onboarding flow 🎉 Thanks everyone who tested it. #release', reactions: { '🎉': ['u1', 'u2'], '❤️': ['u2'] } }),
+  M({ id: 'm7', creator: 'u1', vis: 'PRIVATE', created: ago(3, 1), text: '- [ ] Book flights\n- [ ] Renew passport\n- [x] Pay rent\n#personal' }),
+  M({ id: 'm8', creator: 'u1', vis: 'PRIVATE', archived: true, created: ago(40), text: 'Old idea: dark mode for the print view. Probably not worth it. #ideas' }),
+  M({ id: 'm9', creator: 'u2', vis: 'TEAM', created: ago(4, 2), text: 'Retro format: start / stop / continue, 30 minutes max. #review', relations: ['m1'] }),
+  M({ id: 'm10', creator: 'u1', vis: 'TEAM', created: ago(6, 4), text: '> Make it work, make it right, make it fast.\nPinning this above my desk. #quotes' }),
+  M({ id: 'm11', creator: 'u1', vis: 'PRIVATE', created: ago(9), text: 'Reading: *A Philosophy of Software Design*, chapter 4 on deep modules. #reading #books' }),
+  M({ id: 'm12', creator: 'u1', vis: 'PRIVATE', archived: true, created: ago(55), text: 'Try the standing desk for a week. #personal' }),
+  // comments
+  M({ id: 'c1', creator: 'u2', vis: 'TEAM', parentId: 'm1', created: ago(1, 20), text: 'Love this. Let’s use it for the team retro too.' }),
+  M({ id: 'c2', creator: 'u3', vis: 'TEAM', parentId: 'm1', created: ago(1, 4), text: 'Can we add “one thing we learned”?', reactions: { '👍': ['u1'] } }),
+  M({ id: 'c3', creator: 'u3', vis: 'TEAM', parentId: 'm3', created: ago(0, 2), text: 'I can reproduce this. Looks like the PDF font fallback.' }),
+];
+
+const S = {
+  view: 'home', // home | explore | archived | attachments | detail | profile | settings | doc
+  detailId: null,
+  profileId: null,
+  filters: { tag: null, query: '', date: null, prop: null, shortcut: null },
+  layout: 'list',
+  composerVis: 'PRIVATE',
+  composerAtts: [],
+  composerRels: [],
+  editingId: null,
+  expanded: {},
+  collapsedTags: {},
+  notifOpen: false,
+  unread: 2,
+  defaultVis: 'PRIVATE',
+  settings: { enabled: true, allowPublic: true, maxLen: 8192, reactions: ['👍', '❤️', '🎉', '😂', '👀', '🙏'], showUpdated: false, comments: true },
+  shortcuts: [
+    { id: 's1', title: 'Open tasks', filter: { prop: 'tasks' } },
+    { id: 's2', title: 'Work', filter: { tag: 'work' } },
+    { id: 's3', title: 'Review notes', filter: { tag: 'review' } },
+  ],
+  convertedDoc: null,
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const byId = (id) => memos.find((m) => m.id === id);
+const comments = (id) => memos.filter((m) => m.parentId === id).sort((a, b) => a.created - b.created);
+const dayKey = (d) => d.toISOString().slice(0, 10);
+
+function rel(d) {
+  const s = (NOW - d) / 1000;
+  if (s < 60) return 'just now';
+  if (s < 3600) { const n = Math.floor(s / 60); return `${n} minute${n === 1 ? '' : 's'} ago`; }
+  if (s < 86400) { const n = Math.floor(s / 3600); return `${n} hour${n === 1 ? '' : 's'} ago`; }
+  const days = Math.floor(s / 86400);
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() === NOW.getFullYear() ? undefined : 'numeric' });
+}
+const full = (d) => d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+function tagsOf(text) {
+  const out = new Set();
+  text.replace(/(^|\s)#([\p{L}\p{N}_\-/]+)/gu, (_, __, t) => { out.add(t.toLowerCase()); return ''; });
+  return [...out];
+}
+function props(m) {
+  return {
+    link: /https?:\/\//.test(m.text) || /\[\[.+?\]\]/.test(m.text),
+    tasks: /- \[ \]/.test(m.text),
+    code: /```|`[^`]+`/.test(m.text),
+  };
+}
+
+/* ---------------- Markdown-ish renderer ---------------- */
+function inline(s) {
+  let h = esc(s);
+  h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  h = h.replace(/(^|[^*])\*([^*]+)\*/g, '$1<i>$2</i>');
+  h = h.replace(/\[\[(.+?)\]\]/g, `<a class="doclink" data-act="open-doc">${I.doc}$1</a>`);
+  h = h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="#" data-act="noop">$1</a>');
+  h = h.replace(/(^|\s)@(\w+)/g, '$1<span class="mention-u">@$2</span>');
+  h = h.replace(/(^|\s)#([\p{L}\p{N}_\-/]+)/gu, '$1<span class="tag" data-tag="$2">#$2</span>');
+  return h;
+}
+function render_md(m) {
+  const lines = m.text.split('\n');
+  let html = '', i = 0, ti = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (l.startsWith('```')) {
+      const buf = []; i++;
+      while (i < lines.length && !lines[i].startsWith('```')) buf.push(lines[i++]);
+      i++; html += `<pre>${esc(buf.join('\n'))}</pre>`; continue;
+    }
+    if (/^- \[( |x)\] /.test(l)) {
+      html += '<ul class="tasks">';
+      while (i < lines.length && /^- \[( |x)\] /.test(lines[i])) {
+        const done = lines[i][3] === 'x';
+        html += `<li class="${done ? 'done' : ''}"><input type="checkbox" ${done ? 'checked' : ''} data-act="task" data-id="${m.id}" data-i="${ti}"><span>${inline(lines[i].slice(6))}</span></li>`;
+        i++; ti++;
+      }
+      html += '</ul>'; continue;
+    }
+    if (l.startsWith('- ')) {
+      html += '<ul>';
+      while (i < lines.length && lines[i].startsWith('- ') && !/^- \[( |x)\] /.test(lines[i])) html += `<li>${inline(lines[i++].slice(2))}</li>`;
+      html += '</ul>'; continue;
+    }
+    if (l.startsWith('> ')) { html += `<blockquote>${inline(l.slice(2))}</blockquote>`; i++; continue; }
+    if (l.startsWith('### ')) { html += `<h3>${inline(l.slice(4))}</h3>`; i++; continue; }
+    if (l.trim() === '') { i++; continue; }
+    html += `<p>${inline(l)}</p>`; i++;
+  }
+  return html;
+}
+function toggleTask(id, idx) {
+  const m = byId(id);
+  let n = -1;
+  m.text = m.text.split('\n').map((l) => {
+    if (/^- \[( |x)\] /.test(l) && ++n === idx) return l[3] === 'x' ? '- [ ]' + l.slice(5) : '- [x]' + l.slice(5);
+    return l;
+  }).join('\n');
+}
+
+/* ---------------- Toasts & overlay ---------------- */
+function toast(html, ms = 3000) {
+  const el = document.createElement('div');
+  el.className = 'toast'; el.innerHTML = html;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+function modal(html, width) {
+  $('#overlay').innerHTML = `<div class="backdrop" data-act="backdrop"><div class="modal" ${width ? `style="width:${width}px"` : ''}>${html}</div></div>`;
+}
+function closeOverlay() { $('#overlay').innerHTML = ''; }
+function closeFloat() { $('#float').innerHTML = ''; }
+function floatAt(html, anchor, align = 'left') {
+  const r = anchor.getBoundingClientRect();
+  $('#float').innerHTML = html;
+  const m = $('#float').firstElementChild;
+  m.style.position = 'fixed';
+  m.style.top = (r.bottom + 4) + 'px';
+  const w = m.offsetWidth;
+  let left = align === 'right' ? r.right - w : r.left;
+  left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+  m.style.left = left + 'px';
+  if (r.bottom + 4 + m.offsetHeight > window.innerHeight - 8) m.style.top = Math.max(8, r.top - m.offsetHeight - 4) + 'px';
+}
+
+/* ---------------- Sidebar ---------------- */
+const avatar = (u, cls = '') => `<span class="av ${cls}" style="background:${USERS[u].color}">${USERS[u].initial}</span>`;
+
+function renderSidebar() {
+  const sb = $('#sidebar');
+  if (S.view === 'settings') {
+    sb.innerHTML = `
+      <div class="nav-item" data-go="home">${I.back} Return to app</div>
+      <div class="nav-header">Account</div>
+      <div class="nav-item">${I.user} Profile</div>
+      <div class="nav-item">${I.settings} Preferences</div>
+      <div class="nav-header">Workspace</div>
+      <div class="nav-item">${I.settings} Details</div>
+      <div class="nav-item">${I.team} Members</div>
+      <div class="nav-item active">${I.memo} Memos <span class="nav-new">New</span></div>
+      <div class="nav-item">${I.imp} Import</div>
+      <div class="nav-item">${I.plug} Integrations</div>`;
+    return;
+  }
+  const memoViews = ['home', 'explore', 'archived', 'attachments', 'detail', 'profile'];
+  const myCount = memos.filter((m) => m.creator === ME && !m.parentId && !m.archived).length;
+  sb.innerHTML = `
+    <div class="team"><div class="team-logo">A</div> Acme Inc
+      <button class="bell" data-act="notif" title="Notifications">${I.bell}${S.unread ? '<span class="dot"></span>' : ''}</button>
+    </div>
+    <div class="nav-item">${I.search} Search</div>
+    <div class="nav-item">${I.home} Home</div>
+    <div class="nav-item ${memoViews.includes(S.view) ? 'active' : ''}" data-go="home">${I.memo} Memos <span class="count">${myCount}</span></div>
+    <div class="nav-item">${I.drafts} Drafts</div>
+    <div class="nav-item" data-act="quick" title="Quick capture">${I.plus} New memo <span class="kb">⌘⇧M</span></div>
+    <div class="nav-header">Collections</div>
+    <div class="nav-item">${I.collection('#4e5c6e')} Engineering</div>
+    <div class="nav-item">${I.collection('#f6b03b')} Product</div>
+    <div class="nav-item">${I.collection('#8b5cf6')} Team rituals</div>
+    ${S.convertedDoc ? `<div class="nav-item ${S.view === 'doc' ? 'active' : ''}" data-go="doc" style="padding-left:32px">${I.doc} ${esc(S.convertedDoc.title)}</div>` : ''}
+    <div style="flex:1"></div>
+    <div class="nav-item" data-go="settings">${I.settings} Settings</div>`;
+}
+
+/* ---------------- Filtering ---------------- */
+function activeFilter() {
+  const f = { ...S.filters };
+  if (f.shortcut) Object.assign(f, S.shortcuts.find((s) => s.id === f.shortcut)?.filter || {});
+  return f;
+}
+function applyFilters(list) {
+  const f = activeFilter();
+  return list.filter((m) => {
+    if (f.tag && !tagsOf(m.text).some((t) => t === f.tag || t.startsWith(f.tag + '/'))) return false;
+    if (f.query && !m.text.toLowerCase().includes(f.query.toLowerCase())) return false;
+    if (f.date && dayKey(m.created) !== f.date) return false;
+    if (f.prop && !props(m)[f.prop]) return false;
+    return true;
+  });
+}
+function sortMemos(list) {
+  return list.sort((a, b) => (b.pinned - a.pinned) || (b.created - a.created));
+}
+function scopeList() {
+  const top = memos.filter((m) => !m.parentId);
+  if (S.view === 'home') return top.filter((m) => m.creator === ME && !m.archived);
+  if (S.view === 'explore') return top.filter((m) => m.vis !== 'PRIVATE' && !m.archived);
+  if (S.view === 'archived') return top.filter((m) => m.creator === ME && m.archived);
+  if (S.view === 'profile') return top.filter((m) => m.creator === S.profileId && !m.archived && (m.vis !== 'PRIVATE' || m.creator === ME));
+  return [];
+}
+
+/* ---------------- Composer ---------------- */
+function composerHtml(opts = {}) {
+  const { id = 'new', text = '', vis = S.composerVis, atts = S.composerAtts, rels = S.composerRels, placeholder = 'Any thoughts… type # for tags, [[ to link a document', isComment = false, autofocus = false } = opts;
+  return `<div class="composer" data-composer="${id}">
+    <textarea data-input="${id}" rows="${isComment ? 2 : 3}" placeholder="${esc(placeholder)}" ${autofocus ? 'autofocus' : ''}>${esc(text)}</textarea>
+    ${atts.length || rels.length ? `<div class="att-row">
+      ${atts.map((a, i) => `<span class="att-pill">${I.clip.replace('<svg', '<svg width="13" height="13"')} ${esc(a.name)} <button data-act="rm-att" data-c="${id}" data-i="${i}">×</button></span>`).join('')}
+      ${rels.map((r, i) => `<span class="att-pill">${I.rel.replace('<svg', '<svg width="13" height="13"')} ${esc(snippet(byId(r), 28))} <button data-act="rm-rel" data-c="${id}" data-i="${i}">×</button></span>`).join('')}
+    </div>` : ''}
+    <div class="bar">
+      <button class="icon-btn" title="Add tag" data-act="ins" data-c="${id}" data-v="#">${I.hash}</button>
+      <button class="icon-btn" title="Attach file" data-act="attach" data-c="${id}">${I.clip}</button>
+      ${isComment ? '' : `<button class="icon-btn" title="Link a memo" data-act="link-memo" data-c="${id}">${I.rel}</button>`}
+      <button class="icon-btn" title="Task list" data-act="ins" data-c="${id}" data-v="- [ ] ">${I.task}</button>
+      <button class="icon-btn" title="Code block" data-act="ins" data-c="${id}" data-v="\`\`\`\n\n\`\`\`">${I.code}</button>
+      ${isComment ? '' : `<button class="icon-btn" title="Add location" data-act="location" data-c="${id}">${I.pinmap}</button>`}
+      <span class="spacer"></span>
+      <span class="hint">⌘↵</span>
+      ${isComment ? '' : `<select class="vis-select" data-act="vis" data-c="${id}" title="Visibility">
+        ${Object.entries(VIS).filter(([k]) => k !== 'PUBLIC' || S.settings.allowPublic).map(([k, v]) => `<option value="${k}" ${k === vis ? 'selected' : ''}>${v.label}</option>`).join('')}
+      </select>`}
+      ${id !== 'new' && id !== 'quick' && !isComment ? `<button class="btn ghost small" data-act="cancel-edit">Cancel</button>` : ''}
+      <button class="btn small" data-act="save" data-c="${id}" ${text.trim() ? '' : 'disabled'}>${id === 'new' || id === 'quick' ? 'Save' : isComment ? 'Comment' : 'Update'}</button>
+    </div>
+  </div>`;
+}
+function snippet(m, n = 60) {
+  if (!m) return '';
+  const t = m.text.replace(/```[\s\S]*?```/g, '').replace(/[#>*`\[\]-]/g, ' ').replace(/\s+/g, ' ').trim();
+  return t.length > n ? t.slice(0, n) + '…' : t;
+}
+
+/* ---------------- Memo card ---------------- */
+function memoCard(m, opts = {}) {
+  const showAuthor = S.view === 'explore' || opts.showAuthor;
+  const cs = comments(m.id);
+  const own = m.creator === ME;
+  if (S.editingId === m.id) {
+    return `<div class="memo" data-memo="${m.id}"><div class="edit-wrap">${composerHtml({ id: m.id, text: m.text, vis: m.vis, atts: m.attachments, rels: m.relations, autofocus: true })}</div></div>`;
+  }
+  const long = m.text.length > 320 && !opts.full && !S.expanded[m.id];
+  const imgs = m.attachments.filter((a) => a.type === 'img');
+  const files = m.attachments.filter((a) => a.type !== 'img');
+  const backrefs = memos.filter((x) => x.relations.includes(m.id) && (x.vis !== 'PRIVATE' || x.creator === ME));
+  const rxEntries = Object.entries(m.reactions).filter(([, us]) => us.length);
+  return `<div class="memo ${m.pinned ? 'pinned' : ''}" data-memo="${m.id}">
+    <div class="mh">
+      ${showAuthor ? `<span class="author" data-act="profile" data-u="${m.creator}">${avatar(m.creator, 's18')} ${USERS[m.creator].name}</span> ·` : ''}
+      <span class="time" data-act="open" data-id="${m.id}" title="${full(m.created)}">${rel(m.created)}</span>
+      <span class="vis-ic" title="${VIS[m.vis].label}: ${VIS[m.vis].hint}">${VIS[m.vis].icon}</span>
+      ${m.pinned ? `<span class="pin" title="Pinned">${I.pin}</span>` : ''}
+      ${m.location ? `<span class="small loc" title="Location">📍 ${esc(m.location)}</span>` : ''}
+      <span class="spacer"></span>
+      <span class="acts">
+        <button class="icon-btn" title="Add reaction" data-act="react-pick" data-id="${m.id}">${I.smile}</button>
+        ${own ? `<button class="icon-btn" title="Edit" data-act="edit" data-id="${m.id}">${I.edit}</button>` : ''}
+      </span>
+      ${S.settings.comments ? `<span class="ccount" data-act="open" data-id="${m.id}" title="Comments">${I.comment}${cs.length ? cs.length : ''}</span>` : ''}
+      <button class="icon-btn" title="More" data-act="memo-menu" data-id="${m.id}">${I.more}</button>
+    </div>
+    <div class="mc ${long ? 'clamped' : ''}">${render_md(m)}</div>
+    ${long ? `<a class="show-more" data-act="expand" data-id="${m.id}">Show more</a>` : ''}
+    ${imgs.length ? `<div class="atts">${imgs.map((a) => `<div class="img" style="background:${a.color}" data-act="lightbox" data-n="${esc(a.name)}"><span>${esc(a.name)}</span></div>`).join('')}</div>` : ''}
+    ${files.length ? `<div class="file-row">${files.map((a) => `<span class="att-pill">${I.file.replace('<svg', '<svg width="13" height="13"')} ${esc(a.name)}</span>`).join('')}</div>` : ''}
+    ${m.relations.length || backrefs.length ? `<div class="rels">
+      ${m.relations.map((r) => byId(r)).filter(Boolean).map((r) => `<div class="rel" data-act="open" data-id="${r.id}">${I.rel}<span class="muted small">References</span><span class="tx">${esc(snippet(r))}</span></div>`).join('')}
+      ${opts.full ? backrefs.map((r) => `<div class="rel" data-act="open" data-id="${r.id}">${I.rel.replace('<svg', '<svg style="transform:scaleX(-1)"')}<span class="muted small">Referenced by</span><span class="tx">${esc(snippet(r))}</span></div>`).join('') : ''}
+    </div>` : ''}
+    ${rxEntries.length ? `<div class="reactions">${rxEntries.map(([e, us]) => `<button class="rx ${us.includes(ME) ? 'mine' : ''}" data-act="react" data-id="${m.id}" data-e="${e}" title="${us.map((u) => USERS[u].name).join(', ')}">${e} ${us.length}</button>`).join('')}
+      <button class="rx" data-act="react-pick" data-id="${m.id}" title="Add reaction">${I.smile.replace('<svg', '<svg width="15" height="15"')}</button></div>` : ''}
+  </div>`;
+}
+
+function memoMenu(m) {
+  const own = m.creator === ME;
+  return `<div class="menu">
+    ${own ? `<div class="mi" data-act="pin" data-id="${m.id}">${m.pinned ? I.pinO : I.pin} ${m.pinned ? 'Unpin' : 'Pin'}</div>
+    <div class="mi" data-act="edit" data-id="${m.id}">${I.edit} Edit <span class="kb">E</span></div>` : ''}
+    <div class="mi" data-act="copy-link" data-id="${m.id}">${I.link} Copy link</div>
+    <div class="mi" data-act="open" data-id="${m.id}">${I.comment} Open and comment</div>
+    <div class="sep"></div>
+    <div class="mi" data-act="convert" data-id="${m.id}">${I.convert} Convert to document…</div>
+    <div class="mi" data-act="quote-new" data-id="${m.id}">${I.rel} Reference in new memo</div>
+    ${own ? `<div class="mi" data-act="share-public" data-id="${m.id}">${I.share} ${m.vis === 'PUBLIC' ? 'Copy public link' : 'Share publicly…'}</div>` : ''}
+    ${own ? `<div class="sep"></div>
+    ${m.archived ? `<div class="mi" data-act="restore" data-id="${m.id}">${I.restore} Restore</div>` : `<div class="mi" data-act="archive" data-id="${m.id}">${I.archive} Archive</div>`}
+    <div class="mi danger" data-act="delete" data-id="${m.id}">${I.trash} Delete</div>` : ''}
+  </div>`;
+}
+
+/* ---------------- Right panel ---------------- */
+function heatmapHtml(list) {
+  const counts = {};
+  list.forEach((m) => { const k = dayKey(m.created); counts[k] = (counts[k] || 0) + 1; });
+
+  // add deterministic history so the calendar looks lived-in
+  for (let d = 7; d < 120; d++) {
+    const x = Math.sin(d * 12.9898) * 43758.5453;
+    const r = x - Math.floor(x);
+    if (r > 0.45) { const k = dayKey(new Date(NOW - d * DAY)); counts[k] = (counts[k] || 0) + Math.ceil((r - 0.45) * 8); }
+  }
+  const weeks = 17;
+  const end = new Date(NOW); end.setHours(12);
+  const start = new Date(end - ((weeks - 1) * 7 + end.getDay()) * DAY);
+  let cells = '';
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = new Date(+start + i * DAY);
+    const k = dayKey(d);
+    if (d > end) { cells += '<div class="d future"></div>'; continue; }
+    const c = counts[k] || 0;
+    const lv = c === 0 ? '' : c === 1 ? 'l1' : c <= 2 ? 'l2' : c <= 4 ? 'l3' : 'l4';
+    cells += `<div class="d ${lv} ${k === dayKey(NOW) ? 'today' : ''} ${S.filters.date === k ? 'sel' : ''}" data-act="day" data-d="${k}" title="${c} memo${c === 1 ? '' : 's'} on ${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}"></div>`;
+  }
+  return `<div class="heat">${cells}</div><div class="heat-legend"><span>${start.toLocaleDateString('en-US', { month: 'short' })}</span><span>Less <span class="d" style="display:inline-block;width:9px;height:9px;border-radius:2px;background:var(--smoke-dark)"></span> <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#8bb8ec"></span> <span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#0353b0"></span> More</span><span>Oct</span></div>`;
+}
+
+function tagTree(list) {
+  const counts = {};
+  list.forEach((m) => tagsOf(m.text).forEach((t) => {
+    const parts = t.split('/');
+    parts.forEach((_, i) => { const k = parts.slice(0, i + 1).join('/'); counts[k] = (counts[k] || 0) + 1; });
+  }));
+  const keys = Object.keys(counts).sort();
+  const isChildHidden = (k) => k.split('/').slice(0, -1).some((_, i, arr) => S.collapsedTags[k.split('/').slice(0, i + 1).join('/')]);
+  return keys.filter((k) => !isChildHidden(k)).map((k) => {
+    const depth = k.split('/').length - 1;
+    const hasKids = keys.some((x) => x.startsWith(k + '/'));
+    return `<div class="side-item ${S.filters.tag === k ? 'on' : ''}" data-act="tag" data-tag="${k}" style="padding-left:${6 + depth * 14}px">
+      ${hasKids ? `<span class="tw" data-act="tag-toggle" data-tag="${k}">${S.collapsedTags[k] ? '▸' : '▾'}</span>` : '<span class="hash">#</span>'}
+      ${esc(k.split('/').pop())}<span class="c">${counts[k]}</span>
+      <button class="more" data-act="tag-menu" data-tag="${k}" title="Tag options">${I.more.replace('<svg', '<svg width="14" height="14"')}</button></div>`;
+  }).join('') || '<div class="small muted">No tags yet. Type # in a memo.</div>';
+}
+
+function sidePanel(base) {
+  const ownAll = memos.filter((m) => m.creator === ME && !m.parentId);
+  const days = new Set(ownAll.map((m) => dayKey(m.created))).size + 91;
+  const f = S.filters;
+  return `<div class="memos-side">
+    <div class="side-sec search">${I.search}<input class="input" id="q" placeholder="Search memos" value="${esc(f.query)}" /></div>
+    <div class="side-sec">${heatmapHtml(base)}
+      <div class="stats">
+        <div class="stat"><div class="v">${ownAll.length + 236}</div><div class="k">Memos</div></div>
+        <div class="stat"><div class="v">${new Set(ownAll.flatMap((m) => tagsOf(m.text))).size}</div><div class="k">Tags</div></div>
+        <div class="stat"><div class="v">${days}</div><div class="k">Days</div></div>
+      </div>
+    </div>
+    <div class="side-sec"><div class="sh">FILTERS</div>
+      <div class="props">
+        ${[['link', '🔗 Has links'], ['tasks', '☐ Open tasks'], ['code', '‹› Has code']].map(([k, l]) => `<span class="prop ${f.prop === k ? 'on' : ''}" data-act="prop" data-p="${k}">${l}</span>`).join('')}
+      </div>
+    </div>
+    <div class="side-sec"><div class="sh">SHORTCUTS <button data-act="new-shortcut" title="Save current filter as shortcut">+</button></div>
+      ${S.shortcuts.map((s) => `<div class="side-item ${f.shortcut === s.id ? 'on' : ''}" data-act="shortcut" data-s="${s.id}">⚡ ${esc(s.title)}</div>`).join('')}
+    </div>
+    <div class="side-sec"><div class="sh">TAGS</div>${tagTree(base)}</div>
+  </div>`;
+}
+
+function filterBar(count) {
+  const f = S.filters;
+  const chips = [];
+  if (f.shortcut) chips.push(['shortcut', `⚡ ${S.shortcuts.find((s) => s.id === f.shortcut)?.title}`]);
+  if (f.tag) chips.push(['tag', `#${f.tag}`]);
+  if (f.query) chips.push(['query', `“${f.query}”`]);
+  if (f.date) chips.push(['date', new Date(f.date + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })]);
+  if (f.prop) chips.push(['prop', { link: 'Has links', tasks: 'Open tasks', code: 'Has code' }[f.prop]]);
+  return `<div class="filterbar">
+    ${chips.map(([k, l]) => `<span class="fchip">${esc(l)}<button data-act="clear-f" data-k="${k}">×</button></span>`).join('')}
+    ${chips.length > 1 ? '<a class="small" data-act="clear-all">Clear all</a>' : ''}
+    ${chips.length ? `<span class="small muted">${count} result${count === 1 ? '' : 's'}</span>` : ''}
+    <span class="spacer"></span>
+    <span class="seg"><button class="${S.layout === 'list' ? 'on' : ''}" data-act="layout" data-l="list" title="List">${I.list}</button><button class="${S.layout === 'masonry' ? 'on' : ''}" data-act="layout" data-l="masonry" title="Masonry">${I.grid}</button></span>
+  </div>`;
+}
+
+/* ---------------- Scenes ---------------- */
+function tabs() {
+  const n = (v) => memos.filter((m) => !m.parentId && (v === 'archived' ? m.creator === ME && m.archived : false)).length;
+  const t = (k, l, extra = '') => `<div class="tab ${S.view === k ? 'active' : ''}" data-go="${k}">${l}${extra}</div>`;
+  return `<div class="tabs">${t('home', 'My memos')}${t('explore', 'Explore')}${t('archived', 'Archived', ` <span class="n">${n('archived')}</span>`)}${t('attachments', 'Attachments')}</div>`;
+}
+
+function sceneList() {
+  const base = scopeList();
+  const list = sortMemos(applyFilters(base));
+  const titles = { home: 'Memos', explore: 'Memos', archived: 'Memos' };
+  const emptyMsg = {
+    home: S.filters.tag || S.filters.query || S.filters.date || S.filters.prop || S.filters.shortcut ? ['🔍', 'No memos match these filters.'] : ['✍️', 'Write your first memo above.'],
+    explore: ['🌱', 'Nothing shared with the workspace yet.'],
+    archived: ['📦', 'Archived memos show up here.'],
+  }[S.view];
+  return `
+    <div class="titlebar"><b>Memos</b><span class="spacer"></span>
+      <button class="btn neutral small" data-act="quick">${I.plus} New memo</button>
+    </div>
+    <div class="memos-wrap">
+      <div class="memos-col">
+        <h1>${titles[S.view]}</h1>
+        ${tabs()}
+        ${S.view === 'home' ? composerHtml() : ''}
+        ${S.view === 'explore' ? '<div class="small muted" style="margin-bottom:4px">Memos shared with everyone in Acme Inc, newest first.</div>' : ''}
+        ${S.view === 'archived' ? '<div class="small muted" style="margin-bottom:4px">Archived memos are hidden from your timeline and search, but nothing is deleted.</div>' : ''}
+        ${filterBar(list.length)}
+        <div class="list ${S.layout === 'masonry' ? 'masonry' : ''}">
+          ${list.length ? list.map((m) => memoCard(m)).join('') : `<div class="empty"><div class="big">${emptyMsg[0]}</div>${emptyMsg[1]}</div>`}
+        </div>
+      </div>
+      ${sidePanel(base)}
+    </div>`;
+}
+
+function sceneAttachments() {
+  const own = memos.filter((m) => m.creator === ME);
+  const items = own.flatMap((m) => m.attachments.map((a) => ({ ...a, memo: m })));
+  const extra = [
+    { name: 'receipt-sept.pdf', type: 'file', memo: null, date: 'Sep 28' },
+    { name: 'diagram-v2.png', type: 'img', color: '#8b5cf6', memo: null, date: 'Sep 12' },
+  ];
+  const tile = (a) => `<div class="att-tile">
+    <div class="pv" style="background:${a.type === 'img' ? a.color : 'var(--smoke-dark)'};color:${a.type === 'img' ? '#fff' : 'var(--slate)'}">${a.type === 'img' ? '🖼' : '📄'}</div>
+    <div class="nm">${esc(a.name)}</div>
+    <div class="mt">${a.memo ? `<a data-act="open" data-id="${a.memo.id}">${rel(a.memo.created)}</a>` : a.date}</div></div>`;
+  return `
+    <div class="titlebar"><b>Memos</b><span class="spacer"></span><button class="btn neutral small" data-act="quick">${I.plus} New memo</button></div>
+    <div class="memos-wrap"><div class="memos-col" style="max-width:none">
+      <h1>Memos</h1>${tabs()}
+      <div class="month">October 2026</div>
+      <div class="att-grid">${items.map(tile).join('')}</div>
+      <div class="month">September 2026 · not used by any memo</div>
+      <div class="att-grid">${extra.map(tile).join('')}</div>
+      <div style="margin-top:14px"><button class="btn neutral small" data-act="clean-unused">${I.trash} Delete 2 unused attachments</button></div>
+    </div></div>`;
+}
+
+function sceneDetail() {
+  const m = byId(S.detailId);
+  if (!m) return `<div class="narrow"><div class="empty">This memo was deleted.</div></div>`;
+  const cs = comments(m.id);
+  return `
+    <div class="titlebar"><span data-go="home" style="cursor:pointer">Memos</span> / <b>${esc(snippet(m, 40))}</b></div>
+    <div class="narrow" style="max-width:720px">
+      <div class="back" data-act="back">${I.back} Back</div>
+      ${memoCard(m, { full: true, showAuthor: true })}
+      ${S.settings.comments ? `<div class="section-h">Comments <span class="n">${cs.length}</span></div>
+      ${cs.map((c) => `<div class="comment">${avatar(c.creator, 's28')}<div class="body">
+        <div class="who"><b>${USERS[c.creator].name}</b> · ${rel(c.created)}</div>
+        <div class="mc">${render_md(c)}</div>
+        ${Object.entries(c.reactions).length ? `<div class="reactions">${Object.entries(c.reactions).map(([e, us]) => `<button class="rx ${us.includes(ME) ? 'mine' : ''}" data-act="react" data-id="${c.id}" data-e="${e}">${e} ${us.length}</button>`).join('')}</div>` : ''}
+      </div></div>`).join('')}
+      <div style="margin-top:14px">${composerHtml({ id: 'comment:' + m.id, isComment: true, placeholder: 'Write a comment…', atts: [], rels: [] })}</div>` : ''}
+    </div>`;
+}
+
+function sceneProfile() {
+  const u = USERS[S.profileId];
+  const base = scopeList();
+  const list = sortMemos(applyFilters(base));
+  return `
+    <div class="titlebar"><span data-go="explore" style="cursor:pointer">Memos</span> / <b>${u.name}</b></div>
+    <div class="memos-wrap">
+      <div class="memos-col">
+        <div class="back" data-act="back">${I.back} Back</div>
+        <div class="profile-head">${avatar(S.profileId)}<div><h1 style="margin:0">${u.name}</h1><div class="muted small">@${u.handle} · ${base.length} shared memos</div></div></div>
+        ${filterBar(list.length)}
+        <div class="list ${S.layout === 'masonry' ? 'masonry' : ''}">${list.map((m) => memoCard(m)).join('') || '<div class="empty">No shared memos.</div>'}</div>
+      </div>
+      ${sidePanel(base)}
+    </div>`;
+}
+
+function sceneSettings() {
+  const st = S.settings;
+  const sw = (on, act) => `<button class="switch ${on ? 'on' : ''}" data-act="${act}"></button>`;
+  const row = (t, d, c) => `<div class="row"><div class="label"><div class="t">${t}</div>${d ? `<div class="d">${d}</div>` : ''}</div><div class="control">${c}</div></div>`;
+  return `
+    <div class="titlebar">Settings / <b>Memos</b></div>
+    <div class="narrow">
+      <h1 style="display:flex;gap:10px;align-items:center">${I.memo.replace('<svg', '<svg width="30" height="30"')} Memos</h1>
+      <p class="muted" style="line-height:1.6;margin:0">Quick notes for everyone in the workspace. Memos live beside documents, use the same search, permissions and attachments, and can be turned into documents.</p>
+
+      <h2>Workspace</h2>
+      ${row('Enable Memos', 'Shows Memos in the sidebar for all members.', sw(st.enabled, 'set-enabled'))}
+      ${row('Allow public memos', 'Members can publish a memo to a public link. Follows the workspace’s sharing setting.', sw(st.allowPublic, 'set-public'))}
+      ${row('Comments', 'Allow members to comment on memos they can see.', sw(st.comments, 'set-comments'))}
+      ${row('Maximum length', 'Characters per memo. Longer notes should be documents.', `<input class="input" style="width:110px" value="${st.maxLen}" data-act="maxlen"/>`)}
+      ${row('Reactions', 'Emoji members can react with.', `${st.reactions.map((e) => `<span class="emoji-chip" data-act="rm-emoji" data-e="${e}" title="Remove">${e}</span>`).join('')}<span class="emoji-chip" data-act="add-emoji" title="Add">＋</span>`)}
+      ${row('Show time as', null, `<select class="input" style="width:170px" data-act="showupdated"><option ${!st.showUpdated ? 'selected' : ''}>Created time</option><option ${st.showUpdated ? 'selected' : ''}>Last updated time</option></select>`)}
+
+      <h2>Your preferences</h2>
+      ${row('Default visibility', 'Used for new memos you create.', `<select class="input" style="width:170px" data-act="defvis">${Object.entries(VIS).map(([k, v]) => `<option value="${k}" ${S.defaultVis === k ? 'selected' : ''}>${v.label}</option>`).join('')}</select>`)}
+      ${row('Layout', null, `<span class="seg"><button class="${S.layout === 'list' ? 'on' : ''}" data-act="layout" data-l="list">${I.list}</button><button class="${S.layout === 'masonry' ? 'on' : ''}" data-act="layout" data-l="masonry">${I.grid}</button></span>`)}
+
+      <h2>Move from Memos</h2>
+      ${row('Import from a Memos server', 'Copies memos, comments, reactions, tags, relations and attachments. Users are matched by email.', `<button class="btn neutral" data-act="import">${I.imp} Import…</button>`)}
+      ${row('Export', 'Download all of your memos as Markdown files.', `<button class="btn neutral" data-act="export">Export</button>`)}
+    </div>`;
+}
+
+function sceneDoc() {
+  const d = S.convertedDoc;
+  return `
+    <div class="titlebar">${I.collection('#8b5cf6').replace('<svg', '<svg width="16" height="16"')} ${esc(d.collection)} / <b>${esc(d.title)}</b></div>
+    <div class="narrow">
+      <div class="notice">${I.memo.replace('<svg', '<svg width="18" height="18"')}<span>Created from a memo. The original memo now links here. <a data-act="open" data-id="${d.memoId}">View memo</a></span></div>
+      <div class="doc-title">${esc(d.title)}</div>
+      <div class="doc-meta">Alice Chen created just now · in ${esc(d.collection)}</div>
+      <div class="mc" style="font-size:16px">${render_md({ id: 'docv', text: d.text })}</div>
+    </div>`;
+}
+
+/* ---------------- Render ---------------- */
+function render() {
+  renderSidebar();
+  const main = $('#main');
+  const top = main.scrollTop;
+  const focusedId = document.activeElement?.dataset?.input;
+  const caret = document.activeElement?.selectionStart;
+  const scenes = { home: sceneList, explore: sceneList, archived: sceneList, attachments: sceneAttachments, detail: sceneDetail, profile: sceneProfile, settings: sceneSettings, doc: sceneDoc };
+  main.innerHTML = scenes[S.view]();
+  main.scrollTop = top;
+  if (focusedId) {
+    const ta = $(`[data-input="${CSS.escape(focusedId)}"]`);
+    if (ta) { ta.focus(); try { ta.setSelectionRange(caret, caret); } catch {} }
+  }
+  const auto = $('textarea[autofocus]');
+  if (auto && !focusedId) { auto.focus(); auto.setSelectionRange(auto.value.length, auto.value.length); }
+  document.querySelectorAll('textarea[data-input]').forEach(autosize);
+  renderProto();
+}
+function autosize(t) { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 420) + 'px'; }
+
+function go(view, extra = {}) {
+  if (S.view !== view || extra.detailId || extra.profileId) S.prev = { view: S.view, detailId: S.detailId, profileId: S.profileId };
+  Object.assign(S, { view, editingId: null }, extra);
+  closeFloat(); closeOverlay();
+  $('#main').scrollTop = 0;
+  render();
+}
+
+/* ---------------- Prototype panel ---------------- */
+function renderProto() {
+  const p = $('#proto');
+  const items = [['home', 'My memos'], ['explore', 'Explore (workspace)'], ['archived', 'Archived'], ['attachments', 'Attachments'], ['detail', 'Memo + comments'], ['profile', 'Teammate profile'], ['settings', 'Settings → Memos']];
+  p.innerHTML = `<div class="ph" data-act="proto-toggle"><span>Prototype · native Memos</span><span>${p.classList.contains('collapsed') ? '▴' : '▾'}</span></div>
+    <div class="pb">${items.map(([k, l]) => `<div class="pn ${S.view === k ? 'active' : ''}" data-proto="${k}">${l}</div>`).join('')}
+    <div class="tip">Try: write a memo with #tags (⌘↵), tick a task, click a tag or a calendar day, react, ⋯ → Convert to document, the 🔔 bell, or ⌘⇧M from anywhere.</div></div>`;
+}
+
+/* ---------------- Composer logic ---------------- */
+const drafts = {};
+function composerState(c) {
+  if (c === 'new') return { atts: S.composerAtts, rels: S.composerRels };
+  if (c.startsWith('comment:')) return { atts: [], rels: [] };
+  if (c === 'quick') return S.quick;
+  const m = byId(c);
+  return { atts: m.attachments, rels: m.relations };
+}
+function saveComposer(c) {
+  const ta = $(`[data-input="${CSS.escape(c)}"]`);
+  const text = ta.value.trim();
+  if (!text) return;
+  if (text.length > S.settings.maxLen) { toast(`Memo is longer than ${S.settings.maxLen} characters`); return; }
+  const visSel = $(`select[data-c="${CSS.escape(c)}"]`);
+  const vis = visSel ? visSel.value : 'TEAM';
+  if (c === 'new' || c === 'quick') {
+    const st = c === 'new' ? { atts: S.composerAtts, rels: S.composerRels } : S.quick;
+    const m = M({ creator: ME, vis, created: new Date(NOW), text, attachments: [...st.atts], relations: [...st.rels] });
+    memos.unshift(m);
+    S.composerAtts = []; S.composerRels = [];
+    if (c === 'quick') { closeOverlay(); toast(`${I.check} Memo saved · <a data-act="open" data-id="${m.id}">Open</a>`); if (['home'].includes(S.view)) render(); else renderSidebar(); return; }
+    ta.value = '';
+    render();
+    flash(m.id);
+    return;
+  }
+  if (c.startsWith('comment:')) {
+    const pid = c.slice(8);
+    memos.push(M({ creator: ME, vis: byId(pid).vis, parentId: pid, created: new Date(NOW), text }));
+    render();
+    toast(`${I.check} Comment added`);
+    return;
+  }
+  const m = byId(c);
+  m.text = text; m.vis = vis;
+  S.editingId = null;
+  render();
+  flash(m.id);
+  toast(`${I.check} Memo updated`);
+}
+function flash(id) {
+  const el = $(`[data-memo="${id}"]`);
+  if (el) { el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1300); }
+}
+function insertAt(c, v) {
+  const ta = $(`[data-input="${CSS.escape(c)}"]`);
+  if (!ta) return;
+  const s = ta.selectionStart ?? ta.value.length;
+  const pre = ta.value.slice(0, s), post = ta.value.slice(ta.selectionEnd ?? s);
+  const needNl = v.startsWith('- [ ]') || v.startsWith('```');
+  const ins = (needNl && pre && !pre.endsWith('\n') ? '\n' : '') + v;
+  ta.value = pre + ins + post;
+  const pos = pre.length + (v.startsWith('```') ? ins.length - 4 : ins.length);
+  ta.focus(); ta.setSelectionRange(pos, pos);
+  ta.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/* tag autocomplete */
+let sugg = null;
+function allTags() {
+  const c = {};
+  memos.filter((m) => m.creator === ME).forEach((m) => tagsOf(m.text).forEach((t) => { c[t] = (c[t] || 0) + 1; }));
+  return Object.entries(c).sort((a, b) => b[1] - a[1]);
+}
+function updateSuggest(ta) {
+  const before = ta.value.slice(0, ta.selectionStart);
+  const mt = before.match(/(^|\s)#([\p{L}\p{N}_\-/]*)$/u);
+  const md = before.match(/\[\[([^\]]*)$/);
+  closeSuggest();
+  let items = [];
+  if (mt) {
+    items = allTags().filter(([t]) => t.startsWith(mt[2].toLowerCase()) && t !== mt[2].toLowerCase()).slice(0, 6).map(([t, n]) => ({ label: '#' + t, meta: n, insert: t + ' ', del: mt[2].length }));
+  } else if (md) {
+    items = ['Team rituals', 'Onboarding guide', 'API reference', 'Release checklist'].filter((d) => d.toLowerCase().includes(md[1].toLowerCase())).map((d) => ({ label: '📄 ' + d, meta: 'Document', insert: d + ']] ', del: md[1].length }));
+  }
+  if (!items.length) return;
+  sugg = { ta, items, sel: 0 };
+  const r = ta.getBoundingClientRect();
+  const box = document.createElement('div');
+  box.className = 'suggest'; box.id = 'suggest';
+  box.style.position = 'fixed';
+  box.style.left = (r.left + 4) + 'px';
+  box.style.top = (r.bottom + 2) + 'px';
+  box.innerHTML = items.map((it, i) => `<div class="si ${i === 0 ? 'sel' : ''}" data-act="sugg" data-i="${i}"><span>${esc(it.label)}</span><span class="c">${it.meta}</span></div>`).join('');
+  document.body.appendChild(box);
+}
+function closeSuggest() { $('#suggest')?.remove(); sugg = null; }
+function applySuggest(i) {
+  const { ta, items } = sugg;
+  const it = items[i];
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0, s - it.del) + it.insert + ta.value.slice(s);
+  const p = s - it.del + it.insert.length;
+  ta.focus(); ta.setSelectionRange(p, p);
+  closeSuggest();
+  syncSaveBtn(ta);
+}
+function syncSaveBtn(ta) {
+  const c = ta.dataset.input;
+  const b = $(`[data-act="save"][data-c="${CSS.escape(c)}"]`);
+  if (b) b.disabled = !ta.value.trim();
+}
+
+/* ---------------- Quick capture ---------------- */
+function openQuick(prefillRel) {
+  S.quick = { atts: [], rels: prefillRel ? [prefillRel] : [] };
+  modal(`<div class="mhd"><span style="display:flex;gap:8px;align-items:center">${I.memo.replace('<svg', '<svg width="20" height="20"')} New memo</span><button class="x" data-act="close">×</button></div>
+    <div class="mb" style="padding-bottom:16px">${composerHtml({ id: 'quick', vis: S.defaultVis, atts: [], rels: S.quick.rels, autofocus: true })}
+    <div class="small muted" style="margin-top:8px">Saved to your memos. Press <b>⌘⇧M</b> anywhere in Outline to capture a thought.</div></div>`);
+  setTimeout(() => { const t = $('[data-input="quick"]'); t?.focus(); }, 30);
+}
+
+/* ---------------- Events ---------------- */
+document.addEventListener('input', (e) => {
+  const t = e.target;
+  if (t.dataset.input) { autosize(t); syncSaveBtn(t); updateSuggest(t); }
+  if (t.id === 'q') {
+    S.filters.query = t.value;
+    clearTimeout(window._qt);
+    window._qt = setTimeout(() => { render(); const q = $('#q'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }, 200);
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (sugg) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      sugg.sel = (sugg.sel + (e.key === 'ArrowDown' ? 1 : sugg.items.length - 1)) % sugg.items.length;
+      document.querySelectorAll('#suggest .si').forEach((el, i) => el.classList.toggle('sel', i === sugg.sel));
+      return;
+    }
+    if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); applySuggest(sugg.sel); return; }
+    if (e.key === 'Escape') { closeSuggest(); return; }
+  }
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'm' || e.key === 'M')) { e.preventDefault(); openQuick(); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter' && e.target.dataset?.input) { e.preventDefault(); saveComposer(e.target.dataset.input); return; }
+  if (e.key === 'Escape') {
+    if ($('#overlay').innerHTML) { closeOverlay(); return; }
+    if ($('#float').innerHTML) { closeFloat(); return; }
+    if (S.editingId) { S.editingId = null; render(); }
+  }
+});
+
+document.addEventListener('change', (e) => {
+  const a = e.target.dataset.act;
+  if (a === 'vis' && e.target.dataset.c === 'new') S.composerVis = e.target.value;
+  if (a === 'defvis') { S.defaultVis = e.target.value; S.composerVis = e.target.value; toast(`${I.check} Saved`); }
+  if (a === 'showupdated') { S.settings.showUpdated = e.target.selectedIndex === 1; toast(`${I.check} Saved`); }
+  if (a === 'maxlen') { S.settings.maxLen = parseInt(e.target.value, 10) || 8192; toast(`${I.check} Saved`); }
+  if (a === 'task') { toggleTask(e.target.dataset.id, +e.target.dataset.i); render(); }
+});
+
+document.addEventListener('click', (e) => {
+  const pr = e.target.closest('[data-proto]');
+  if (pr) {
+    const k = pr.dataset.proto;
+    if (k === 'detail') return go('detail', { detailId: 'm1' });
+    if (k === 'profile') return go('profile', { profileId: 'u2' });
+    return go(k);
+  }
+  const g = e.target.closest('[data-go]');
+  if (g) { e.preventDefault(); if (g.dataset.go === 'settings') return go('settings'); return go(g.dataset.go); }
+
+  const tagEl = e.target.closest('.mc .tag');
+  if (tagEl) { S.filters.tag = tagEl.dataset.tag.toLowerCase(); S.filters.shortcut = null; if (!['home', 'explore', 'archived', 'profile'].includes(S.view)) S.view = 'home'; closeFloat(); render(); return; }
+
+  const el = e.target.closest('[data-act]');
+  if (!e.target.closest('#float') && !(el && ['memo-menu', 'react-pick', 'notif', 'tag-menu'].includes(el.dataset.act))) closeFloat();
+  if (!e.target.closest('#suggest') && !e.target.dataset?.input) closeSuggest();
+  if (!el) return;
+  const act = el.dataset.act;
+  const id = el.dataset.id;
+  if (el.tagName === 'A') e.preventDefault();
+
+  switch (act) {
+    case 'backdrop': if (e.target === el) closeOverlay(); break;
+    case 'close': closeOverlay(); break;
+    case 'noop': break;
+    case 'proto-toggle': $('#proto').classList.toggle('collapsed'); renderProto(); break;
+
+    /* composer */
+    case 'save': saveComposer(el.dataset.c); break;
+    case 'ins': insertAt(el.dataset.c, el.dataset.v.replace(/\\n/g, '\n')); break;
+    case 'attach': {
+      const st = composerState(el.dataset.c);
+      const names = [['photo.jpg', 'img', '#f0a35e'], ['notes.pdf', 'file'], ['sketch.png', 'img', '#5bb8a6']];
+      const [name, type, color] = names[st.atts.length % names.length];
+      st.atts.push({ name, type, color });
+      keepTextRender(el.dataset.c);
+      break;
+    }
+    case 'rm-att': composerState(el.dataset.c).atts.splice(+el.dataset.i, 1); keepTextRender(el.dataset.c); break;
+    case 'rm-rel': composerState(el.dataset.c).rels.splice(+el.dataset.i, 1); keepTextRender(el.dataset.c); break;
+    case 'location': insertAt(el.dataset.c, ''); toast('📍 Location added: Market St, San Francisco'); break;
+    case 'link-memo': {
+      const c = el.dataset.c;
+      const opts = memos.filter((m) => !m.parentId && (m.creator === ME || m.vis !== 'PRIVATE') && m.id !== c);
+      const html = `<div class="mhd">Link a memo<button class="x" data-act="close">×</button></div>
+        <div class="mb"><input class="input" placeholder="Search memos…" id="rel-q"/>
+        <div class="pick-list" id="rel-list">${opts.map((m) => `<div class="pick" data-act="pick-rel" data-c="${c}" data-id="${m.id}">${avatar(m.creator, 's18')}<span class="tx">${esc(snippet(m, 70))}</span><span class="tm">${rel(m.created)}</span></div>`).join('')}</div></div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button></div>`;
+      if (c === 'quick') { S._quickText = $('[data-input="quick"]').value; }
+      S._relBack = c;
+      S._relText = $(`[data-input="${CSS.escape(c)}"]`)?.value;
+      modal(html);
+      $('#rel-q').addEventListener('input', (ev) => {
+        const q = ev.target.value.toLowerCase();
+        document.querySelectorAll('#rel-list .pick').forEach((p) => { p.style.display = p.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+      });
+      break;
+    }
+    case 'pick-rel': {
+      const c = el.dataset.c;
+      const st = composerState(c);
+      if (!st.rels.includes(id)) st.rels.push(id);
+      if (c === 'quick') { openQuick(); S.quick = st; const t = $('[data-input="quick"]'); t.value = S._quickText || ''; refreshQuick(); }
+      else { closeOverlay(); const t = S._relText; render(); const ta = $(`[data-input="${CSS.escape(c)}"]`); if (ta) { ta.value = t || ''; syncSaveBtn(ta); } }
+      break;
+    }
+    case 'sugg': applySuggest(+el.dataset.i); break;
+    case 'cancel-edit': S.editingId = null; render(); break;
+
+    /* memo actions */
+    case 'memo-menu': floatAt(memoMenu(byId(id)), el, 'right'); break;
+    case 'edit': closeFloat(); S.editingId = id; render(); break;
+    case 'expand': S.expanded[id] = true; render(); break;
+    case 'open': closeFloat(); closeOverlay(); go('detail', { detailId: id }); break;
+    case 'back': { const p = S.prev || { view: 'home' }; go(p.view === 'detail' || p.view === S.view ? 'home' : p.view, { detailId: p.detailId, profileId: p.profileId }); break; }
+    case 'profile': go('profile', { profileId: el.dataset.u }); break;
+    case 'pin': { const m = byId(id); m.pinned = !m.pinned; closeFloat(); render(); toast(m.pinned ? '📌 Pinned to the top' : 'Unpinned'); break; }
+    case 'copy-link': closeFloat(); navigator.clipboard?.writeText(`https://wiki.acme.com/memo/${id}`); toast(`${I.check} Link copied`); break;
+    case 'archive': { const m = byId(id); m.archived = true; closeFloat(); if (S.view === 'detail') go('home'); else render(); toast(`Memo archived · <a data-act="restore" data-id="${id}">Undo</a>`); break; }
+    case 'restore': { const m = byId(id); m.archived = false; closeFloat(); render(); toast(`${I.check} Memo restored`); break; }
+    case 'delete':
+      closeFloat();
+      modal(`<div class="mhd">Delete memo?<button class="x" data-act="close">×</button></div>
+        <div class="mb">“${esc(snippet(byId(id), 80))}”<br/><br/>It moves to Trash with its ${comments(id).length} comment(s) and can be restored for 30 days.</div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button><button class="btn danger" data-act="confirm-delete" data-id="${id}">Delete</button></div>`);
+      break;
+    case 'confirm-delete': memos = memos.filter((m) => m.id !== id && m.parentId !== id); closeOverlay(); if (S.view === 'detail') go('home'); else render(); toast('Memo moved to Trash'); break;
+    case 'share-public': {
+      closeFloat();
+      const m = byId(id);
+      if (m.vis === 'PUBLIC') { toast(`${I.check} Public link copied`); break; }
+      modal(`<div class="mhd">Share memo publicly<button class="x" data-act="close">×</button></div>
+        <div class="mb">Anyone with the link can read this memo, without signing in. Comments stay private to the workspace.
+        <div style="display:flex;gap:6px;margin-top:12px"><input class="input" readonly value="https://wiki.acme.com/s/memo-${id}"/><button class="btn" data-act="publish" data-id="${id}">Publish</button></div></div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button></div>`);
+      break;
+    }
+    case 'publish': byId(id).vis = 'PUBLIC'; closeOverlay(); render(); toast(`${I.check} Published · link copied`); break;
+    case 'quote-new': closeFloat(); openQuick(id); break;
+    case 'convert': {
+      closeFloat();
+      const m = byId(id);
+      modal(`<div class="mhd">Convert to document<button class="x" data-act="close">×</button></div>
+        <div class="mb">Creates a document from this memo’s content, attachments and tags. The memo stays, with a link to the new document.
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+            <label class="small"><b>Title</b><input class="input" id="cv-title" style="margin-top:4px" value="${esc(snippet(m, 50).replace(/…$/, ''))}"/></label>
+            <label class="small"><b>Collection</b><select class="input" id="cv-col" style="margin-top:4px"><option>Team rituals</option><option>Engineering</option><option>Product</option></select></label>
+            <label class="small" style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked id="cv-arch"/> Archive the memo afterwards</label>
+          </div></div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button><button class="btn" data-act="do-convert" data-id="${id}">Create document</button></div>`);
+      break;
+    }
+    case 'do-convert': {
+      const m = byId(id);
+      S.convertedDoc = { title: $('#cv-title').value || 'Untitled', collection: $('#cv-col').value, text: m.text, memoId: id };
+      if ($('#cv-arch').checked) m.archived = true;
+      closeOverlay();
+      go('doc');
+      toast(`${I.check} Document created in ${esc(S.convertedDoc.collection)}`);
+      break;
+    }
+
+    /* reactions */
+    case 'react-pick': {
+      floatAt(`<div class="menu emoji-pop">${S.settings.reactions.map((e2) => `<button data-act="react" data-id="${id}" data-e="${e2}">${e2}</button>`).join('')}</div>`, el, 'right');
+      break;
+    }
+    case 'react': {
+      const m = byId(id);
+      const e2 = el.dataset.e;
+      const us = m.reactions[e2] || (m.reactions[e2] = []);
+      const i = us.indexOf(ME);
+      if (i >= 0) us.splice(i, 1); else us.push(ME);
+      if (!us.length) delete m.reactions[e2];
+      closeFloat(); render();
+      break;
+    }
+    case 'lightbox': modal(`<div class="lightbox" data-act="close">${esc(el.dataset.n)} · click to close</div>`, 720); break;
+
+    /* filters */
+    case 'tag': if (e.target.closest('[data-act="tag-toggle"],[data-act="tag-menu"]')) break; S.filters.tag = S.filters.tag === el.dataset.tag ? null : el.dataset.tag; S.filters.shortcut = null; render(); break;
+    case 'tag-toggle': S.collapsedTags[el.dataset.tag] = !S.collapsedTags[el.dataset.tag]; render(); break;
+    case 'tag-menu': {
+      const t = el.dataset.tag;
+      floatAt(`<div class="menu"><div class="mh2">#${esc(t)}</div>
+        <div class="mi" data-act="tag-rename" data-tag="${esc(t)}">${I.edit} Rename tag…</div>
+        <div class="mi" data-act="tag-shortcut" data-tag="${esc(t)}">⚡ Save as shortcut</div>
+        <div class="sep"></div>
+        <div class="mi danger" data-act="tag-delete" data-tag="${esc(t)}">${I.trash} Remove tag from memos</div></div>`, el, 'right');
+      break;
+    }
+    case 'tag-rename': {
+      closeFloat();
+      const t = el.dataset.tag;
+      const n = prompt(`Rename #${t} in all of your memos to:`, t);
+      if (n && n !== t) {
+        const re = new RegExp(`(^|\\s)#${escapeRegExp(t)}(?=[\\s/]|$)`, 'gi');
+        memos.forEach((m) => { if (m.creator === ME) m.text = m.text.replace(re, `$1#${n}`); });
+        if (S.filters.tag === t) S.filters.tag = n;
+        render(); toast(`${I.check} Renamed #${esc(t)} to #${esc(n)}`);
+      }
+      break;
+    }
+    case 'tag-delete': {
+      closeFloat();
+      const t = el.dataset.tag;
+      const re = new RegExp(`(^|\\s)#${escapeRegExp(t)}(?=\\s|$)`, 'gi');
+      memos.forEach((m) => { if (m.creator === ME) m.text = m.text.replace(re, '$1').trim(); });
+      if (S.filters.tag === t) S.filters.tag = null;
+      render(); toast(`Removed #${esc(t)} from your memos`);
+      break;
+    }
+    case 'tag-shortcut': closeFloat(); S.shortcuts.push({ id: 's' + Date.now(), title: '#' + el.dataset.tag, filter: { tag: el.dataset.tag } }); render(); toast(`${I.check} Shortcut saved`); break;
+    case 'day': S.filters.date = S.filters.date === el.dataset.d ? null : el.dataset.d; render(); break;
+    case 'prop': S.filters.prop = S.filters.prop === el.dataset.p ? null : el.dataset.p; render(); break;
+    case 'shortcut': S.filters = { tag: null, query: '', date: null, prop: null, shortcut: S.filters.shortcut === el.dataset.s ? null : el.dataset.s }; render(); break;
+    case 'clear-f': S.filters[el.dataset.k] = el.dataset.k === 'query' ? '' : null; render(); break;
+    case 'clear-all': S.filters = { tag: null, query: '', date: null, prop: null, shortcut: null }; render(); break;
+    case 'new-shortcut': {
+      const f = S.filters;
+      const desc = [f.tag && '#' + f.tag, f.prop, f.query && `“${f.query}”`].filter(Boolean).join(' + ');
+      modal(`<div class="mhd">New shortcut<button class="x" data-act="close">×</button></div>
+        <div class="mb">Saves a filter you can open with one click.
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+          <label class="small"><b>Name</b><input class="input" id="sc-name" style="margin-top:4px" value="${esc(desc || 'My shortcut')}"/></label>
+          <label class="small"><b>Filter</b><input class="input" id="sc-filter" style="margin-top:4px;font-family:var(--mono);font-size:13px" value="${esc(desc ? `tag:${f.tag || ''} ${f.prop ? 'has:' + f.prop : ''} ${f.query || ''}`.trim() : 'tag:work has:tasks')}"/></label>
+          <div class="small muted">Syntax: <code>tag:work</code> <code>has:tasks</code> <code>has:link</code> <code>has:code</code> <code>visibility:workspace</code> plus free text.</div>
+        </div></div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button><button class="btn" data-act="save-shortcut">Save</button></div>`);
+      break;
+    }
+    case 'save-shortcut': {
+      const raw = $('#sc-filter').value;
+      const filter = {};
+      const tm = raw.match(/tag:([\w/-]+)/); if (tm) filter.tag = tm[1];
+      const hm = raw.match(/has:(\w+)/); if (hm) filter.prop = hm[1];
+      const q = raw.replace(/\w+:[\w/-]+/g, '').trim(); if (q) filter.query = q;
+      S.shortcuts.push({ id: 's' + Date.now(), title: $('#sc-name').value || 'Shortcut', filter });
+      closeOverlay(); render(); toast(`${I.check} Shortcut saved`);
+      break;
+    }
+    case 'layout': S.layout = el.dataset.l; render(); break;
+
+    /* misc */
+    case 'quick': openQuick(); break;
+    case 'notif': {
+      S.unread = 0; renderSidebar();
+      const anchor = $('.bell');
+      floatAt(`<div class="menu notif">
+        <div class="nh">Notifications <a class="small" style="font-weight:400">Mark all read</a></div>
+        <div class="ni unread" data-act="open" data-id="m3">${avatar('u3', 's28')}<div><b>Priya Nair</b> commented on your memo<div class="q">“I can reproduce this. Looks like the PDF font fallback.”</div><div class="t">2 hours ago</div></div></div>
+        <div class="ni unread" data-act="open" data-id="m4">${avatar('u2', 's28')}<div><b>Sam Rivera</b> mentioned you in a memo<div class="q">“Coffee chat with @alice: API docs needed by Friday…”</div><div class="t">3 hours ago</div></div></div>
+        <div class="ni" data-act="open" data-id="m1">${avatar('u3', 's28')}<div><b>Priya Nair</b> reacted 👍 to your memo<div class="q">Weekly review template</div><div class="t">yesterday</div></div></div>
+        <div class="ni">${avatar('u2', 's28')}<div><b>Sam Rivera</b> updated the document <b>API reference</b><div class="t">2 days ago</div></div></div>
+      </div>`, anchor);
+      break;
+    }
+    case 'open-doc': toast('Opens the linked Outline document'); break;
+    case 'clean-unused': toast('Deleted 2 unused attachments'); break;
+
+    /* settings */
+    case 'set-enabled': S.settings.enabled = !S.settings.enabled; render(); toast(S.settings.enabled ? 'Memos enabled for the workspace' : 'Memos hidden for all members'); break;
+    case 'set-public': S.settings.allowPublic = !S.settings.allowPublic; render(); break;
+    case 'set-comments': S.settings.comments = !S.settings.comments; render(); break;
+    case 'rm-emoji': S.settings.reactions = S.settings.reactions.filter((x) => x !== el.dataset.e); render(); break;
+    case 'add-emoji': { const em = prompt('Emoji to add:', '🔥'); if (em) { S.settings.reactions.push(em.trim()); render(); } break; }
+    case 'import':
+      modal(`<div class="mhd">Import from Memos<button class="x" data-act="close">×</button></div>
+        <div class="mb">Connect to an existing Memos server once and copy everything into this workspace. Memos are created for users with a matching email; others are assigned to you.
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+          <label class="small"><b>Server URL</b><input class="input" style="margin-top:4px" value="https://memos.example.com"/></label>
+          <label class="small"><b>Admin access token</b><input class="input" style="margin-top:4px" type="password" value="memos_pat_xxxxx"/></label>
+          <div class="small muted">Or upload a Memos backup (<code>memos_prod.db</code>) instead.</div>
+        </div></div>
+        <div class="mf"><button class="btn neutral" data-act="close">Cancel</button><button class="btn" data-act="start-import">Start import</button></div>`);
+      break;
+    case 'start-import': closeOverlay(); toast('Import started · follow progress in Settings → Import', 3500); setTimeout(() => toast(`${I.check} Imported 1,284 memos, 312 comments, 96 attachments`), 2600); break;
+    case 'export': toast('Preparing export · we’ll email you a download link'); break;
+  }
+});
+
+function keepTextRender(c) {
+  const ta = $(`[data-input="${CSS.escape(c)}"]`);
+  const v = ta?.value;
+  if (c === 'quick') { refreshQuick(v); return; }
+  render();
+  const t2 = $(`[data-input="${CSS.escape(c)}"]`);
+  if (t2 && v != null) { t2.value = v; syncSaveBtn(t2); autosize(t2); }
+}
+function refreshQuick(v) {
+  const t = $('[data-input="quick"]');
+  const text = v != null ? v : t?.value || '';
+  const holder = $('[data-composer="quick"]');
+  if (!holder) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = composerHtml({ id: 'quick', text, vis: S.defaultVis, atts: S.quick.atts, rels: S.quick.rels });
+  holder.replaceWith(wrap.firstElementChild);
+  const nt = $('[data-input="quick"]');
+  nt.focus(); autosize(nt);
+}
+
+// Deep links, e.g. #explore, #detail=m1, #profile=u2, #settings
+(function applyHash() {
+  const [k, v] = location.hash.slice(1).split('&')[0].split('=');
+  if (k === 'detail') { S.view = 'detail'; S.detailId = v || 'm1'; }
+  else if (k === 'profile') { S.view = 'profile'; S.profileId = v || 'u2'; }
+  else if (['home', 'explore', 'archived', 'attachments', 'settings'].includes(k)) S.view = k;
+  if (location.hash.includes('masonry')) S.layout = 'masonry';
+})();
+render();
+if (location.hash.includes('notif')) setTimeout(() => $('.bell')?.click(), 50);
+if (location.hash.includes('menu')) setTimeout(() => $('[data-act="memo-menu"]')?.click(), 50);
+if (location.hash.includes('quick')) setTimeout(() => openQuick(), 50);
+</script>
+</body>
+</html>
