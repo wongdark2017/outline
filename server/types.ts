@@ -43,6 +43,7 @@ import type {
   GroupMembership,
   Import,
   OAuthClient,
+  Reminder,
 } from "./models";
 
 export { AuthenticationType } from "@shared/types";
@@ -536,7 +537,8 @@ export type Event =
   | OAuthClientEvent
   | UserPasskeyEvent
   | EmptyTrashEvent
-  | ImportEvent;
+  | ImportEvent
+  | ReminderEvent;
 
 export type NotificationMetadata = {
   notificationId?: string;
@@ -648,4 +650,11 @@ export type UninstallSignature = (integration: Integration) => Promise<void>;
 
 export type Replace<T, K extends keyof T, N extends string> = {
   [P in keyof T as P extends K ? N : P]: T[P extends K ? K : P];
+};
+
+export type ReminderEvent = BaseEvent<Reminder> & {
+  name: "reminders.create" | "reminders.update" | "reminders.delete";
+  modelId: string;
+  documentId: string;
+  userId: string;
 };

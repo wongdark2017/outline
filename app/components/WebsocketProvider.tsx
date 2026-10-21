@@ -42,6 +42,8 @@ import type {
 import { AuthorizationError, NotFoundError } from "~/utils/errors";
 import Logger from "~/utils/Logger";
 import { getVisibilityListener, getPageVisible } from "~/utils/pageVisibility";
+import Reminder from "~/models/Reminders";
+
 
 type SocketWithAuthentication = Socket & {
   authenticated?: boolean;
@@ -54,12 +56,12 @@ const unreportableErrorIds = [
 ];
 
 export const WebsocketContext = createContext<SocketWithAuthentication | null>(
-  null
+  null,
 );
 
 function invalidateChildPolicies(
   documentId: string,
-  { documents, policies }: Pick<RootStore, "documents" | "policies">
+  { documents, policies }: Pick<RootStore, "documents" | "policies">,
 ) {
   const document = documents.get(documentId);
   if (document) {
@@ -84,7 +86,7 @@ async function revokeCollectionAccess(
     documents,
     memberships,
     policies,
-  }: Pick<RootStore, "collections" | "documents" | "memberships" | "policies">
+  }: Pick<RootStore, "collections" | "documents" | "memberships" | "policies">,
 ) {
   policies.remove(collectionId);
 
@@ -97,7 +99,7 @@ async function revokeCollectionAccess(
     } else {
       Logger.error(
         "Failed to fetch collection after access change",
-        toError(err)
+        toError(err),
       );
     }
     return;
@@ -271,7 +273,7 @@ function useEntityHandlers() {
             }
           }
         }
-      })
+      }),
     );
   };
 }
@@ -299,7 +301,7 @@ function useDocumentHandlers() {
           const collection = collections.get(event.collectionId);
           collection?.updateDocument(event);
         }
-      })
+      }),
     );
 
     socket.on(
@@ -326,8 +328,8 @@ function useDocumentHandlers() {
             const collection = collections.get(event.collectionId);
             collection?.removeDocument(document.id);
           }
-        }
-      )
+        },
+      ),
     );
 
     socket.on(
@@ -340,7 +342,7 @@ function useDocumentHandlers() {
           const collection = collections.get(event.collectionId);
           collection?.removeDocument(event.id);
         }
-      })
+      }),
     );
 
     socket.on(
@@ -357,14 +359,14 @@ function useDocumentHandlers() {
         userMemberships.orderedData
           .filter((m) => m.documentId === event.id)
           .forEach((m) => userMemberships.remove(m.id));
-      })
+      }),
     );
 
     socket.on(
       "documents.permanent_delete",
       (event: WebsocketEntityDeletedEvent) => {
         documents.remove(event.modelId, { permanent: true });
-      }
+      },
     );
 
     socket.on(
@@ -388,7 +390,7 @@ function useDocumentHandlers() {
         } catch (err) {
           Logger.error("Failed to fetch document after add_user", toError(err));
         }
-      }
+      },
     );
 
     socket.on(
@@ -404,7 +406,7 @@ function useDocumentHandlers() {
         if (policy && policy.abilities.read === false) {
           documents.remove(event.documentId!, { permanent: true });
         }
-      }
+      },
     );
 
     socket.on(
@@ -425,10 +427,10 @@ function useDocumentHandlers() {
         } catch (err) {
           Logger.error(
             "Failed to load relations after add_group",
-            toError(err)
+            toError(err),
           );
         }
-      }
+      },
     );
 
     socket.on(
@@ -440,7 +442,7 @@ function useDocumentHandlers() {
         if (policy && policy.abilities.read === false) {
           documents.remove(event.documentId!, { permanent: true });
         }
-      }
+      },
     );
   };
 }
@@ -462,14 +464,14 @@ function useCollectionHandlers() {
       "collections.create",
       (event: PartialExcept<Collection, "id">) => {
         collections.add(event);
-      }
+      },
     );
 
     socket.on(
       "collections.update",
       (event: PartialExcept<Collection, "id">) => {
         collections.add(event);
-      }
+      },
     );
 
     socket.on(
@@ -489,7 +491,7 @@ function useCollectionHandlers() {
         });
         memberships.removeAll({ collectionId });
         collections.remove(collectionId);
-      })
+      }),
     );
 
     socket.on(
@@ -503,7 +505,7 @@ function useCollectionHandlers() {
         } catch (err) {
           Logger.error(
             "Failed to fetch collection after archive",
-            toError(err)
+            toError(err),
           );
         }
 
@@ -516,9 +518,9 @@ function useCollectionHandlers() {
               doc.archivedAt = event.archivedAt as string;
             }
             policies.remove(doc.id);
-          })
+          }),
         );
-      }
+      },
     );
 
     socket.on(
@@ -533,7 +535,7 @@ function useCollectionHandlers() {
             action((doc) => {
               doc.archivedAt = null;
               policies.remove(doc.id);
-            })
+            }),
           );
 
         // Fetch collection to update policies
@@ -542,10 +544,10 @@ function useCollectionHandlers() {
         } catch (err) {
           Logger.error(
             "Failed to fetch collection after restore",
-            toError(err)
+            toError(err),
           );
         }
-      }
+      },
     );
 
     socket.on("collections.add_user", async (event: Membership) => {
@@ -586,7 +588,7 @@ function useCollectionHandlers() {
       } catch (err) {
         Logger.error(
           "Failed to fetch collection after add_group",
-          toError(err)
+          toError(err),
         );
       }
     });
@@ -615,7 +617,7 @@ function useCollectionHandlers() {
           documents,
           memberships,
           policies,
-        })
+        }),
     );
 
     socket.on(
@@ -623,7 +625,7 @@ function useCollectionHandlers() {
       action((event: WebsocketCollectionUpdateIndexEvent) => {
         const collection = collections.get(event.collectionId);
         collection?.updateIndex(event.index);
-      })
+      }),
     );
   };
 }
@@ -660,7 +662,7 @@ function useCommentHandlers() {
           emoji: event.emoji,
           user: event.user,
         });
-      }
+      },
     );
 
     socket.on(
@@ -672,7 +674,7 @@ function useCommentHandlers() {
           emoji: event.emoji,
           user: event.user,
         });
-      }
+      },
     );
   };
 }
@@ -705,7 +707,7 @@ function useGroupHandlers() {
         } catch (err) {
           Logger.error("Failed to load relations after add_user", toError(err));
         }
-      }
+      },
     );
 
     socket.on("groups.remove_user", (event: PartialExcept<GroupUser, "id">) => {
@@ -752,7 +754,7 @@ function useUserHandlers() {
         } catch (err) {
           Logger.error(
             "Failed to fetch collections after role change",
-            toError(err)
+            toError(err),
           );
         }
       }
@@ -769,7 +771,7 @@ function useUserHandlers() {
       "userMemberships.update",
       async (event: PartialExcept<UserMembership, "id">) => {
         userMemberships.add(event);
-      }
+      },
     );
   };
 }
@@ -782,14 +784,14 @@ function useNotificationHandlers() {
       "notifications.create",
       (event: PartialExcept<Notification, "id">) => {
         notifications.add(event);
-      }
+      },
     );
 
     socket.on(
       "notifications.update",
       (event: PartialExcept<Notification, "id">) => {
         notifications.add(event);
-      }
+      },
     );
 
     socket.on("notifications.delete", (event: WebsocketEntityDeletedEvent) => {
@@ -800,7 +802,7 @@ function useNotificationHandlers() {
       "subscriptions.create",
       (event: PartialExcept<Subscription, "id">) => {
         subscriptions.add(event);
-      }
+      },
     );
 
     socket.on("subscriptions.delete", (event: WebsocketEntityDeletedEvent) => {
@@ -854,7 +856,7 @@ function useImportHandlers() {
       "fileOperations.create",
       (event: PartialExcept<FileOperation, "id">) => {
         fileOperations.add(event);
-      }
+      },
     );
 
     socket.on(
@@ -871,7 +873,7 @@ function useImportHandlers() {
             description: t("Your import completed"),
           });
         }
-      }
+      },
     );
 
     socket.on("imports.create", (event: PartialExcept<Import, "id">) => {
@@ -893,6 +895,24 @@ function useImportHandlers() {
   };
 }
 
+function useReminderHandlers() {
+  const { reminders } = useStores();
+
+  return (socket: SocketWithAuthentication) => {
+    socket.on("reminders.create", (event: PartialExcept<Reminder, "id">) => {
+      reminders.add(event);
+    });
+
+    socket.on("reminders.update", (event: PartialExcept<Reminder, "id">) => {
+      reminders.add(event);
+    });
+
+    socket.on("reminders.delete", (event: WebsocketEntityDeletedEvent) => {
+      reminders.remove(event.modelId);
+    });
+  };
+}
+
 function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
   const [socket, setSocket] = useState<SocketWithAuthentication | null>(null);
 
@@ -908,6 +928,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
   const registerPinHandlers = usePinHandlers();
   const registerStarHandlers = useStarHandlers();
   const registerImportHandlers = useImportHandlers();
+  const registerReminderHandlers = useReminderHandlers();
 
   useEffect(() => {
     let currentSocket: SocketWithAuthentication | null = null;
@@ -936,6 +957,7 @@ function WebsocketProvider({ children }: React.PropsWithChildren<object>) {
       registerPinHandlers(currentSocket);
       registerStarHandlers(currentSocket);
       registerImportHandlers(currentSocket);
+      registerReminderHandlers(currentSocket);
 
       setSocket(currentSocket);
     }

@@ -51,12 +51,14 @@ import {
   OAuthAuthentication,
   Relationship,
   Template,
+  Reminder,
 } from "@server/models";
 import { RelationshipType } from "@server/models/Relationship";
 import { SearchQuerySource } from "@server/models/SearchQuery";
 import AttachmentHelper from "@server/models/helpers/AttachmentHelper";
 import { hash } from "@server/utils/crypto";
 import { OAuthInterface } from "@server/utils/oauth/OAuthInterface";
+import { addDays } from "date-fns";
 
 export async function buildApiKey(overrides: Partial<ApiKey> = {}) {
   if (!overrides.userId) {
@@ -120,6 +122,29 @@ export async function buildStar(overrides: Partial<Star> = {}) {
   return Star.create({
     index: "h",
     ...overrides,
+  });
+}
+
+export async function buildReminder(overrides: Partial<Reminder> = {}){
+  let user;
+
+  if(overrides.userId){
+    user = await User.findByPk(overrides.userId,{rejectOnEmpty: true});
+  }else{
+    user = await buildUser(overrides.teamId? {teamId: overrides.teamId}:{});
+    overrides.userId = user.id;
+  }
+  if(!overrides.documentId){
+    const document = await buildDocument({
+      createdById: user.id,
+      teamId: user.teamId,
+    });
+    overrides.documentId = document.id;
+  }
+  return Reminder.create({
+    teamId:user.id,
+    remindAt: addDays(new Date(),1),
+    ...overrides
   });
 }
 

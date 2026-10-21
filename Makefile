@@ -85,6 +85,18 @@ migrate-remote: check-shared tunnel
 	yarn build:server
 	$(with_shared_env) yarn sequelize db:migrate
 
+# Lists migrations the shared database hasn't applied yet, and the last one it has.
+migrate-status-remote: check-shared tunnel
+	@$(with_shared_env) yarn sequelize db:migrate:status | \
+		awk '/^up / {last = $$2} /^down / {print "pending: " $$2; n++} \
+			END {print "last applied: " last; if (!n) print "nothing pending"}'
+
+# Undoes the most recent migration on the shared database (runs its `down`).
+rollback-remote: check-shared tunnel
+	@printf "Undo the last migration on the SHARED database? [y/N] "; \
+		read answer; [ "$$answer" = y ]
+	$(with_shared_env) yarn sequelize db:migrate:undo
+
 check-shared:
 	@test -f $(SHARED_ENV) || { echo "Missing $(SHARED_ENV), see the comment above up-remote in the Makefile"; exit 1; }
 	@for key in DATABASE_URL REDIS_URL SECRET_KEY FILE_STORAGE; do \
@@ -110,4 +122,5 @@ tunnel-stop:
 	-pkill -f "$(REDIS_PORT):127.0.0.1:6379"
 	-pkill -f "$(S3_PORT):127.0.0.1:9000"
 
-.PHONY: up-remote migrate-remote check-shared tunnel tunnel-stop
+.PHONY: up-remote migrate-remote migrate-status-remote rollback-remote check-shared \
+	tunnel tunnel-stop

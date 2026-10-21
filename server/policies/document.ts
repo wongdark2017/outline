@@ -72,6 +72,17 @@ allow(User, "comment", Document, (actor, document) => {
 });
 
 allow(
+  User, 
+  "remind", 
+  Document, 
+  (actor,document)=> 
+    and(
+      !!document?.isActive,
+      can(actor,"read",document)
+  )
+);
+
+allow(
   User,
   ["star", "unstar", "subscribe", "unsubscribe"],
   Document,

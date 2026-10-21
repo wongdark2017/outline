@@ -17,6 +17,7 @@ import {
   User,
   Import,
   Template,
+  Reminder,
 } from "@server/models";
 import { cannot } from "@server/policies";
 import {
@@ -37,6 +38,8 @@ import {
 } from "@server/presenters";
 import presentNotification from "@server/presenters/notification";
 import type { Event } from "../../types";
+import { emit } from "process";
+import presentReminder from "@server/presenters/reminder";
 
 export default class WebsocketsProcessor {
   public async perform(event: Event, socketio: Server) {
@@ -178,8 +181,8 @@ export default class WebsocketsProcessor {
 
         const destCollection = document.collectionId
           ? await Collection.findByPk(document.collectionId, {
-              attributes: ["id", "updatedAt"],
-            })
+            attributes: ["id", "updatedAt"],
+          })
           : null;
 
         return socketio.to(channels).emit("entities", {
@@ -195,9 +198,9 @@ export default class WebsocketsProcessor {
             compact([
               destCollection
                 ? {
-                    id: destCollection.id,
-                    updatedAt: destCollection.updatedAt,
-                  }
+                  id: destCollection.id,
+                  updatedAt: destCollection.updatedAt,
+                }
                 : undefined,
               {
                 id: srcCollection.id,
@@ -1025,6 +1028,21 @@ export default class WebsocketsProcessor {
         return socketio
           .to(`user-${event.userId}`)
           .emit(event.name, { id: event.modelId, ...event.data });
+      }
+      case "reminders.create":
+      case "reminders.update": {
+        const reminder = await Reminder.findByPk(event.modelId);
+        if (!reminder) {
+          return;
+        }
+        return socketio
+          .to(`user-${event.userId}`)
+          .emit(event.name, presentReminder(reminder));
+      }
+      case "reminders.delete": {
+        return socketio.to(`user-${event.userId}`).emit(event.name,{
+          modelId: event.modelId,
+        });
       }
 
       default:

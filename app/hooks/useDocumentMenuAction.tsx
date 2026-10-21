@@ -41,6 +41,7 @@ import { ActiveDocumentSection } from "~/actions/sections";
 import useMobile from "./useMobile";
 import type Template from "~/models/Template";
 import { useTemplateMenuActions } from "./useTemplateMenuActions";
+import { remindAboutDocument } from "~/actions/definitions/reminders";
 
 type Props = {
   /** Document ID for which the actions are generated */
@@ -79,6 +80,7 @@ export function useDocumentMenuAction({
         unstarDocument,
         subscribeDocument,
         unsubscribeDocument,
+        remindAboutDocument,
         createAction({
           name: `${t("Find and replace")}…`,
           section: ActiveDocumentSection,

@@ -36,6 +36,7 @@ import UsersStore from "./UsersStore";
 import ViewsStore from "./ViewsStore";
 import WebhookSubscriptionsStore from "./WebhookSubscriptionStore";
 import Store from "./base/Store";
+import RemindersStore from "./RemindersStore";
 
 export default class RootStore {
   apiKeys: ApiKeysStore;
@@ -72,6 +73,7 @@ export default class RootStore {
   fileOperations: FileOperationsStore;
   webhookSubscriptions: WebhookSubscriptionsStore;
   userMemberships: UserMembershipsStore;
+  reminders: RemindersStore;
 
   constructor() {
     // Models
@@ -105,6 +107,7 @@ export default class RootStore {
     this.registerStore(FileOperationsStore);
     this.registerStore(WebhookSubscriptionsStore);
     this.registerStore(UserMembershipsStore);
+    this.registerStore(RemindersStore);
 
     // Non-models
     this.registerStore(DocumentPresenceStore, "presence");

@@ -223,3 +223,7 @@ export const EmojiValidation = {
   /* the characters allowed in the name */
   allowedNameCharacters: /^[a-z0-9_]*$/,
 };
+
+export const ReminderValidation = {
+  maxNoteLength: 255,
+};
