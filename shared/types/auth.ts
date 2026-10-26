@@ -42,3 +42,9 @@ export interface AuthenticationProviderSettings {
    */
   groupSyncScopes?: string[];
 }
+
+/** The credential delivered by email sign-in. */
+export enum EmailSigninMethod {
+  Code = "code",
+  Link = "link",
+}

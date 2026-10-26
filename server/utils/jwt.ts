@@ -1,11 +1,11 @@
 import { subMinutes } from "date-fns";
 import JWT from "jsonwebtoken";
 import type { FindOptions } from "sequelize";
-import { Minute } from "@shared/utils/time";
 import { Team, User } from "@server/models";
 import Redis from "@server/storage/redis";
 import { AuthenticationError, UserSuspendedError } from "../errors";
 import { hash } from "./crypto";
+import { EmailSigninRequest } from "./EmailSigninRequest";
 import { RedisPrefixHelper } from "./RedisPrefixHelper";
 import type { Context } from "koa";
 
@@ -128,14 +128,38 @@ export async function getUserForEmailSigninToken(
     throw AuthenticationError("Invalid token");
   }
 
-  // check the token is within it's expiration time
-  if (payload.createdAt) {
-    if (new Date(payload.createdAt) < subMinutes(new Date(), 10)) {
-      throw AuthenticationError("Expired token");
-    }
+  const createdAt =
+    typeof payload.createdAt === "string" ? Date.parse(payload.createdAt) : NaN;
+  const explicit =
+    payload.requestId !== undefined ||
+    payload.requestedAt !== undefined ||
+    payload.expiresAt !== undefined ||
+    payload.jti !== undefined;
+  const deadline = EmailSigninRequest.getDeadline(createdAt);
+  if (
+    !Number.isSafeInteger(createdAt) ||
+    createdAt > Date.now() + EmailSigninRequest.clockSkewTolerance ||
+    (explicit &&
+      (typeof payload.requestId !== "string" ||
+        !payload.requestId ||
+        payload.requestId.length > 128 ||
+        !Number.isSafeInteger(payload.requestedAt) ||
+        payload.requestedAt !== createdAt ||
+        typeof payload.expiresAt !== "string" ||
+        Date.parse(payload.expiresAt) !== deadline ||
+        typeof payload.jti !== "string" ||
+        !payload.jti))
+  ) {
+    throw AuthenticationError("Invalid token");
   }
-
-  if (payload.ip !== ctx.request.ip) {
+  if (deadline <= Date.now()) {
+    throw AuthenticationError("Expired token");
+  }
+  if (
+    typeof payload.ip !== "string" ||
+    !payload.ip ||
+    payload.ip !== ctx.request.ip
+  ) {
     throw AuthenticationError("Token mismatch");
   }
 
@@ -148,16 +172,41 @@ export async function getUserForEmailSigninToken(
   } catch (_err) {
     throw AuthenticationError("Invalid token");
   }
+  if (!user.team.emailSigninEnabled) {
+    throw AuthenticationError("Disabled signin method");
+  }
+  if (user.team.isSuspended) {
+    throw AuthenticationError("Team suspended");
+  }
+  if (user.isSuspended) {
+    throw AuthenticationError("User suspended");
+  }
 
-  // Atomically claim the token so concurrent requests cannot both redeem it.
-  const claimed = await Redis.defaultClient.set(
+  // Claim each token independently; latest only controls conditional cleanup.
+  const latestKey = EmailSigninRequest.getKeys(
+    user.teamId,
+    user.email ?? ""
+  ).latest;
+  const claimed = await Redis.defaultClient.eval(
+    `local time = redis.call('TIME')
+     local now = tonumber(time[1]) * 1000.0 + math.floor(tonumber(time[2]) / 1000)
+     local remaining = tonumber(ARGV[1]) - now
+     if remaining <= 0 then return -1 end
+     if not redis.call('SET', KEYS[1], '1', 'PX', remaining, 'NX') then return 0 end
+     if ARGV[2] ~= '' and redis.call('GET', KEYS[2]) == ARGV[2] then
+       redis.call('DEL', KEYS[2])
+     end
+     return 1`,
+    2,
     RedisPrefixHelper.getEmailSigninTokenKey(hash(token)),
-    "1",
-    "PX",
-    Minute.ms * 10,
-    "NX"
+    latestKey,
+    deadline,
+    explicit ? payload.requestId : ""
   );
-  if (!claimed) {
+  if (claimed === -1) {
+    throw AuthenticationError("Expired token");
+  }
+  if (claimed !== 1) {
     throw AuthenticationError("Token has already been used");
   }
 

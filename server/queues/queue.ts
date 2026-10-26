@@ -8,6 +8,10 @@ import Logger from "@server/logging/Logger";
 import Metrics from "@server/logging/Metrics";
 import Redis from "@server/storage/redis";
 import ShutdownHelper, { ShutdownOrder } from "@server/utils/ShutdownHelper";
+import {
+  createEmailSigninError,
+  isSigninEmailTask,
+} from "@server/utils/emailSigninRedaction";
 
 export function createQueue(
   name: string,
@@ -57,6 +61,17 @@ export function createQueue(
     // Report on the final attempt to avoid noise from intermediate retries.
     const attempts = job?.opts?.attempts ?? 1;
     if ((job?.attemptsMade ?? 0) + 1 >= attempts) {
+      if (isSigninEmailTask(job?.data)) {
+        Logger.error(
+          "Sign-in email job failed",
+          createEmailSigninError("task", err),
+          {
+            templateName: "SigninEmail",
+          }
+        );
+        return;
+      }
+
       Logger.error(`Job failed in ${name} queue`, toError(err), {
         jobId: job?.id,
         attemptsMade: job?.attemptsMade,

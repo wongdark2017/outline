@@ -7,6 +7,10 @@ import HealthMonitor from "@server/queues/HealthMonitor";
 import type { Event } from "@server/types";
 import { initI18n } from "@server/utils/i18n";
 import {
+  createEmailSigninError,
+  isSigninEmailTask,
+} from "@server/utils/emailSigninRedaction";
+import {
   globalEventQueue,
   processorEventQueue,
   websocketQueue,
@@ -169,18 +173,26 @@ export default async function init() {
         isRoot: true,
       })(async function (job) {
         const { name, props } = job.data;
+        const isSigninEmail = isSigninEmailTask(job.data);
+        const logContext = isSigninEmail
+          ? { templateName: "SigninEmail" }
+          : props;
         const TaskClass = tasks[name];
 
         setResource(`Task.${name}`);
-        addTags({ props });
+        addTags(isSigninEmail ? logContext : { props });
 
         if (!TaskClass) {
+          if (isSigninEmail) {
+            throw createEmailSigninError("task");
+          }
+
           throw new Error(
             `Task "${name}" is not registered. Check the file name matches the class name.`
           );
         }
 
-        Logger.info("worker", `${name} running`, props);
+        Logger.info("worker", `${name} running`, logContext);
 
         // @ts-expect-error We will not instantiate an abstract class
         const task = new TaskClass();
@@ -188,13 +200,21 @@ export default async function init() {
         try {
           return await task.perform(props);
         } catch (err) {
+          const taskError = isSigninEmail
+            ? createEmailSigninError("task", err)
+            : toError(err);
+
           // last attempt has failed.
           if (job.attemptsMade + 1 >= (job.opts.attempts || 1)) {
-            await task.onFailed(props).catch(); // suppress exception from 'onFailed'.
+            await task.onFailed(props).catch(() => undefined);
           }
 
-          Logger.error(`Error processing task in ${name}`, toError(err), props);
-          throw err;
+          Logger.error(
+            `Error processing task in ${name}`,
+            taskError,
+            logContext
+          );
+          throw isSigninEmail ? taskError : err;
         }
       })
     )
