@@ -1,0 +1,168 @@
+{
+  "id": "email-code-signin",
+  "name": "email-code-signin",
+  "title": "Email verification code sign-in planning",
+  "description": "Plan email verification code sign-in from both supplied PDFs and the existing authentication flow.",
+  "status": "in_progress",
+  "dev_type": "fullstack",
+  "scope": "authentication",
+  "package": null,
+  "priority": "P2",
+  "creator": "chengqi.dev",
+  "assignee": "chengqi.dev",
+  "createdAt": "2026-10-26",
+  "completedAt": null,
+  "branch": "feat/email-code-signin-pr2",
+  "base_branch": "feat/email-code-signin-pr1",
+  "worktree_path": "/root/outline-email-signin-pr2",
+  "commit": "93f28388e653b45b4c9755765c69d3761ef3beac",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "temp/邮箱验证码登录 · 页面设计.pdf",
+    "temp/Outline Email verification code sign-in — design.pdf"
+  ],
+  "notes": "PR1 a6d32806d committed and pushed via SSH; user canceled PR creation. PR2 independently reviewed and committed as 93f28388e653b45b4c9755765c69d3761ef3beac after the user explicitly authorized submission. Exactly ten reviewed source/test files committed on feat/email-code-signin-pr2; PR2 not pushed. All40tests/type/lint/format checks passed and sources unchanged since review. Joint PR1+PR2 deployment remains required. Original unrelated work preserved; manual phone layout/OS autofill/Electron checks and PR3–PR5 remain planned.",
+  "meta": {
+    "planning_review": {
+      "revision": "U6",
+      "reviewItemsCovered": 8,
+      "revisionsCovered": [
+        "U1",
+        "U2",
+        "U3",
+        "U4",
+        "U5",
+        "U6"
+      ],
+      "contextManifestsRevision": "U6",
+      "blockingDecisions": 0,
+      "requirements": 6,
+      "acceptanceCriteria": 21,
+      "p0": [
+        3,
+        4,
+        6,
+        7,
+        8,
+        9,
+        17,
+        18,
+        19,
+        20
+      ],
+      "planningChecks": "passed",
+      "implementationApproval": "approved"
+    },
+    "implementation": {
+      "approvedRevision": "U6",
+      "currentPR": 2,
+      "scope": "PR2 login integration: implement.md section 4; method-aware UI, local pending timers/recovery, OTP controls and authentication cleanup. Link default unchanged.",
+      "stage": "PR2 committed after explicit user approval; not pushed; PR creation canceled",
+      "nextPR": 3,
+      "typeBaseline": {
+        "ref": "dev-main",
+        "commit": "83a94a206",
+        "command": "yarn tsc --incremental false",
+        "exitCode": 0,
+        "errors": []
+      },
+      "reviewItemsCovered": 8,
+      "worktree": "/root/outline-email-signin-pr2",
+      "branch": "feat/email-code-signin-pr2",
+      "baseRef": "feat/email-code-signin-pr1",
+      "baseCommit": "a6d32806d",
+      "stagedSourceTestFiles": 32,
+      "pr1Commit": "a6d32806d",
+      "publishingAuthorization": "PR1 commit/push completed; PR2 local commit approved and completed; PR creation canceled.",
+      "deploymentConstraint": "PR1 and PR2 must deploy together; independently mergeable",
+      "pr1Validation": {
+        "focusedTestFiles": 14,
+        "focusedTestsPassed": 267,
+        "realRedisTestsPassed": 3,
+        "unreachableRedisTestsSkipped": 3,
+        "typeComparison": {
+          "command": "yarn tsc --incremental false",
+          "dev-main": {
+            "commit": "83a94a206",
+            "exitCode": 0,
+            "errors": []
+          },
+          "feat/email-code-signin-pr1": {
+            "exitCode": 0,
+            "errors": []
+          },
+          "introducedErrors": []
+        },
+        "globalLint": {
+          "exitCode": 0,
+          "errors": 0,
+          "existingWarnings": 178
+        },
+        "globalFormatting": "passed",
+        "scopedSourceTestFiles": 32,
+        "scopedTypeAwareLint": "passed without warnings",
+        "diffCheck": "passed",
+        "review": "passed after fixing OTP exception-message state disclosure",
+        "staging": "exactly PR1 source and tests; no unrelated paths",
+        "originalUserEditsPreserved": true,
+        "manualChecks": "pending per implement.md"
+      },
+      "validation": {
+        "focusedTestFiles": 4,
+        "focusedTestsPassed": 40,
+        "typeCheck": {
+          "command": "yarn tsc --incremental false",
+          "exitCode": 0,
+          "errors": []
+        },
+        "globalLint": {
+          "exitCode": 0,
+          "errors": 0,
+          "existingWarnings": 178
+        },
+        "scopedTypeAwareLint": "10 files passed without warnings",
+        "globalFormatting": "2686 files passed",
+        "diffCheck": "passed",
+        "review": "passed after four recovery fixes with before-fix failing regression tests",
+        "manualChecks": [
+          "real-phone layout",
+          "operating-system OTP autofill",
+          "Electron handoff"
+        ],
+        "logPrefix": "/tmp/outline-email-pr2-review-",
+        "unrelatedUserWorkPreserved": true,
+        "postCommitWorktree": "clean"
+      },
+      "pr1Publishing": {
+        "commit": "a6d32806d",
+        "branch": "feat/email-code-signin-pr1",
+        "base": "dev-main",
+        "status": "committed and pushed via SSH; PR creation canceled by user",
+        "prBodyFile": "/tmp/outline-email-pr1-pr-body.txt",
+        "prUrl": null
+      },
+      "prCreation": "canceled by explicit user instruction",
+      "reviewedSourceTestFiles": [
+        "app/scenes/DesktopRedirect.test.tsx",
+        "app/scenes/DesktopRedirect.tsx",
+        "app/scenes/Login/Login.test.tsx",
+        "app/scenes/Login/Login.tsx",
+        "app/scenes/Login/components/AuthenticationProvider.tsx",
+        "app/scenes/Login/components/EmailSignin.tsx",
+        "app/stores/AuthStore.test.ts",
+        "app/stores/AuthStore.ts",
+        "app/utils/emailSignin.test.ts",
+        "app/utils/emailSignin.ts"
+      ],
+      "reviewedHashFile": "/tmp/outline-email-pr2-reviewed-hashes.json",
+      "proposedCommit": "feat: add recoverable email code sign-in page",
+      "commitDecision": "PR2 commit explicitly approved by latest user instruction and completed",
+      "pr2Commit": "93f28388e653b45b4c9755765c69d3761ef3beac",
+      "committedSourceTestFiles": 10
+    }
+  },
+  "worktree": "/root/outline-email-signin-pr2"
+}
