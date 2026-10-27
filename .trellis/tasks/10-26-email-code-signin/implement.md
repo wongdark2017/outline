@@ -2,7 +2,7 @@
 
 ## Status and review gates
 
-U5/U6 and remaining work are authorized. PR1–PR2 are committed; PR3–PR5 code and automated review are complete in /root/outline-email-signin-remaining. Link-stage P0 passed before the final isolated Code switch; final Code-stage P0/build also passed. The user approved all four local commits; source commits are complete. U7 approved localization/refinements are complete as204a13711. Manual checks remain separate.
+PR1–PR5 and U7 are committed and accepted. Runtime CSRF protocol correction is complete as597166e31, verified and applied to the local preview. Keep release manual checks pending.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
@@ -194,3 +194,7 @@ PR3–PR5 are accepted existing commits; do not re-confirm or rewrite them. Appl
 **First deployment:** explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link. Require real SMTP delivery; credential-free mail-provider and proxy logs; Safari autofill; real Electron and PWA; Sentry and tracer inspection. Only after every check passes, remove the variable or set code and restart web/worker. Keep pending manual evidence in task.json even when this development task is completed. This session does not deploy or restart services.
 
 U7 completion:204a13711 on feat/email-code-signin-release contains12 reviewed files; existing PR3–PR5 refs are unchanged. Full27-path gate489pass/3existing skips, actualRedis3/3; four added real-Chinese regressions leave the two affected files45/45. Final tsc, full/scoped lint,2693-file format, diff and production build pass. English+1/Chinese+25 with no old-entry changes; extraction is idempotent. Task status is completed for development, while every manual release item remains pending. Detailed commands/hashes/results are in task.json.
+
+## Runtime CSRF correction
+
+Completed as597166e31: HTTP selects only csrfToken; HTTPS selects only __Host-csrfToken, no fallback.56 related tests/type/lint/format and real browser checks pass: mixed oldsecure/newplain403→200, native callback302→invalid-code, invalid matching token still403. Server keys/data unchanged; CSRF and limits remain enabled. See csrf-verification.json and task.json.

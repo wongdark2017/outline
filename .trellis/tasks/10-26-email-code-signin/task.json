@@ -11,11 +11,11 @@
   "creator": "chengqi.dev",
   "assignee": "chengqi.dev",
   "createdAt": "2026-10-26",
-  "completedAt": "2026-10-27",
+  "completedAt": "2026-10-28",
   "branch": "feat/email-code-signin-release",
   "base_branch": "feat/email-code-signin-pr2",
   "worktree_path": "/root/outline-email-signin-remaining",
-  "commit": "204a13711ce704496feb5d577a9d272ccd8a417f",
+  "commit": "597166e317947d098fef4f946b4ab9ac69314884",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -24,7 +24,7 @@
     "temp/邮箱验证码登录 · 页面设计.pdf",
     "temp/Outline Email verification code sign-in — design.pdf"
   ],
-  "notes": "PR1–PR5 and U7 localization/default-reset/minute-time follow-up are complete. User approved all25 Chinese phrases. U7 commit204a13711 on isolated feat/email-code-signin-release; source worktree clean, accepted prior branches/commits preserved. Full gate489pass/3existing skips, actualRedis3/3, final Chinese two-file45/45 and all static/build checks passed. First-deployment sample explicitly Link. No push/PR/deploy/restart; operator manual release checks remain pending and are not waived by completed development status.",
+  "notes": "Development complete including local browser integration and CSRF runtime fix597166e31. Client cookie selection now matches page protocol/server; HTTPS never falls back.56 related tests/type/lint/format pass; actual mixed-cookie request403→200, invalid tokens remain403 and native form passes. Original approvals/branches and user work preserved. Local preview running with installationLink/demo workspaceCode; no push/public deployment. Commercial SMTP/real device/telemetry manual release gate remains pending.",
   "meta": {
     "planning_review": {
       "revision": "U7",
@@ -62,7 +62,7 @@
       "approvedRevision": "U7",
       "currentPR": null,
       "scope": "Completed PR1–PR5 and U7 approved Chinese localization, inheritance reset, minute-only mail display and explicit Link first-deployment template.",
-      "stage": "completed: approved U7 localization and refinements committed; independent P0/static/build review passed; external manual release gate pending.",
+      "stage": "completed: U7 feature plus protocol-bound CSRF runtime correction; real browser mixed-cookie403→200 and negative403 verified, local preview running; external release gate pending.",
       "nextPR": null,
       "typeBaseline": {
         "ref": "dev-main",
@@ -1036,7 +1036,64 @@
         "evidence": "05-anonymous-error-result.json"
       },
       "commercialSmtpAndRealDevicesVerified": false,
-      "firstDeploymentManualGateWaived": false
+      "firstDeploymentManualGateWaived": false,
+      "currentPreviewCommit": "597166e317947d098fef4f946b4ab9ac69314884"
+    },
+    "runtimeFollowUp": {
+      "csrf": {
+        "status": "completed, reviewed, committed and applied to local preview",
+        "request": "user encountered403 csrf_error after oldHTTPS localhost cookies mixed with newHTTP preview",
+        "rootCause": "client preferred secure cookie regardless protocol; server resolves per request.secure",
+        "scope": [
+          "app/utils/csrf.ts",
+          "app/utils/csrf.test.ts"
+        ],
+        "contract": "HTTP uses only csrfToken; HTTPS uses only __Host-csrfToken with no downgrade fallback",
+        "unitTests": {
+          "beforeFixFailed": 3,
+          "protocolTestsPassed": 9,
+          "relatedTestsPassed": 56,
+          "typeCheck": "passed",
+          "scopedLint": "passed",
+          "format": "passed"
+        },
+        "reproducedBeforeFix": {
+          "validPlainCookie": 200,
+          "oldSecurePlusValidPlain": 403,
+          "sameStaleAccessCookiePresent": true
+        },
+        "securityControlsDisabled": false,
+        "stateSecretPreserved": true,
+        "date": "2026-10-28",
+        "previousCompletedAt": "2026-10-27",
+        "receipt": {
+          "commit": "597166e317947d098fef4f946b4ab9ac69314884",
+          "branch": "feat/email-code-signin-release",
+          "tree": "3112e3bfdc3ef552d7b53da51f2c3a8f893de169",
+          "files": [
+            "app/utils/csrf.ts",
+            "app/utils/csrf.test.ts"
+          ],
+          "unitRelatedTestsPassed": 56,
+          "protocolCasesPassed": 9,
+          "typeCheck": "passed",
+          "scopedLint": "passed",
+          "format": "passed",
+          "browserMixedCookiesBefore": 403,
+          "browserMixedCookiesAfter": 200,
+          "invalidTokenStillRejected": 403,
+          "nativeFormCallback": 302,
+          "deployedToLocalPreview": true,
+          "backendKeyRotation": false,
+          "publicDeployment": false
+        },
+        "report": ".trellis/tasks/10-26-email-code-signin/csrf-verification.json",
+        "browserBefore": 403,
+        "browserAfter": 200,
+        "invalidTokenStillRejected": 403,
+        "serverKeysPreserved": true,
+        "nativeFormCallbackPassesCsrf": true
+      }
     }
   },
   "worktree": "/root/outline-email-signin-remaining"

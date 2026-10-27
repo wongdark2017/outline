@@ -148,3 +148,37 @@ Started isolated production-build preview with own Postgres/Redis and real local
 ### Next Steps
 
 - Preview http://localhost:3000 and inbox http://localhost:8025, login demo@example.test. Keep external SMTP/logging/Safari/PWA/Electron/Sentry/tracer release checks pending; existing anonymous401 Promise rejection is recorded separately.
+
+
+## Session 5: Fix mixed-protocol CSRF cookies in local sign-in preview
+<!-- trellis-session: v=2 fp=61656ffcc57772f2 -->
+
+**Date**: 2026-10-28
+**Task**: Fix mixed-protocol CSRF cookies in local sign-in preview
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+Fixed real regular-browser403 caused by stale HTTPS csrf cookie preferred on HTTP; incognito had masked the bug. Local frontend rebuilt and preview restarted with stable keys/data.
+
+### Main Changes
+
+- Client CSRF helper now mirrors server protocol cookie selection; HTTPS never falls back to plain. Prior approved commits and backend verification remain unchanged.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `597166e31` | fix: match CSRF cookies to the page protocol |
+
+### Testing
+
+- [OK] Before-fix3 failing cases; after-fix56 related tests and9 helper cases pass. tsc/type-aware lint/format pass. Real browser mixed-cookie403→200, invalid HTTP cookie still403, native OTP form passes CSRF then returns ordinary invalid-code redirect.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- User can force-refresh the regular HTTP localhost tab. Keep local preview running; first-deploymentLink and commercial SMTP/real-device/telemetry manual release gate remain pending.
