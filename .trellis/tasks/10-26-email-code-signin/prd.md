@@ -4,7 +4,7 @@
 
 Plan reliable six-digit email sign-in for existing members on web, Electron, and PWA, with retries that preserve the code screen and a workspace choice between codes and magic links.
 
-The user approved U5 implementation and U6 PR1 review fixes. Preserve unrelated workspace changes; PR1 is committed; PR2 implementation is authorized and active. PR3–PR5 follow in order.
+U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; remaining-work source is isolated and clean. Preserve unrelated changes; no PR creation or deployment.
 
 ## Background
 
@@ -165,7 +165,7 @@ The normal server suite tests each production Lua rule (TTL, attempts, invalidat
 - Coordinate old queued-job/verifier cutover. Legacy tasks without requestId skip and users resend; preserve existing unrelated queues and ordinary unexpired legacy link verification.
 - One task, five ordered PRs: **PR1 backend security → PR2 login page → PR3 settings/environment fallback → PR4 mail copy/metrics → PR5 source-default switch**. PR2 consumes PR1's method without PR3 metadata. Deploy PR2 before PR3 exposes Code via settings or EMAIL_SIGNIN_DEFAULT_METHOD=code. Keep Link defaults and focused tests until the final gated Code switch.
 - Review/merge PR1 and PR2 separately; deploy both together. If separate, retain the cooldown risk below without weakening shared quotas or response privacy.
-- PR1 is committed; PR2 login implementation is now authorized and active; PR3–PR5 follow in order.
+- PR1–PR5 are committed in the approved order; see implement.md/task.json for validation, hashes and pending manual release checks.
 
 ## Known risks
 

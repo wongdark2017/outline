@@ -2,7 +2,7 @@
 
 ## Status and review gates
 
-The user approved U5 implementation and the U6 PR1 review fixes. The task is in_progress; read prd.md (R1–R6, AC1–AC21) and design.md before code. PR1 sections 1–3 are committed; current scope is PR2 login integration, section 4; PR3–PR5 remain upcoming work. English extraction proceeds normally; final Chinese wording/fork translation is a separately confirmed follow-up.
+U5/U6 and remaining work are authorized. PR1–PR2 are committed; PR3–PR5 code and automated review are complete in /root/outline-email-signin-remaining. Link-stage P0 passed before the final isolated Code switch; final Code-stage P0/build also passed. The user approved all four local commits; source commits are complete. Chinese translation and manual operational/device checks remain separate.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
@@ -18,7 +18,7 @@ Keep one planning task. Implement and merge the following PRs in order; each is 
 | 4 | Mail copy, coarse device/time labels and metrics; sections 6–7. | Keep source defaults Link; test both mail variants, metrics and the completed P0 checklist. Security/redaction is already in PR1. |
 | 5 | Final source-default switch; section 9, after section 8's core checks. | Validate the preceding Link-default base first. Only after P0 passes, change source defaults to Code, rerun affected/P0 checks, and retain explicit Link/rollback coverage. |
 
-PR1 and PR2 remain separate review/merge units and must share a deployment. During any gap with PR1 alone, both methods have the new sixty-second interval while the old page has no countdown: returning and resubmitting within sixty seconds yields normal success and no second mail. Record that temporary risk rather than relaxing quotas or exposing suppression. PR3 must not expose workspace/env Code selection before PR2 is deployed. PR1 is committed and PR2 is now authorized and active; subsequent PRs retain this dependency order.
+PR1 and PR2 remain separate review/merge units and must share a deployment. During any gap with PR1 alone, both methods have the new sixty-second interval while the old page has no countdown: returning and resubmitting within sixty seconds yields normal success and no second mail. Record that temporary risk rather than relaxing quotas or exposing suppression. PR3 must not expose workspace/env Code selection before PR2 is deployed. PR1–PR2 are committed; PR3–PR5 are now authorized and retain this dependency order.
 
 ## 1. Admission, payload, and deadline — R2–R3, AC3, AC8, AC17, AC20 (P0)
 
@@ -76,20 +76,20 @@ Queue tests must exercise the actual scheduling boundary: BaseEmail.schedule alr
 
 ## 5. Method configuration and rollback — R1, AC1–AC2 (P1)
 
-- [ ] Extend the minimal method type introduced in backend PR1 with workspace preference types and strict team-update schema validation.
-- [ ] Add and validate EMAIL_SIGNIN_DEFAULT_METHOD (code|link) in server/env.ts with an initial **source default of link**, and use Link in initial shared/client fallbacks and samples. Expose the non-secret fallback through existing public env injection. The source default must be safe when no environment override is set; do not change it to Code until step 9.
-- [ ] Implement typed server/client effective-method resolution: explicit raw workspace preference > environment > compile-time fallback. Do not let generic shared defaults hide the environment setting.
-- [ ] Ensure teamUpdater persists an explicit incoming method even when equal to the inherited fallback. Do not persist a default simply by loading settings.
-- [ ] Extend provider presenter/auth.config branches/AuthStore types and settings UI; keep permission, disabled-state, merge, reload, and toast behavior.
-- [ ] Test both fallback values with explicit Code/Link and missing preferences; an absent environment variable initially resolves to Link. Cover invalid env/enum, explicit-equal-default persistence, unauthorized save and unrelated preference preservation. Use explicit Code settings in tests to exercise the P0 code path while the installation source default is still Link.
-- [ ] Release only after PR2's method-aware login is deployed. Cover both administrator-selected Code and EMAIL_SIGNIN_DEFAULT_METHOD=code with an unset workspace: a non-PWA browser receives a Code response and displays the code input. Preserve explicit Link and existing PWA upgrade behavior.
+- [x] Extend the minimal method type introduced in backend PR1 with workspace preference types and strict team-update schema validation.
+- [x] Add and validate EMAIL_SIGNIN_DEFAULT_METHOD (code|link) in server/env.ts with an initial **source default of link**, and use Link in initial shared/client fallbacks and samples. Expose the non-secret fallback through existing public env injection. The source default must be safe when no environment override is set; do not change it to Code until step 9.
+- [x] Implement typed server/client effective-method resolution: explicit raw workspace preference > environment > compile-time fallback. Do not let generic shared defaults hide the environment setting.
+- [x] Ensure teamUpdater persists an explicit incoming method even when equal to the inherited fallback. Do not persist a default simply by loading settings.
+- [x] Extend provider presenter/auth.config branches/AuthStore types and settings UI; keep permission, disabled-state, merge, reload, and toast behavior.
+- [x] Test both fallback values with explicit Code/Link and missing preferences; an absent environment variable initially resolves to Link. Cover invalid env/enum, explicit-equal-default persistence, unauthorized save and unrelated preference preservation. Use explicit Code settings in tests to exercise the P0 code path while the installation source default is still Link.
+- [x] Cover both administrator-selected Code and EMAIL_SIGNIN_DEFAULT_METHOD=code with an unset workspace: a non-PWA browser receives a Code response and displays the code input. Preserve explicit Link and existing PWA upgrade behavior. Actual deployment remains gated on PR2 below.
 
 ## 6. Mail copy, device labels, developer workflow — R4, AC10 (P1)
 
-- [ ] Keep Authentication category and link variant. Code-leading subject/text, correct preview, absolute cutoff rather than ten-minutes-from-delivery text.
-- [ ] Use built-in coarse browser/OS checks (Chrome/Safari/Firefox/Edge and macOS/Windows/iOS/Android/Linux) with an English unknown-device source string; add no dependency. Test overlapping UAs and unknown fallback behavior without asserting unconfirmed Chinese wording.
-- [ ] Use built-in Intl plus the loaded user's valid time zone (UTC fallback) for both request and cutoff. Include visible zone/offset and date when needed; test invalid zone, cross-midnight and DST examples without relying on host TZ.
-- [ ] Write English source strings and run normal automatic extraction. After separate user confirmation of Chinese wording, the fork manually supplies translations in shared/i18n/locales/zh_CN/translation.json as a localization follow-up. Do not add English keys manually or change locale JSON during this planning edit. Existing Chinese examples express intent rather than approved exact test strings.
+- [x] Keep Authentication category and link variant. Code-leading subject/text, correct preview, absolute cutoff rather than ten-minutes-from-delivery text.
+- [x] Use built-in coarse browser/OS checks (Chrome/Safari/Firefox/Edge and macOS/Windows/iOS/Android/Linux) with an English unknown-device source string; add no dependency. Test overlapping UAs and unknown fallback behavior without asserting unconfirmed Chinese wording.
+- [x] Use built-in Intl plus the loaded user's valid time zone (UTC fallback) for both request and cutoff. Include visible zone/offset and date when needed; test invalid zone, cross-midnight and DST examples without relying on host TZ.
+- [x] Write English source strings and run normal automatic extraction. After separate user confirmation of Chinese wording, the fork manually supplies translations in shared/i18n/locales/zh_CN/translation.json as a localization follow-up. Use automatic en_US extraction only; leave zh_CN unchanged. Existing Chinese examples express intent rather than approved exact test strings.
 
 Verified developer workflow to preserve and document in the completed feature:
 
@@ -98,26 +98,26 @@ Verified developer workflow to preserve and document in the completed feature:
 3. Request sign-in, wait for the worker to deliver to that test service, then open the **Preview Url** already produced at mailer.tsx:213–216. Read the code or link inside the delivered test message, not from the console subject/body. This URL is development-only and contains no generated sign-in credential itself.
 4. With explicitly configured SMTP credentials, read the recipient's real inbox instead. If the test service/transport is unavailable, report a safe failure/retry; never restore plaintext logging as a fallback.
 
-Planning only verifies these source paths; it does not create a test account or send mail.
+Automated tests verify these paths; this implementation session did not create a test account or send mail.
 
 ## 7. Aggregate metrics — R3, AC21 (P1)
 
-- [ ] Use existing Metrics.increment for issued, skipped, verification_success, verification_failure and newly locked transitions, with the exact events in design.md.
-- [ ] Use only bounded constant method/reason tags; no email/IP/UA/user/team/request identifier, credential, URL or rendered text.
-- [ ] Assert counters on real branch outcomes and one lock-transition increment; retries may create issuance metrics but never additional HTTP quota counts. Do not label issuance as confirmed SMTP delivery.
+- [x] Use existing Metrics.increment for issued, skipped, verification_success, verification_failure and newly locked transitions, with the exact events in design.md.
+- [x] Use only bounded constant method/reason tags; no email/IP/UA/user/team/request identifier, credential, URL or rendered text.
+- [x] Assert counters on real branch outcomes and one lock-transition increment; retries may create issuance metrics but never additional HTTP quota counts. Do not label issuance as confirmed SMTP delivery.
 
 ## 8. Validation, cutover, rollback, and manual checks
 
-Run focused files only. Server tests using vi.mock/vi.doUnmock/vi.resetModules or equivalent mock isolation start with `// @vitest-isolate true`; new tests stay collocated, no new directories. The normal server projects load setupMocks.ts, which globally maps ioredis to ioredis-mock (:37–40) and Bull to server/__mocks__/bull (:48). No existing test bypasses those replacements. Keep that setup for all mandatory rule/route/AC19 tests. TTL, attempts and invalidation use the actual production Lua scripts under ioredis-mock with controlled time and bounded TTL assertions, not a claimed real-Redis run.
+Run focused files only. Server tests using vi.mock/vi.doUnmock/vi.resetModules or equivalent mock isolation start with `// @vitest-isolate true`; new tests stay collocated, no new directories. The normal server projects load setupMocks.ts, which globally maps ioredis to ioredis-mock (:37–40) and Bull to server/__mocks__/bull (:48). The new optional integration file explicitly bypasses the Redis mock; existing normal tests retain both replacements. Keep that setup for all mandatory rule/route/AC19 tests. TTL, attempts and invalidation use the actual production Lua scripts under ioredis-mock with controlled time and bounded TTL assertions, not a claimed real-Redis run.
 
 ### Optional real-Redis integration cases
 
-- [ ] Add one small collocated isolated file, proposed server/utils/emailSignin.integration.test.ts. Gate it with the test-only RUN_REDIS_INTEGRATION=1 and REDIS_URL. If opt-in/URL is absent or a bounded connect/PING probe fails, explicitly skip with a safe reason and close clients; do not hang on the Redis adapter's normal retry policy or print a URL with credentials.
-- [ ] In that isolated file, call vi.doUnmock("ioredis") and vi.resetModules **before dynamically importing** fresh Redis/helper modules. setupMocks/setup eagerly import application modules, so unmocking alone does not replace an already constructed Redis.defaultClient. Use fresh explicitly created clients and test-only getter spies to bind the narrow helper operations to those clients; do not reuse the cached singleton. Bull stays stubbed. Close every fresh client in teardown and delete only unique test-owned keys; never FLUSHDB.
-- [ ] Use two independent real connections to the configured test REDIS_URL. Exercise the same production Lua/helper operations: two correct submissions released together produce exactly one success; pause old-worker flow after its precheck, race its publication against resend admission, and ensure neither ordering leaves the old verifier active after admission or overwrites the newer pointer. Include common Code/Link admission contention to check a single allowed reservation. No real SMTP or Bull worker is needed to exercise these Redis boundaries.
-- [ ] Use real server expiry with short bounded fixtures/tolerances for any integration TTL smoke check; a fake JS clock does not advance Redis time. A successful connection followed by a script or assertion failure is a failure, never an automatic skip. Report optional cases as passed/failed/skipped separately; a skip is not evidence that AC6/AC8/AC18's concurrent behavior was verified.
+- [x] Add one small collocated isolated file, proposed server/utils/emailSignin.integration.test.ts. Gate it with the test-only RUN_REDIS_INTEGRATION=1 and REDIS_URL. If opt-in/URL is absent or a bounded connect/PING probe fails, explicitly skip with a safe reason and close clients; do not hang on the Redis adapter's normal retry policy or print a URL with credentials.
+- [x] In that isolated file, call vi.doUnmock("ioredis") and vi.resetModules **before dynamically importing** fresh Redis/helper modules. setupMocks/setup eagerly import application modules, so unmocking alone does not replace an already constructed Redis.defaultClient. Use fresh explicitly created clients and test-only getter spies to bind the narrow helper operations to those clients; do not reuse the cached singleton. Bull stays stubbed. Close every fresh client in teardown and delete only unique test-owned keys; never FLUSHDB.
+- [x] Use two independent real connections to the configured test REDIS_URL. Exercise the same production Lua/helper operations: two correct submissions released together produce exactly one success; pause old-worker flow after its precheck, race its publication against resend admission, and ensure neither ordering leaves the old verifier active after admission or overwrites the newer pointer. Include common Code/Link admission contention to check a single allowed reservation. No real SMTP or Bull worker is needed to exercise these Redis boundaries.
+- [x] Use real server expiry with short bounded fixtures/tolerances for any integration TTL smoke check; a fake JS clock does not advance Redis time. A successful connection followed by a script or assertion failure is a failure, never an automatic skip. Report optional cases as passed/failed/skipped separately; a skip is not evidence that AC6/AC8/AC18's concurrent behavior was verified.
 
-Verified CI configuration: .github/workflows/ci.yml:11 declares REDIS_URL, but the server job (:113–134) only starts PostgreSQL; there is no Redis services declaration or startup step. .github/actions/install/action.yml only sets up Node/Corepack and installs dependencies. Therefore CI does **not explicitly provision Redis**, and current CI cannot be claimed to execute the optional concurrency suite. No CI change is part of this planning edit. A future optional integration run must provide a test Redis and opt in; preserve explicit skip reporting otherwise.
+Verified CI configuration: .github/workflows/ci.yml:11 declares REDIS_URL, but the server job (:113–134) only starts PostgreSQL; there is no Redis services declaration or startup step. .github/actions/install/action.yml only sets up Node/Corepack and installs dependencies. Therefore CI does **not explicitly provision Redis**, and current CI cannot be claimed to execute the optional concurrency suite. No CI provisioning change was made. A future optional integration run must provide a test Redis and opt in; preserve explicit skip reporting otherwise.
 
 Existing focused commands:
 
@@ -131,7 +131,7 @@ yarn test server/commands/userInviter.test.ts
 yarn test server/routes/api/users/users.test.ts
 ```
 
-Proposed files, once implemented:
+Additional implemented focused files:
 
 ```bash
 yarn test server/utils/EmailSigninRequest.test.ts
@@ -167,10 +167,10 @@ Risky areas: staged fallback-versus-explicit persistence, server deadline versus
 
 ## 9. Final isolated source-default change — only after every P0 passes
 
-- [ ] Finish the planned core feature and targeted validation with Link still the actual initial default. Record passing evidence for AC3, AC4, AC6–AC9 and AC17–AC20, including both method quotas and old-link redemption.
-- [ ] As the **last isolated change**, switch EMAIL_SIGNIN_DEFAULT_METHOD's code default, matching shared/client fallback defaults, sample descriptions and default-value test expectations from Link to Code. Add no unfinished security feature in this change; explicit environment/workspace choices retain precedence.
-- [ ] Re-run affected default/config tests and all focused P0 checks after the switch. A new failure keeps/reverts the source default to Link; resolve it before retrying the final change. Run applicable static checks and review the final diff.
-- [ ] Keep fork-owned Chinese wording/translation as the separately confirmed follow-up; do not claim Chinese copy approval from this default switch.
+- [x] Finish the planned core feature and targeted validation with Link still the actual initial default. Record passing evidence for AC3, AC4, AC6–AC9 and AC17–AC20, including both method quotas and old-link redemption.
+- [x] As the **last isolated change**, switch EMAIL_SIGNIN_DEFAULT_METHOD's code default, matching shared/client fallback defaults, sample descriptions and default-value test expectations from Link to Code. Add no unfinished security feature in this change; explicit environment/workspace choices retain precedence.
+- [x] Re-run affected default/config tests and all focused P0 checks after the switch. A new failure keeps/reverts the source default to Link; resolve it before retrying the final change. Run applicable static checks and review the final diff.
+- [x] Keep fork-owned Chinese wording/translation as the separately confirmed follow-up; do not claim Chinese copy approval from this default switch.
 
 ## U6 PR1 review corrections
 
@@ -185,14 +185,7 @@ Risky areas: staged fallback-versus-explicit persistence, server deadline versus
 
 ## PR1 implementation evidence
 
-U6 PR1 corrections are implemented, independently reviewed and **committed as a6d32806d**, on feat/email-code-signin-pr1 at /root/outline-email-signin-pr1, directly based on dev-main commit 83a94a206. The commit contains exactly 32 PR1 source/test files; original reminder/configuration/tool/task/temp work remains outside it.
-
-- Combined focused run: **14 files, 267 tests passed**, including three actual Redis concurrency cases with RUN_REDIS_INTEGRATION=1 and test REDIS_URL=redis://127.0.0.1:6379. An unreachable Redis separately yields three explicit skips, not concurrency passes.
-- Actual `yarn tsc --incremental false` on dev-main and final PR1 both exited 0 with empty diagnostic lists; no introduced type errors. Full PR1 `yarn lint` exits 0 (178 existing warnings), full `yarn format:check` passes, and all 32 changed files pass scoped type-aware lint with no warnings. Staged diff checks pass.
-- OTP status details now require successful consume, including error paths whose raw message happens to match a known state message. Wrong codes for unknown/active/disabled/suspended/SSO accounts remain generic. New admission resets attempts; same-request retry and cross-request daily/hourly limits retain their separate semantics. Recovery after five wrong guesses is tested through actual worker rendering.
-- Safe name/code/responseCode/command diagnostics survive actual mail rendering, mailer/template/task/worker/queue wrappers and production Logger output. Raw exception data and malicious diagnostic fields remain stripped. Atomic publication distinguishes attempts_exhausted/daily_locked/stale; token generation has only the explicit worker input, while previously signed legacy links still redeem.
-- Thirty-second future server skew is bounded and tested without extending absolute deadlines. Independent review found/fixed the OTP catch-message edge case; its 111-test focused rerun passed and the final combined run includes those regressions.
-- Existing user files remain unchanged. No frontend/settings/environment-default, dependency, locale, AGENTS, factory or reminder code is staged. PR2 is now authorized and active, PR3–PR5 remain upcoming, and joint PR1+PR2 deployment is required. SMTP/Ethereal delivery and external telemetry/manual deployment checks have not been claimed as tested.
+PR1 is committed as a6d32806d on feat/email-code-signin-pr1 from dev-main83a94a206, with32source/test files and no unrelated work. Fourteen focused files/267tests passed, including3actual Redis races; unreachable Redis produced3explicit skips. Actual dev-main and PR1 tsc had zero diagnostics; full lint (178existing warnings), formatting and scoped32file lint passed. U6 proof-before-status, per-request attempt recovery, safe diagnostics through all wrappers, worker-only tokens, skip reasons and30-second skew are covered. Full evidence remains in task.json. PR1 is pushed; PR1+PR2 must deploy together.
 
 ## Before task activation
 
@@ -206,8 +199,12 @@ U6 PR1 corrections are implemented, independently reviewed and **committed as a6
 
 ## PR2 implementation evidence
 
-PR2 is implemented and independently reviewed in /root/outline-email-signin-pr2, branch feat/email-code-signin-pr2, based on committed PR1 a6d32806d. The user subsequently authorized submission; all ten reviewed source/test files are committed as 93f28388e. PR2 has not been pushed. The user canceled PR creation; PR1 is already pushed. PR1 and PR2 must deploy together.
+PR2 is committed as93f28388e in /root/outline-email-signin-pr2, based on PR1. Four files/40tests, zero tsc diagnostics, full lint/format and scoped10file checks passed. Review fixed forceOTP recovery, stale notices and late initial/resend responses restoring cleared state. Task.json retains full evidence. PR2 is not pushed; user canceled PR creation. Real-phone layout, OS autofill and Electron handoff remain manual.
 
-- Final4files/40tests pass; tsc has zero diagnostics, full lint passes with178existing warnings, scoped10file lint has no warnings, full2686file formatting and diff checks pass. Logs: /tmp/outline-email-pr2-review-{tests,tsc,lint,scoped-lint,format}-final.log.
-- Review fixes retain Code preference across callback/refresh, clear obsolete notices on reset, and prevent late initial/resend responses from recreating cleared pending state. Server response method remains authoritative.
-- Real-phone layout, OS OTP autofill and Electron handoff remain manual. Source defaults/settings/environment, dependencies and locale JSON are unchanged. PR3–PR5 remain planned.
+## Remaining implementation evidence (PR3–PR5)
+
+PR3 adds raw Code/Link preferences, validated public environment fallback, all auth.config domain variants and the selector in the repository's actual Authentication.tsx settings scene. Tests cover persistence/reload, permissions and selecting an inherited equal option through real Radix keyboard interaction. PR4 adds coarse UA and absolute date/time/zone metadata, bounded aggregate metrics, and normal automatic en_US extraction (24 added/4 removed keys); zh_CN is untouched. Both snapshots retain Link.
+
+Before cutover:27 targeted paths/28 project-file results,470 passed/3 existing skips; actual Redis3/3 passed, every P0 passed. After the isolated seven-file PR5 default/test delta:472 passed/3 existing skips/0 failed, actual Redis3/3 passed and every P0 passed again. Final parallel testing exposed and fixed only a self-hosted auth.config fixture race; the deterministic fixture correction is folded into both Link snapshots. Full tsc has zero diagnostics; full lint has zero errors and178 preexisting warnings; scoped30-file lint,2693-file format, diff and production yarn build pass. Raw commands/results and snapshot hashes are in task.json; /tmp/outline-email-code-final-result.json retains detailed evidence.
+
+PR3/PR4/PR5 trees are separately checkpointed in /tmp/outline-email-checkpoints. User-approved local commits: PR3 d4b8c29cb (25 files), PR4 1d1d6822d (9 files), PR5 543c1058b (7 files). Each tree matches its reviewed checkpoint; parent order and clean final source worktree were verified. Trellis evidence is committed separately on feat/trellis-init. No push, PR or deployment occurred. Original reminder worktree, existing branches and live localhost service are preserved. The manual checklist above remains pending; do not infer real-device/SMTP/telemetry/deployment verification from automated tests. The source default is now Code; EMAIL_SIGNIN_DEFAULT_METHOD=link rolls back only unset workspaces, while explicit workspace choices retain precedence.

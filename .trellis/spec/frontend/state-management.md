@@ -90,7 +90,7 @@ Native callback POST retains enabled hidden email/code/client/follow/CSRF values
 ### 5. Good / Base / Bad Cases
 
 - Good: a non-PWA browser receives Code and shows six inputs; refresh after invalid callback restores the flow with one failure counted.
-- Base: Link remains the source default; normal Link responses show the existing inbox controls plus resend feedback.
+- Base: PR1–PR4 retain Link defaults; after the recorded P0 gate, PR5 defaults to Code. Explicit or environment Link responses retain inbox controls and resend feedback.
 - Bad: selecting the post-response UI only from isPWA/forceOTP, storing a code, or subtracting server requestedAt from the device clock breaks this contract.
 
 ### 6. Tests Required
