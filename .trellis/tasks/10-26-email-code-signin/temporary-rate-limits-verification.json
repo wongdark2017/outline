@@ -1,0 +1,159 @@
+{
+  "date": "2026-10-28",
+  "sourceCommit": "311385ef665f002612883a06d1bdf86a73531e40",
+  "localPreview": "http://localhost:3000",
+  "configuration": {
+    "RATE_LIMITER_ENABLED": false,
+    "EMAIL_SIGNIN_RATE_LIMITER_ENABLED": false
+  },
+  "repositoryDefaultsRemainEnabled": true,
+  "productionBuild": "passed",
+  "runtimeHealth": 200,
+  "smtp": "isolated local Mailpit; external provider unverified",
+  "manualReleaseGate": "unchanged, pending; installation remains Link",
+  "review": {
+    "review": "pass",
+    "findings": [],
+    "sourceFiles": {
+      ".env.sample": "4bfc15626fef95293daa26c3d3a2367deea12833d9660fa67b85a31b9e6b7488",
+      "app/utils/emailSignin.ts": "aa7028067074e294e248303914521af84b0a1b4d458f06d789a6fb7ce7d16970",
+      "app/utils/emailSignin.test.ts": "ede9e2d090551cd15d738b284c2d427b05c67e04c170eebffbca772db2db93ce",
+      "app/scenes/Login/Login.test.tsx": "31f9cc02bc6fee73678f6e30f75c69a2c1e796c2a681add471998f23013e8629",
+      "server/env.ts": "7792e1b51e72d67a85f11f08d9d6a368cfc87a1f9cd52c5d1216ad0825579bec",
+      "server/env.test.ts": "7c9c051d1967d418f869a26d05e6b0f800f54d9ad945b4179df1c1368e4bf3d0",
+      "server/utils/EmailSigninRequest.ts": "1e55b464bc23deacfe17522ab77cb2d0136edbe76688f73c2bfe46e62ae90abc",
+      "server/utils/EmailSigninRequest.test.ts": "67068f4c77ceda3c84f7655eb1ade8302d4f8399dd44959ad3f8f4935189f701"
+    },
+    "testFiles": 10,
+    "passed": 194,
+    "failed": 0,
+    "skipped": 0,
+    "actualRedis": [
+      {
+        "title": "consumes exactly once across independent connections",
+        "status": "passed"
+      },
+      {
+        "title": "does not leave an old verifier after concurrent resend admission/publication",
+        "status": "passed"
+      },
+      {
+        "title": "reserves the common email quota only once under contention",
+        "status": "passed"
+      }
+    ],
+    "checks": {
+      "tsc": "pass",
+      "scopedLint": "pass",
+      "scopedFormat": "pass",
+      "diff": "pass"
+    },
+    "contractReview": [
+      "source defaults retain enabled booleans",
+      "disabled mode gates only cooldown/hourly checks and writes inside one Lua script",
+      "expired and future-invalid requests still fail; remaining deadline is unchanged",
+      "latest-pointer supersession and old verifier/attempt invalidation persist",
+      "daily failure counters and verifier locks are unchanged",
+      "frontend requires strict booleanfalse to remove resend wait; absent/true/stringfalse retain60s",
+      "ten-minute browser expiry and duplicateinflight guards persist",
+      "CSRF protocol fix untouched"
+    ],
+    "browser": {
+      "status": "pass",
+      "result": "/tmp/outline-email-local-demo/evidence/07-temporary-limits-result.json",
+      "publicConfiguration": {
+        "emailSendLimits": false,
+        "globalRateFlagPublic": false,
+        "installationDefault": "link"
+      },
+      "unknownRequests": 12,
+      "smtpDeliveries": 6,
+      "smtpElapsedMs": 3711,
+      "quotaBefore": {
+        "hourly": "4",
+        "cooldown": null
+      },
+      "quotaAfter": {
+        "hourly": "4",
+        "cooldown": null
+      },
+      "quotaValuesUnchanged": true,
+      "codeDuplicateInflight": {
+        "status": 200,
+        "success": true,
+        "method": "code",
+        "actualRequestCount": 1,
+        "duplicateActivation": true,
+        "networkLatencyForInflightProofMs": 400
+      },
+      "linkDuplicateInflight": {
+        "status": 200,
+        "success": true,
+        "method": "link",
+        "actualRequestCount": 1,
+        "duplicateActivation": true,
+        "networkLatencyForInflightProofMs": 400
+      },
+      "latestCodeAuthenticated": true,
+      "pendingCleared": true,
+      "explicitCodeRestored": true,
+      "unexpectedHttp": [],
+      "knownAnonymousPageErrors": [
+        {
+          "name": "AuthorizationError",
+          "message": "b"
+        },
+        {
+          "name": "AuthorizationError",
+          "message": "b"
+        }
+      ],
+      "sourceHashesStable": {
+        ".env.sample": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "app/utils/emailSignin.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "app/utils/emailSignin.test.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "app/scenes/Login/Login.test.tsx": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "server/env.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "server/env.test.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "server/utils/EmailSigninRequest.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        },
+        "server/utils/EmailSigninRequest.test.ts": {
+          "worktreeMatches": true,
+          "snapshotMatches": true
+        }
+      },
+      "screenshots": [
+        "/tmp/outline-email-local-demo/evidence/20-rate-disabled-code-immediate-resend.png",
+        "/tmp/outline-email-local-demo/evidence/21-rate-disabled-code-mobile.png",
+        "/tmp/outline-email-local-demo/evidence/22-rate-disabled-after-six-deliveries.png",
+        "/tmp/outline-email-local-demo/evidence/23-rate-disabled-link-immediate-resend.png"
+      ],
+      "boundaries": [
+        "Real local Mailpit SMTP transport; commercial provider not tested",
+        "Chromium responsive browser; real Safari/PWA/Electron not tested",
+        "400ms browser network latency used only to keep genuine HTTP request in flight during doubleclick; response content/clock not mocked",
+        "No harness quota writes or counter clears; read-only comparison only"
+      ]
+    }
+  }
+}

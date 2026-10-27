@@ -2,7 +2,7 @@
 
 ## Status and review gates
 
-PR1–PR5 and U7 are committed and accepted. Runtime CSRF protocol correction is complete as597166e31, verified and applied to the local preview. Keep release manual checks pending.
+PR1–PR5, U7 and the CSRF fix are committed. Current user direction temporarily disables local request/send throttling through explicit configuration; repository defaults and credential protections remain enabled.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
@@ -163,17 +163,13 @@ Risky areas: staged fallback-versus-explicit persistence, server deadline versus
 
 ## PR1 implementation evidence
 
-PR1 is committed as a6d32806d on feat/email-code-signin-pr1 from dev-main83a94a206, with32source/test files and no unrelated work. Fourteen focused files/267tests passed, including3actual Redis races; unreachable Redis produced3explicit skips. Actual dev-main and PR1 tsc had zero diagnostics; full lint (178existing warnings), formatting and scoped32file lint passed. U6 proof-before-status, per-request attempt recovery, safe diagnostics through all wrappers, worker-only tokens, skip reasons and30-second skew are covered. Full evidence remains in task.json. PR1 is pushed; PR1+PR2 must deploy together.
+PR1 a6d32806d, isolated from dev-main83a94a206:32files,267focused tests, Redis3/3 and all static checks passed. U6 review fixes are covered; full evidence is in task.json. PR1 is pushed; PR1+PR2 deploy together.
 
 ## Before task activation
 
-- [x] Verify final PRD convergence retains U1–U6, R1–R6, AC1–AC21, exact security acceptance copy, and deferred Chinese-wording status.
-- [x] Cross-read for local timer/server deadline separation, PR2 login before PR3 settings, required PR1+PR2 joint deployment and split-release risk, Link-first/final-Code staging, safe BaseEmail skip logs, independent link redemption, common send quotas, immediate OTP invalidation and accepted-request enqueue failure.
-- [x] Match test strategy to ioredis-mock/Bull stubs, identify the scheduling spy, verify CI does not provision Redis, and distinguish mandatory rule tests from optional concurrency evidence.
-- [x] Validate both real context manifests with task.py validate.
-- [x] Synchronize task.json's planning revision/notes and both context manifests to the current U1–U6 decisions, including canonical planning-file references for implementation/check agents. U5 approval was subsequently recorded and task status moved to in_progress for PR1.
-- [x] Present the U5 summary and receive explicit user approval to implement starting with PR1; activate the task after approval.
-
+- [x] Cross-read both PDFs and U1–U6; retain R1–R6, AC1–AC21, exact security copy and deferred-localization history.
+- [x] Reconcile local timers, independent links, common quotas, mock-compatible tests/optional Redis, joint PR1+PR2 delivery and Link-first/final-Code staging.
+- [x] Synchronize/validate task metadata and context manifests, then receive explicit U5 implementation approval. Detailed revisions and subsequent approvals remain in task.json.
 
 ## PR2 implementation evidence
 
@@ -198,3 +194,9 @@ U7 completion:204a13711 on feat/email-code-signin-release contains12 reviewed fi
 ## Runtime CSRF correction
 
 Completed as597166e31: HTTP selects only csrfToken; HTTPS selects only __Host-csrfToken, no fallback.56 related tests/type/lint/format and real browser checks pass: mixed oldsecure/newplain403→200, native callback302→invalid-code, invalid matching token still403. Server keys/data unchanged; CSRF and limits remain enabled. See csrf-verification.json and task.json.
+
+## Temporary local rate-disable configuration
+
+Latest user direction permits explicit local RATE_LIMITER_ENABLED=false plus EMAIL_SIGNIN_RATE_LIMITER_ENABLED=false. Both default true in source. The latter is public and controls backend common send quotas and frontend resend timing together. Disabled mode ignores existing cooldown/hourly counters without modifying them, while the same atomic admission still supersedes the old code and sets latest/deadline. Keep CSRF, ten-minute expiry, HMAC, replay protection and verification locks. Verify repeated real requests and more than five sequential SMTP deliveries without waits; restore by configuration, not code deletion.
+
+Verified311385ef6:194 tests (3actual Redis), type/lint/format/build pass;12requests200,6local SMTP mails/3.711s, latest code login, unchanged quota; report `temporary-rate-limits-verification.json`.

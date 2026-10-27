@@ -15,7 +15,7 @@
   "branch": "feat/email-code-signin-release",
   "base_branch": "feat/email-code-signin-pr2",
   "worktree_path": "/root/outline-email-signin-remaining",
-  "commit": "597166e317947d098fef4f946b4ab9ac69314884",
+  "commit": "311385ef665f002612883a06d1bdf86a73531e40",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -24,7 +24,7 @@
     "temp/邮箱验证码登录 · 页面设计.pdf",
     "temp/Outline Email verification code sign-in — design.pdf"
   ],
-  "notes": "Development complete including local browser integration and CSRF runtime fix597166e31. Client cookie selection now matches page protocol/server; HTTPS never falls back.56 related tests/type/lint/format pass; actual mixed-cookie request403→200, invalid tokens remain403 and native form passes. Original approvals/branches and user work preserved. Local preview running with installationLink/demo workspaceCode; no push/public deployment. Commercial SMTP/real device/telemetry manual release gate remains pending.",
+  "notes": "Development complete, including CSRF protocol fix597166e31 and user-requested temporary limit configuration311385ef6. Current isolated local preview has both rate-limit flags false: HTTP/IP limits, Code/Link60s and5/hour quotas, frontend resend wait disabled; expiry/HMAC/latest/one-use/failed-code locks retained.194 related tests including3actualRedis pass;12unknown requests200 and6real localSMTP deliveries in3.711s, latest code login succeeded. Local installationLink/demo workspaceCode; accepted PR refs/user work preserved. No push/public deploy; external/manual release gate pending.",
   "meta": {
     "planning_review": {
       "revision": "U7",
@@ -62,7 +62,7 @@
       "approvedRevision": "U7",
       "currentPR": null,
       "scope": "Completed PR1–PR5 and U7 approved Chinese localization, inheritance reset, minute-only mail display and explicit Link first-deployment template.",
-      "stage": "completed: U7 feature plus protocol-bound CSRF runtime correction; real browser mixed-cookie403→200 and negative403 verified, local preview running; external release gate pending.",
+      "stage": "Completed and reviewed; temporary rate-limit override applied to isolated local preview only.",
       "nextPR": null,
       "typeBaseline": {
         "ref": "dev-main",
@@ -1037,7 +1037,7 @@
       },
       "commercialSmtpAndRealDevicesVerified": false,
       "firstDeploymentManualGateWaived": false,
-      "currentPreviewCommit": "597166e317947d098fef4f946b4ab9ac69314884"
+      "currentPreviewCommit": "311385ef665f002612883a06d1bdf86a73531e40"
     },
     "runtimeFollowUp": {
       "csrf": {
@@ -1093,6 +1093,55 @@
         "invalidTokenStillRejected": 403,
         "serverKeysPreserved": true,
         "nativeFormCallbackPassesCsrf": true
+      },
+      "temporaryRateLimits": {
+        "status": "completed, reviewed, committed and applied to local preview",
+        "requestedByUser": "把现在的限流给取消掉 暂时不做限流",
+        "scope": "current isolated local preview only",
+        "date": "2026-10-28",
+        "configuration": {
+          "RATE_LIMITER_ENABLED": false,
+          "EMAIL_SIGNIN_RATE_LIMITER_ENABLED": false
+        },
+        "repositoryDefaultsRemainEnabled": true,
+        "disabled": [
+          "HTTP/API/IP request limiting",
+          "common Code/Link60-second cooldown",
+          "common Code/Link5-per-hour send cap",
+          "client60-second resend wait"
+        ],
+        "preserved": [
+          "CSRF",
+          "10-minute request deadline",
+          "HMAC-only verifier",
+          "latest request and immediate invalidation",
+          "one-time credential use",
+          "five wrong guesses and daily30 failure protection"
+        ],
+        "releaseGate": "external/manual release gate unchanged",
+        "commit": "311385ef665f002612883a06d1bdf86a73531e40",
+        "report": ".trellis/tasks/10-26-email-code-signin/temporary-rate-limits-verification.json",
+        "validation": {
+          "testsPassed": 194,
+          "failed": 0,
+          "skipped": 0,
+          "actualRedisTestsPassed": 3,
+          "typeCheck": "passed",
+          "scopedLint": "passed",
+          "format": "passed",
+          "productionBuild": "passed",
+          "browserUnknownRequests": 12,
+          "browserUnknownStatus": 200,
+          "smtpDeliveries": 6,
+          "smtpElapsedMs": 3711,
+          "oldHourlyCounterBefore": "4",
+          "oldHourlyCounterAfter": "4",
+          "noQuotaEditsByHarness": true,
+          "latestCodeAuthenticated": true,
+          "codeAndLinkImmediateResend": true,
+          "inflightGuardPreserved": true
+        },
+        "remoteActions": "none"
       }
     }
   },

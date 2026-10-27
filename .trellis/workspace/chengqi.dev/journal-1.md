@@ -182,3 +182,37 @@ Fixed real regular-browser403 caused by stale HTTPS csrf cookie preferred on HTT
 ### Next Steps
 
 - User can force-refresh the regular HTTP localhost tab. Keep local preview running; first-deploymentLink and commercial SMTP/real-device/telemetry manual release gate remain pending.
+
+
+## Session 6: Temporarily disable local email sign-in limits
+<!-- trellis-session: v=2 fp=852450bf47897fac -->
+
+**Date**: 2026-10-28
+**Task**: Temporarily disable local email sign-in limits
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+User-requested reversible rate-limit override implemented and active in isolated preview.
+
+### Main Changes
+
+- New default-enabled public email send-limit flag; preview disables this and global HTTP limiter, preserving credential security.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `311385ef665f002612883a06d1bdf86a73531e40` | feat: make email sign-in throttling configurable |
+
+### Testing
+
+- [OK] 194 related tests incl3actualRedis, type/lint/format/build pass;12browser requests200,6real localSMTP deliveries in3.711s, latest code authenticates.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Keep current local preview running; external SMTP/device/telemetry release gate remains pending and first deployment stays explicitLink.

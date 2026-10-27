@@ -68,7 +68,7 @@ Login crosses the asynchronous email request, native callback navigation, sessio
 
 The normal response is `{ success: true, method: EmailSigninMethod, requestedAt: number }`. Render Code/Link from `method`, independently of PWA/forceOTP or later workspace-setting metadata. Keep existing preferOTP requests and SSO redirects. A restored Code flow resends with `preferOTP: preferOTP || pending.method === EmailSigninMethod.Code`, because callback redirects can remove the original forceOTP query flag; returned method remains authoritative.
 
-Only Code flows persist under sessionStorage `email-signin-pending`. Allowed fields are `email`, `client`, `method`, `requestedAt`, `receivedAtLocal`, `failures`, `resendCount`, `awaitingResult`. Never write code/token/IP/UA. `requestedAt` is correlation metadata: do not compare it with device time. Both timers use `max(0, Date.now() - receivedAtLocal)`; resend becomes available at 60000ms and pending expires at 600000ms. Every normal resend resets local receipt time and increments completed resend count, including privacy-preserving silent suppression.
+Only Code flows persist under sessionStorage `email-signin-pending`. Allowed fields are `email`, `client`, `method`, `requestedAt`, `receivedAtLocal`, `failures`, `resendCount`, `awaitingResult`. Never write code/token/IP/UA. `requestedAt` is correlation metadata: do not compare it with device time. Both timers use `max(0, Date.now() - receivedAtLocal)`; resend becomes available at 60000ms by default and pending expires at 600000ms. Public `env.EMAIL_SIGNIN_RATE_LIMITER_ENABLED === false` alone sets resendSeconds to zero for Code and Link; missing/true keeps sixty seconds. This override never changes expiry, local receipt timing or duplicate/inflight guards. Every normal resend resets local receipt time and increments completed resend count, including privacy-preserving silent suppression.
 
 Initial-request and resend handlers ignore responses after unmount, before calling receiveEmailSignin or writing storage; a late response must not resurrect an expired/reset/authenticated flow.
 
@@ -81,6 +81,7 @@ Native callback POST retains enabled hidden email/code/client/follow/CSRF values
 | Malformed/unavailable session storage | Clear invalid metadata when possible; keep the current in-memory flow usable. |
 | Server timestamp numerically ahead of device | Restore normally; use local receipt time for timers. |
 | Network/429 resend failure | Preserve completed resend count and prior timer; show generic retry feedback. |
+| Public email send-limit flag false | Resend immediately for Code/Link, disable while in flight; retain ten-minute expiry. |
 | Local pending expiry | Clear storage and prefill email entry with an expiry notice. |
 | Change email / expiry reset | Clear pending state and cumulative counts; remove the obsolete callback notice while preserving unrelated URL query fields. |
 | Cached auth before server confirmation | Preserve pending data; initial rehydration is not confirmed authentication. |
@@ -95,7 +96,7 @@ Native callback POST retains enabled hidden email/code/client/follow/CSRF values
 
 ### 6. Tests Required
 
-Use collocated helper and mounted Login/Radix tests. Hold server time fixed and offset the device by +5/-5 minutes; assert 59/60-second and 599/600-second boundaries after refresh/background events. Verify malformed/inaccessible storage, exact whitelist, one-shot failure counting, neutral third-resend help, network/429 count preservation, restored forceOTP resend preference after callback removes the query flag, change-email clearing stale invalid-code URL notice, late initial/resend response after unmount preserving cleared storage, actual FormData and one native submit for typing/paste/autofill/Enter/Continue. AuthStore tests distinguish stale cache from successful/failed auth.info; DesktopRedirect tests cover cleanup without Login. Real phone layout and operating-system OTP autofill remain manual checks.
+Use collocated helper and mounted Login/Radix tests. Cover false/missing/true send-limit config, immediate Code/Link resends and disabled in-flight controls; preserve 599/600-second expiry with the override. Hold server time fixed and offset the device by +5/-5 minutes; assert 59/60-second and 599/600-second boundaries after refresh/background events. Verify malformed/inaccessible storage, exact whitelist, one-shot failure counting, neutral third-resend help, network/429 count preservation, restored forceOTP resend preference after callback removes the query flag, change-email clearing stale invalid-code URL notice, late initial/resend response after unmount preserving cleared storage, actual FormData and one native submit for typing/paste/autofill/Enter/Continue. AuthStore tests distinguish stale cache from successful/failed auth.info; DesktopRedirect tests cover cleanup without Login. Real phone layout and operating-system OTP autofill remain manual checks.
 
 ### 7. Wrong vs Correct
 

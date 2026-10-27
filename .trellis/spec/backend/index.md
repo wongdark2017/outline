@@ -16,7 +16,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
 | [Database Guidelines](./database-guidelines.md) | ORM patterns; explicit email preference persistence and rollback | Email sign-in populated |
-| [Error Handling](./error-handling.md) | Email sign-in proof, attempt lifecycle and safe error contracts | Email sign-in populated |
+| [Error Handling](./error-handling.md) | Email sign-in proof, attempt lifecycle, temporary limit configuration and safe errors | Email sign-in populated |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Logging Guidelines](./logging-guidelines.md) | Safe email lifecycle metrics and request metadata | Email sign-in populated |
 

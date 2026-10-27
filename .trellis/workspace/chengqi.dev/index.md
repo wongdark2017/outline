@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 5
+- **Total Sessions**: 6
 - **Last Active**: 2026-10-28
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~184 | Active |
+| `journal-1.md` | ~218 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 6 | 2026-10-28 | Temporarily disable local email sign-in limits | `311385ef665f002612883a06d1bdf86a73531e40` | `feat/email-code-signin-release` |
 | 5 | 2026-10-28 | Fix mixed-protocol CSRF cookies in local sign-in preview | `597166e31` | `feat/email-code-signin-release` |
 | 4 | 2026-10-28 | Run local email sign-in browser integration | `204a13711` | `feat/email-code-signin-release` |
 | 3 | 2026-10-27 | Complete email sign-in development and gate initial rollout | `d4b8c29cb`, `1d1d6822d`, `543c1058b`, `204a13711` | `feat/email-code-signin-release` |
