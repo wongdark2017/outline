@@ -113,3 +113,38 @@ PR3–PR5 and user-approved U7 localization/refinements are committed and review
 ### Next Steps
 
 - First deployment must explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link. Complete real SMTP/provider+proxy log/Safari/Electron/PWA/Sentry/tracer checks before removing override or setting code and restarting web/worker.
+
+
+## Session 4: Run local email sign-in browser integration
+<!-- trellis-session: v=2 fp=91d4d3fabec67c98 -->
+
+**Date**: 2026-10-28
+**Task**: Run local email sign-in browser integration
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+Started isolated production-build preview with own Postgres/Redis and real local Mailpit SMTP; kept running for user review. Product code unchanged.
+
+### Main Changes
+
+- Created demo workspace through real UI, captured Chinese desktop/320px/settings screenshots and masked delivered-email preview.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `204a13711` | feat: localize email sign-in and refine release defaults |
+
+### Testing
+
+- [OK] Real Link and Code login, refresh/wrong-code recovery, actual60s resend/old-code invalidation, one-time login and pending cleanup, raw-setting reset and unknown-email privacy passed; no unexpectedHTTP errors.
+- [OK] Runtime sampled Redis/queue and application logs contain none of issued fake-demo credentials. Active HMAC shape was not observed after successful consumption.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Preview http://localhost:3000 and inbox http://localhost:8025, login demo@example.test. Keep external SMTP/logging/Safari/PWA/Electron/Sentry/tracer release checks pending; existing anonymous401 Promise rejection is recorded separately.

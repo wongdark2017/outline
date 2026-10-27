@@ -1,0 +1,89 @@
+{
+  "sourceCommit": "204a13711",
+  "browser": "Playwright Chromium 156 (headless)",
+  "url": "http://localhost:3000",
+  "mailUrl": "http://localhost:8025",
+  "overallFeatureJourneys": "pass",
+  "journeyResults": [
+    {
+      "file": "01-setup-result.json",
+      "ok": true
+    },
+    {
+      "file": "02-link-settings-result.json",
+      "ok": true
+    },
+    {
+      "file": "03-code-result.json",
+      "ok": true
+    },
+    {
+      "file": "04-reset-privacy-result.json",
+      "ok": true
+    }
+  ],
+  "unexpectedHttpErrors": [],
+  "expectedAnonymousAuthInfo401": true,
+  "inheritedRuntimeIssue": {
+    "status": "not fixed; preexisting",
+    "type": "Uncaught (in promise) AuthorizationError",
+    "root": "AuthStore constructor void fetchAuth; anonymous401 reraised",
+    "sourceLocations": [
+      "app/stores/AuthStore.ts:107",
+      "app/stores/AuthStore.ts:216",
+      "app/utils/ApiClient.ts:333"
+    ],
+    "baseline": "dev-main83a94a206 contains same constructor and rethrow behavior",
+    "evidence": "05-anonymous-error-result.json"
+  },
+  "finalDemoWorkspace": {
+    "name": "邮箱登录演示",
+    "adminEmail": "demo@example.test",
+    "explicitMethod": "code",
+    "installationFallback": "link"
+  },
+  "screenshots": {
+    "desktop": "10-code-desktop.png",
+    "mobile320": "12-code-mobile-320.png",
+    "invalidRecovery": "13-code-invalid-recoverable.png",
+    "settings": "18-settings-default-option.png",
+    "redactedDeliveredMail": "11-email-redacted.png"
+  },
+  "boundaries": [
+    "SMTP transport is a real locally isolated Mailpit capture; commercial provider delivery/logging not verified",
+    "Chromium 320px viewport is responsive-layout evidence; no physical Safari/PWA/Electron test",
+    "Sentry, tracer and separately managed proxy logs not configured/verified",
+    "Mail screenshot uses redacted code and blocks external assets; not a mail-client fidelity claim",
+    "HeadlessChrome user-agent was coarsely identified Safari/Linux; this is not real Safari evidence"
+  ],
+  "noProductFilesChanged": true,
+  "noRepoDependenciesChanged": true,
+  "noPublicDeployment": true,
+  "noNewCommits": true,
+  "verifiedAt": "2026-10-28T02:08:10.671950+08:00",
+  "runId": "email-signin-20261028",
+  "runtimeHealth": {
+    "web": 200,
+    "mailInbox": 200,
+    "postgres": "healthy",
+    "redis": "healthy",
+    "pendingMigrations": 0,
+    "demoTeams": 1,
+    "demoUsers": 1
+  },
+  "lifecycle": "Preview service and isolated containers intentionally kept running for user inspection.",
+  "confidentialityAudit": {
+    "time": "2026-10-27T18:03:53.788Z",
+    "mailMessages": 4,
+    "credentialSamplesChecked": 5,
+    "redisKeysInspected": 20,
+    "redisContainsNoPlaintextCredentials": true,
+    "activeVerifierCount": 0,
+    "verifierHmacOnly": null,
+    "verifierFieldNames": [],
+    "serverLogContainsNoPlaintextCredentials": true,
+    "scope": "isolated demonstration instance; read-only audit, credentials never sent to Redis or written into this report",
+    "verifierObservation": "No active verifier remained at the audit instant after successful consumption; HMAC shape was not observed in this runtime sample."
+  },
+  "evidenceDirectory": "/root/outline/temp/email-signin-demo"
+}

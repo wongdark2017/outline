@@ -1011,6 +1011,32 @@
       "releaseStatus": "pending_manual_verification",
       "manualChecksClaimedPassed": false,
       "archive": "retained at current task path for operator release checklist"
+    },
+    "localVerification": {
+      "status": "functional_journeys_pass_with_preexisting_console_issue",
+      "date": "2026-10-28",
+      "report": ".trellis/tasks/10-26-email-code-signin/local-verification.json",
+      "url": "http://localhost:3000",
+      "mailUrl": "http://localhost:8025",
+      "sourceCommit": "204a13711",
+      "runId": "email-signin-20261028",
+      "sourceSnapshotClean": true,
+      "productFilesChanged": false,
+      "browser": "Chromium; desktop and320px emulation",
+      "knownIssue": {
+        "status": "not fixed; preexisting",
+        "type": "Uncaught (in promise) AuthorizationError",
+        "root": "AuthStore constructor void fetchAuth; anonymous401 reraised",
+        "sourceLocations": [
+          "app/stores/AuthStore.ts:107",
+          "app/stores/AuthStore.ts:216",
+          "app/utils/ApiClient.ts:333"
+        ],
+        "baseline": "dev-main83a94a206 contains same constructor and rethrow behavior",
+        "evidence": "05-anonymous-error-result.json"
+      },
+      "commercialSmtpAndRealDevicesVerified": false,
+      "firstDeploymentManualGateWaived": false
     }
   },
   "worktree": "/root/outline-email-signin-remaining"
