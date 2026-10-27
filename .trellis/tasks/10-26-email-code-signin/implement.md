@@ -2,7 +2,7 @@
 
 ## Status and review gates
 
-U5/U6 and remaining work are authorized. PR1–PR2 are committed; PR3–PR5 code and automated review are complete in /root/outline-email-signin-remaining. Link-stage P0 passed before the final isolated Code switch; final Code-stage P0/build also passed. The user approved all four local commits; source commits are complete. Chinese translation and manual operational/device checks remain separate.
+U5/U6 and remaining work are authorized. PR1–PR2 are committed; PR3–PR5 code and automated review are complete in /root/outline-email-signin-remaining. Link-stage P0 passed before the final isolated Code switch; final Code-stage P0/build also passed. The user approved all four local commits; source commits are complete. U7 approved localization/refinements are complete as204a13711. Manual checks remain separate.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
@@ -67,7 +67,7 @@ Queue tests must exercise the actual scheduling boundary: BaseEmail.schedule alr
 - [x] In PR2, use PR1's response method for Code/Link even without PR3 configuration metadata. Keep existing Link initial labels until PR3 exposes effective-method labels. Test a non-PWA browser without forceOTP receiving method=code and showing the input, as well as method=link and existing PWA behavior. Implement five states and recovery, alert/focus, manual Continue and sixth-digit auto-submit.
 - [x] Reuse installed Radix sanitization/autofill/keyboard behavior; guard duplicate native submissions and keep required hidden fields successful when visible inputs disable.
 - [x] Derive sixty-second resend and ten-minute local pending expiry from Date.now()-receivedAtLocal, surviving refresh/backgrounding. Never subtract requestedAt from device time. A normal resend captures a new local receipt time and increments cumulative resendCount; errors do not claim delivery. Server validity remains independently authoritative.
-- [x] After the third normal resend show neutral spam/later-retry help from English source strings, including on silent suppression. Preserve count across refresh and reset on change-email/success; the Chinese example remains pending confirmation.
+- [x] After the third normal resend show neutral spam/later-retry help from English source strings, including on silent suppression. Preserve count across refresh and reset on change-email/success; U7 Chinese wording is confirmed.
 - [x] Clear pending state on local expiry/change-email/confirmed authentication/DesktopRedirect without relying on Login mounting.
 - [x] Use one login-only flex/max-44×48 box style with 4 px gaps (284 px total at maxima within 288 px). No compact mode; leave deletion forms untouched. Keep themes and accessibility.
 - [x] Add collocated helper/UI tests with server time and device time offset by +5/-5 minutes. Verify 59/60-second and 599/600-second boundaries, background/refresh recovery and acceptance of a numerically future server requestedAt. Cover once-only failure counts, neutral help, paste/submit and cleanup.
@@ -87,9 +87,9 @@ Queue tests must exercise the actual scheduling boundary: BaseEmail.schedule alr
 ## 6. Mail copy, device labels, developer workflow — R4, AC10 (P1)
 
 - [x] Keep Authentication category and link variant. Code-leading subject/text, correct preview, absolute cutoff rather than ten-minutes-from-delivery text.
-- [x] Use built-in coarse browser/OS checks (Chrome/Safari/Firefox/Edge and macOS/Windows/iOS/Android/Linux) with an English unknown-device source string; add no dependency. Test overlapping UAs and unknown fallback behavior without asserting unconfirmed Chinese wording.
+- [x] Use built-in coarse browser/OS checks (Chrome/Safari/Firefox/Edge and macOS/Windows/iOS/Android/Linux) with an English unknown-device source string; add no dependency. Test overlapping UAs and unknown fallback behavior with U7-approved Chinese render regressions.
 - [x] Use built-in Intl plus the loaded user's valid time zone (UTC fallback) for both request and cutoff. Include visible zone/offset and date when needed; test invalid zone, cross-midnight and DST examples without relying on host TZ.
-- [x] Write English source strings and run normal automatic extraction. After separate user confirmation of Chinese wording, the fork manually supplies translations in shared/i18n/locales/zh_CN/translation.json as a localization follow-up. Use automatic en_US extraction only; leave zh_CN unchanged. Existing Chinese examples express intent rather than approved exact test strings.
+- [x] Write English source strings and run normal automatic extraction. U7 separately confirms25 Chinese translations in translation-review.json for zh_CN; normal en_US extraction continues and existing locale entries remain unchanged.
 
 Verified developer workflow to preserve and document in the completed feature:
 
@@ -119,29 +119,7 @@ Run focused files only. Server tests using vi.mock/vi.doUnmock/vi.resetModules o
 
 Verified CI configuration: .github/workflows/ci.yml:11 declares REDIS_URL, but the server job (:113–134) only starts PostgreSQL; there is no Redis services declaration or startup step. .github/actions/install/action.yml only sets up Node/Corepack and installs dependencies. Therefore CI does **not explicitly provision Redis**, and current CI cannot be claimed to execute the optional concurrency suite. No CI provisioning change was made. A future optional integration run must provide a test Redis and opt in; preserve explicit skip reporting otherwise.
 
-Existing focused commands:
-
-```bash
-yarn test server/utils/VerificationCode.test.ts
-yarn test plugins/email/server/auth/email.test.ts
-yarn test server/utils/jwt.test.ts
-yarn test server/routes/api/auth/auth.test.ts
-yarn test server/routes/api/teams/teams.test.ts
-yarn test server/commands/userInviter.test.ts
-yarn test server/routes/api/users/users.test.ts
-```
-
-Additional implemented focused files:
-
-```bash
-yarn test server/utils/EmailSigninRequest.test.ts
-yarn test server/utils/emailSigninRedaction.test.ts
-yarn test server/emails/templates/SigninEmail.test.tsx
-yarn test server/queues/tasks/EmailTask.test.ts
-yarn test server/emails/mailer.test.tsx
-yarn test app/utils/emailSignin.test.ts
-yarn test app/scenes/Login/Login.test.tsx
-```
+Focused mandatory/component commands are retained in task.json's gate command arrays. Run those targeted paths, rather than the entire suite.
 
 Optional command after providing a reachable test REDIS_URL:
 
@@ -208,3 +186,11 @@ PR3 adds raw Code/Link preferences, validated public environment fallback, all a
 Before cutover:27 targeted paths/28 project-file results,470 passed/3 existing skips; actual Redis3/3 passed, every P0 passed. After the isolated seven-file PR5 default/test delta:472 passed/3 existing skips/0 failed, actual Redis3/3 passed and every P0 passed again. Final parallel testing exposed and fixed only a self-hosted auth.config fixture race; the deterministic fixture correction is folded into both Link snapshots. Full tsc has zero diagnostics; full lint has zero errors and178 preexisting warnings; scoped30-file lint,2693-file format, diff and production yarn build pass. Raw commands/results and snapshot hashes are in task.json; /tmp/outline-email-code-final-result.json retains detailed evidence.
 
 PR3/PR4/PR5 trees are separately checkpointed in /tmp/outline-email-checkpoints. User-approved local commits: PR3 d4b8c29cb (25 files), PR4 1d1d6822d (9 files), PR5 543c1058b (7 files). Each tree matches its reviewed checkpoint; parent order and clean final source worktree were verified. Trellis evidence is committed separately on feat/trellis-init. No push, PR or deployment occurred. Original reminder worktree, existing branches and live localhost service are preserved. The manual checklist above remains pending; do not infer real-device/SMTP/telemetry/deployment verification from automated tests. The source default is now Code; EMAIL_SIGNIN_DEFAULT_METHOD=link rolls back only unset workspaces, while explicit workspace choices retain precedence.
+
+## U7 release follow-up
+
+PR3–PR5 are accepted existing commits; do not re-confirm or rewrite them. Apply the25 user-approved Chinese translations from translation-review.json, including the default option. Add the inheritance/reset option with strict null-to-absent API normalization and persisted unrelated-preference preservation. Show mail times to the minute without changing exact credential deadlines. Record focused tests and independent review in task.json.
+
+**First deployment:** explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link. Require real SMTP delivery; credential-free mail-provider and proxy logs; Safari autofill; real Electron and PWA; Sentry and tracer inspection. Only after every check passes, remove the variable or set code and restart web/worker. Keep pending manual evidence in task.json even when this development task is completed. This session does not deploy or restart services.
+
+U7 completion:204a13711 on feat/email-code-signin-release contains12 reviewed files; existing PR3–PR5 refs are unchanged. Full27-path gate489pass/3existing skips, actualRedis3/3; four added real-Chinese regressions leave the two affected files45/45. Final tsc, full/scoped lint,2693-file format, diff and production build pass. English+1/Chinese+25 with no old-entry changes; extraction is idempotent. Task status is completed for development, while every manual release item remains pending. Detailed commands/hashes/results are in task.json.

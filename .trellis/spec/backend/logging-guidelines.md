@@ -70,7 +70,7 @@ Use authentication.email.issued when an eligible worker publishes a code or gene
 
 Tags contain only constant method/reason values. Never include email, IP, UA, user/team/request IDs, code/token, URL, rendered text or raw errors. Skipped login logs remain only templateName plus bounded reason. Code-leading subjects and text stay redacted in application logs in every environment. Development codes are read from delivered Ethereal preview mail, never console message bodies.
 
-Display absolute request and cutoff times using the live user's valid zone, otherwise UTC, with explicit date/offset/zone and language fallback. Coarse browser names: Chrome, Safari, Firefox, Edge; OS names: macOS, Windows, iOS, Android, Linux. Match Edge before Chrome, mobile before generic desktop; unsupported combinations use Unknown device. No parsing dependency is required.
+Display absolute request and cutoff times using the live user's valid zone, otherwise UTC, with explicit date/offset/zone and language fallback, showing hours/minutes without seconds or rounding up. Exact requestedAt/deadline/TTL values stay unchanged. Coarse browser names: Chrome, Safari, Firefox, Edge; OS names: macOS, Windows, iOS, Android, Linux. Match Edge before Chrome, mobile before generic desktop; unsupported combinations use Unknown device. No parsing dependency is required.
 
 ### 4. Validation & Error Matrix
 
@@ -89,7 +89,7 @@ Good: method=code/reason=daily_locked explains an aggregate skip without account
 
 ### 6. Tests Required
 
-Assert actual worker publication/skip, verifier success/failure/unavailable and lock transitions; verify every emitted tag against bounded values and absence of private input. Preserve HMAC/Lua and AC19 sink tests. Render both complete variants through real i18next, checking subject/preview/HTML/text/category, request/cutoff zones, DST/midnight and unknown-device fallback. Use normal extraction for English source keys; Chinese translation remains the agreed separate follow-up. External SMTP, device autofill and independently operated telemetry remain manual checks.
+Assert actual worker publication/skip, verifier success/failure/unavailable and lock transitions; verify every emitted tag against bounded values and absence of private input. Preserve HMAC/Lua and AC19 sink tests. Render both complete variants through real i18next, checking subject/preview/HTML/text/category, request/cutoff zones, DST/midnight and unknown-device fallback. Use normal extraction for English source keys; U7 explicitly approves25 Chinese translations. Preserve variable names, markup and code-first subjects. External SMTP, device autofill and independently operated telemetry remain manual checks.
 
 ### 7. Wrong vs Correct
 

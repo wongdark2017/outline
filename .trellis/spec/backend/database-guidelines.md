@@ -61,14 +61,14 @@ Email sign-in resolves one JSON preference across Sequelize, public environment 
 
 - `resolveEmailSigninMethod(preferences?: TeamPreferences | null, runtimeDefault?: string): EmailSigninMethod` in shared/utils/emailSigninMethod.ts.
 - Server/client `Team.emailSigninMethod` getters resolve raw preferences and the runtime installation setting.
-- `TeamsUpdateSchema.body.preferences.emailSigninMethod?: code | link`; teamUpdater writes explicit incoming values against the raw stored preference.
+- `TeamsUpdateSchema.body.preferences.emailSigninMethod?: code | link | null`; null is a request-only reset, normalized to an absent stored field. Omission is no change; persisted TeamPreferences remains enum-only.
 - `presentProviderConfig(provider, team?)` exposes emailSigninMethod only for the email provider; AuthStore consumes the optional field for initial labels.
 
 ### 3. Contracts
 
 Resolve explicit team.preferences.emailSigninMethod first, validated EMAIL_SIGNIN_DEFAULT_METHOD second, shared EmailSigninMethodDefault last. EMAIL_SIGNIN_DEFAULT_METHOD is @Public, strictly code|link, and follows the staged rollout: Link until every P0 passes, then a final isolated switch to Code. Explicit environment/workspace choices retain precedence after cutover. PWA/preferOTP may upgrade Link to Code; the client cannot downgrade Code. Freeze the accepted method in the existing credential-free queued request.
 
-Keep presenter preferences raw. In teamUpdater compare an explicit incoming emailSigninMethod to team.preferences?.emailSigninMethod, not getPreference's inherited value; then replace/merge the JSON object and reload in persistence tests. Reading settings must not write anything. Bind the selector's value to the raw preference (empty controlled value when inherited), and show its resolved fallback through InputSelect.displayValue. This allows selecting the already displayed inherited option to persist it explicitly without changing unrelated preferences.
+Keep presenter preferences raw. In teamUpdater compare an explicit incoming emailSigninMethod to team.preferences?.emailSigninMethod, not getPreference's inherited value; then replace/merge the JSON object and reload in persistence tests. Reading settings must not write anything. Bind the selector to raw Code/Link or the nonempty `default` UI sentinel. Resolve `Default (currently {{ method }})` from installation env/source defaults, ignoring any explicit workspace override. Selecting it sends null; delete only emailSigninMethod from a replaced JSON object and preserve all other preferences. Selecting Code/Link still persists an explicit value even when equal to the inherited method.
 
 ### 4. Validation & Error Matrix
 
@@ -77,7 +77,9 @@ Keep presenter preferences raw. In teamUpdater compare an explicit incoming emai
 | Missing raw preference | Runtime environment fallback, with no database write. |
 | Explicit Code/Link plus opposite env | Explicit value wins. |
 | Explicit incoming value equals inherited default | Persist an explicit JSON field; later env rollback cannot change it. |
-| Invalid env/enum | Startup/schema validation fails. |
+| Explicit null reset | Remove raw method after save/reload; inherit current installation default. |
+| Method omitted from update | Preserve existing raw method. |
+| Invalid env/enum or other preference set to null | Startup/schema validation fails; only this request field allows reset. |
 | Unauthorized update | Existing authorization fails; no preference change. |
 | Email/SMTP unavailable or missing update permission | Selector disabled. |
 | Inherited env set to Link after cutover | Unset teams use Link; explicit choices and PWA upgrade remain. |
@@ -88,7 +90,7 @@ Good: an unset workspace inherits Code; the admin selects the displayed Code opt
 
 ### 6. Tests Required
 
-Cover server/client getters, both env values, missing/explicit preferences, invalid values, raw JSON reload, unrelated field preservation and unauthorized saves. Exercise all auth.config hostname branches and non-PWA method responses. Use actual Radix keyboard selection for both inherited-equal methods, plus no-save-on-load, disabled states, normal change and failure toasts. Verify Link-stage and final-Code-stage default behavior separately.
+Cover server/client getters, both env values, missing/explicit preferences, invalid values, raw JSON reload, unrelated field preservation and unauthorized saves. Exercise all auth.config hostname branches and non-PWA method responses. Use actual Radix keyboard selection for both inherited-equal methods, plus no-save-on-load, disabled states, normal change and failure toasts. Verify Link-stage and final-Code-stage defaults separately. Cover reset-to-absent persistence/reload, installation-derived default labels with an opposite explicit override, omission and both env methods. First deployment explicitly sets EMAIL_SIGNIN_DEFAULT_METHOD=link until manual release checks pass; source defaults remain Code.
 
 ### 7. Wrong vs Correct
 

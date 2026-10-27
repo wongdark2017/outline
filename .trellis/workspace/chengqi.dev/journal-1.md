@@ -74,3 +74,42 @@ User explicitly authorized submission; committed exactly ten reviewed PR2 source
 ### Next Steps
 
 - Keep PR1+PR2 joint deployment requirement. Manual phone layout/OS autofill/Electron checks and PR3–PR5 remain planned.
+
+
+## Session 3: Complete email sign-in development and gate initial rollout
+<!-- trellis-session: v=2 fp=a7b030cad4bc3c30 -->
+
+**Date**: 2026-10-27
+**Task**: Complete email sign-in development and gate initial rollout
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+PR3–PR5 and user-approved U7 localization/refinements are committed and reviewed. Development task completed; deployment and external manual checks remain pending.
+
+### Main Changes
+
+- Added25 approved Chinese translations, installation-default reset with narrow null-to-absent persistence, minute-only email timestamps, and explicit Link first-deployment sample.
+- Preserved accepted PR3/PR4/PR5 commits and branch refs; U7 is a separate release branch. Captured namespace-safe extraction contracts and retained original user work/live service.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `d4b8c29cb` | feat: configure workspace email sign-in method |
+| `1d1d6822d` | feat: enrich sign-in emails and add privacy-safe metrics |
+| `543c1058b` | feat: default email sign-in to verification codes |
+| `204a13711` | feat: localize email sign-in and refine release defaults |
+
+### Testing
+
+- [OK] Full27-path P0 gate489passed/3existing skips; actualRedis3/3. Four additional real-Chinese rendering regressions; final two-file45/45. tsc/lint/format/diff/productionbuild pass.
+- [OK] Normal English extraction idempotent; en_US+1, zh_CN+25; existing entries unchanged and variable/markup/code-first-subject checks pass.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- First deployment must explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link. Complete real SMTP/provider+proxy log/Safari/Electron/PWA/Sentry/tracer checks before removing override or setting code and restarting web/worker.

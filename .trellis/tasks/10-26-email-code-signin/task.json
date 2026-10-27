@@ -2,8 +2,8 @@
   "id": "email-code-signin",
   "name": "email-code-signin",
   "title": "Email verification code sign-in implementation",
-  "description": "Implement and verify the approved U1–U6 email sign-in plan; retain ordered PR1–PR5 snapshots and manual release checks.",
-  "status": "in_progress",
+  "description": "Approved U1–U7 email sign-in development completed, reviewed and committed; first deployment remains explicitly Link pending manual release checks.",
+  "status": "completed",
   "dev_type": "fullstack",
   "scope": "authentication",
   "package": null,
@@ -11,11 +11,11 @@
   "creator": "chengqi.dev",
   "assignee": "chengqi.dev",
   "createdAt": "2026-10-26",
-  "completedAt": null,
-  "branch": "feat/email-code-signin-pr5",
+  "completedAt": "2026-10-27",
+  "branch": "feat/email-code-signin-release",
   "base_branch": "feat/email-code-signin-pr2",
   "worktree_path": "/root/outline-email-signin-remaining",
-  "commit": "543c1058b12c52b7710fdbbf808a684eb5f320a6",
+  "commit": "204a13711ce704496feb5d577a9d272ccd8a417f",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -24,10 +24,10 @@
     "temp/邮箱验证码登录 · 页面设计.pdf",
     "temp/Outline Email verification code sign-in — design.pdf"
   ],
-  "notes": "Remaining PR3–PR5 code, independent review and approved local commits completed in /root/outline-email-signin-remaining. Link-stage P0 passed before isolated Code-default switch; final Code-stage P0/static/build passed. Source worktree clean. Preserve original user edits/live service and existing branches. No push, PR creation or deployment. Chinese translation and operational/device/SMTP/telemetry checks remain pending; keep task active for release verification.",
+  "notes": "PR1–PR5 and U7 localization/default-reset/minute-time follow-up are complete. User approved all25 Chinese phrases. U7 commit204a13711 on isolated feat/email-code-signin-release; source worktree clean, accepted prior branches/commits preserved. Full gate489pass/3existing skips, actualRedis3/3, final Chinese two-file45/45 and all static/build checks passed. First-deployment sample explicitly Link. No push/PR/deploy/restart; operator manual release checks remain pending and are not waived by completed development status.",
   "meta": {
     "planning_review": {
-      "revision": "U6",
+      "revision": "U7",
       "reviewItemsCovered": 8,
       "revisionsCovered": [
         "U1",
@@ -35,9 +35,10 @@
         "U3",
         "U4",
         "U5",
-        "U6"
+        "U6",
+        "U7"
       ],
-      "contextManifestsRevision": "U6",
+      "contextManifestsRevision": "U7",
       "blockingDecisions": 0,
       "requirements": 6,
       "acceptanceCriteria": 21,
@@ -54,13 +55,14 @@
         20
       ],
       "planningChecks": "passed",
-      "implementationApproval": "approved"
+      "implementationApproval": "approved",
+      "notes": "PR3–PR5 reviewed and accepted; no re-confirmation of existing commits. User approved25 Chinese phrases, optional reset-to-installation-default selector and minute-only mail times. First deployment must explicitly remain Link pending all manual checks."
     },
     "implementation": {
-      "approvedRevision": "U6",
+      "approvedRevision": "U7",
       "currentPR": null,
-      "scope": "Finish PR3 settings/environment, PR4 mail copy/aggregate metrics, then PR5 isolated Code-default switch only after full P0 passes.",
-      "stage": "PR3–PR5 implementation, independent review and explicitly approved local commits complete; source clean. Remaining work is manual localization/release verification, not additional product implementation.",
+      "scope": "Completed PR1–PR5 and U7 approved Chinese localization, inheritance reset, minute-only mail display and explicit Link first-deployment template.",
+      "stage": "completed: approved U7 localization and refinements committed; independent P0/static/build review passed; external manual release gate pending.",
       "nextPR": null,
       "typeBaseline": {
         "ref": "dev-main",
@@ -71,7 +73,7 @@
       },
       "reviewItemsCovered": 8,
       "worktree": "/root/outline-email-signin-remaining",
-      "branch": "feat/email-code-signin-pr5",
+      "branch": "feat/email-code-signin-release",
       "baseRef": "feat/email-code-signin-pr2",
       "baseCommit": "93f28388e",
       "stagedSourceTestFiles": 0,
@@ -112,22 +114,25 @@
       },
       "validation": {
         "status": "passed",
-        "sourceDefault": "code",
-        "focusedPassed": 472,
-        "existingSkips": 3,
-        "failed": 0,
+        "focusedGatePassed": 489,
+        "focusedGateExistingSkips": 3,
+        "focusedGateFailed": 0,
+        "newChineseRegressionTests": 4,
+        "finalChineseTwoFilePasses": 45,
         "realRedisPassed": 3,
         "typeCheck": "zero diagnostics",
         "lint": "zero errors;178 existing warnings",
-        "scopedLint": "30 TS files;zero diagnostics",
+        "scopedLint": "9 TS files;zero diagnostics",
         "format": "2693 files passed",
-        "productionBuild": "yarn build passed",
+        "productionBuild": "passed with automatic extraction idempotence",
         "manualPending": [
-          "real-phone layout and light/dark/Safari OS OTP autofill",
-          "actual Electron handoff",
-          "Ethereal/SMTP inbox delivery",
-          "browser Sentry/tracer/proxy inspection",
-          "operational legacy worker/job/verifier cutover and deployed environment rollback"
+          "real SMTP inbox delivery",
+          "mail-provider and proxy logs redact credentials",
+          "Safari OTP autofill",
+          "real Electron and PWA device flows",
+          "browser Sentry and tracer inspection",
+          "first deployment with explicit EMAIL_SIGNIN_DEFAULT_METHOD=link",
+          "promotion only after all manual checks, followed by web/worker restart"
         ]
       },
       "pr1Publishing": {
@@ -153,7 +158,7 @@
       ],
       "reviewedHashFile": "/tmp/outline-email-pr2-reviewed-hashes.json",
       "proposedCommit": "feat: add recoverable email code sign-in page",
-      "commitDecision": "User approved the exact four-commit plan. PR3–PR5 are committed with reviewed trees; the fourth Trellis docs commit records this evidence on feat/trellis-init.",
+      "commitDecision": "Existing approved PR3–PR5 commits unchanged; U7 follow-up committed independently as204a13711 after wording approval and review. No repeated prior-commit confirmation.",
       "pr2Commit": "93f28388e653b45b4c9755765c69d3761ef3beac",
       "committedSourceTestFiles": 10,
       "pr2Validation": {
@@ -561,9 +566,9 @@
       "productionBuild": {
         "command": "yarn build",
         "exitCode": 0,
-        "log": "/tmp/outline-email-code-production-build.log",
+        "log": "/tmp/outline-email-u7-final-build.log",
         "deployment": false,
-        "englishExtraction": "standard automatic extraction; final catalog hash frozen with PR4/PR5"
+        "englishExtraction": "idempotent; en_US+1 and zh_CN+25, existing entries unchanged"
       },
       "fixtureCorrection": {
         "file": "server/routes/api/auth/auth.test.ts",
@@ -601,14 +606,411 @@
           "status": "committed locally; no push"
         }
       },
-      "postCommitVerification": "All three source commit trees equal their reviewed checkpoints; PR3/PR4 retain Link and PR5 is Code; parent chain correct; source worktree clean.",
+      "postCommitVerification": "All three source commit trees equal their reviewed checkpoints; PR3/PR4 retain Link and PR5 is Code; parent chain correct; source worktree clean. U7 release commit equals final12 reviewed file hashes; accepted PR3/4/5 branch refs remain unchanged; release source clean.",
       "manualPending": [
-        "real-phone layout and light/dark/Safari OS OTP autofill",
-        "actual Electron handoff",
-        "Ethereal/SMTP inbox delivery",
-        "browser Sentry/tracer/proxy inspection",
-        "operational legacy worker/job/verifier cutover and deployed environment rollback"
-      ]
+        "real SMTP inbox delivery",
+        "mail-provider and proxy logs redact credentials",
+        "Safari OTP autofill",
+        "real Electron and PWA device flows",
+        "browser Sentry and tracer inspection",
+        "first deployment with explicit EMAIL_SIGNIN_DEFAULT_METHOD=link",
+        "promotion only after all manual checks, followed by web/worker restart"
+      ],
+      "u7Validation": {
+        "command": [
+          "yarn",
+          "test",
+          "plugins/email/server/auth/email.test.ts",
+          "server/commands/userInviter.test.ts",
+          "server/emails/mailer.test.tsx",
+          "server/emails/templates/SigninEmail.test.tsx",
+          "server/logging/Logger.test.ts",
+          "server/queues/queue.test.ts",
+          "server/queues/tasks/EmailTask.test.ts",
+          "server/routes/api/users/users.test.ts",
+          "server/services/worker.test.ts",
+          "server/utils/EmailSigninRequest.test.ts",
+          "server/utils/VerificationCode.test.ts",
+          "server/utils/emailSignin.integration.test.ts",
+          "server/utils/emailSigninRedaction.test.ts",
+          "server/utils/jwt.test.ts",
+          "server/env.test.ts",
+          "server/models/Team.test.ts",
+          "server/commands/teamUpdater.test.ts",
+          "server/routes/api/teams/teams.test.ts",
+          "server/routes/api/auth/auth.test.ts",
+          "server/utils/emailSigninMetadata.test.ts",
+          "app/utils/emailSignin.test.ts",
+          "app/scenes/Login/Login.test.tsx",
+          "app/stores/AuthStore.test.ts",
+          "app/scenes/DesktopRedirect.test.tsx",
+          "app/models/Team.test.ts",
+          "app/scenes/Settings/Authentication.test.tsx",
+          "shared/utils/emailSigninMethod.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=/tmp/outline-email-u7-final-test-report.json"
+        ],
+        "environment": {
+          "RUN_REDIS_INTEGRATION": "1",
+          "REDIS_URL": "redis://127.0.0.1:6379"
+        },
+        "startedAt": 1793083454.936712,
+        "paths": 27,
+        "sourceDefault": "code",
+        "sampleFirstDeployment": "link",
+        "exitCode": 0,
+        "finishedAt": 1793083497.4524918,
+        "summary": {
+          "numTotalTests": 492,
+          "numPassedTests": 489,
+          "numFailedTests": 0,
+          "numPendingTests": 3,
+          "success": true,
+          "fileResults": 28,
+          "integration": [
+            {
+              "file": "/root/outline-email-signin-remaining/server/utils/emailSignin.integration.test.ts",
+              "status": "passed",
+              "tests": [
+                {
+                  "name": "consumes exactly once across independent connections",
+                  "status": "passed"
+                },
+                {
+                  "name": "does not leave an old verifier after concurrent resend admission/publication",
+                  "status": "passed"
+                },
+                {
+                  "name": "reserves the common email quota only once under contention",
+                  "status": "passed"
+                }
+              ]
+            }
+          ],
+          "skipped": [
+            {
+              "file": "/root/outline-email-signin-remaining/server/routes/api/auth/auth.test.ts",
+              "test": "should return all configured providers but respect email setting"
+            },
+            {
+              "file": "/root/outline-email-signin-remaining/server/routes/api/auth/auth.test.ts",
+              "test": "should return email provider for team when guest signin enabled"
+            },
+            {
+              "file": "/root/outline-email-signin-remaining/server/routes/api/teams/teams.test.ts",
+              "test": "requires a cloud hosted deployment"
+            }
+          ]
+        },
+        "chineseRenderRegression": {
+          "numTotalTests": 45,
+          "numPassedTests": 45,
+          "numFailedTests": 0,
+          "numPendingTests": 0,
+          "success": true,
+          "command": [
+            "yarn",
+            "test",
+            "app/scenes/Settings/Authentication.test.tsx",
+            "server/emails/templates/SigninEmail.test.tsx",
+            "--reporter=default",
+            "--reporter=json",
+            "--outputFile=/tmp/outline-email-u7-final-chinese-test-report.json"
+          ],
+          "fileResults": [
+            {
+              "file": "/root/outline-email-signin-remaining/app/scenes/Settings/Authentication.test.tsx",
+              "status": "passed",
+              "tests": 15
+            },
+            {
+              "file": "/root/outline-email-signin-remaining/server/emails/templates/SigninEmail.test.tsx",
+              "status": "passed",
+              "tests": 30
+            }
+          ],
+          "newTests": 4
+        },
+        "P0": {
+          "AC3": "passed",
+          "AC4": "passed",
+          "AC6": "passed",
+          "AC7": "passed",
+          "AC8": "passed",
+          "AC9": "passed",
+          "AC17": "passed",
+          "AC18": "passed",
+          "AC19": "passed",
+          "AC20": "passed"
+        },
+        "static": {
+          "tsc": {
+            "command": [
+              "yarn",
+              "tsc",
+              "--incremental",
+              "false"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083494.0038743,
+            "finishedAt": 1793083513.9792845
+          },
+          "lint": {
+            "command": [
+              "yarn",
+              "lint"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083513.9800131,
+            "finishedAt": 1793083527.5089123
+          },
+          "format": {
+            "command": [
+              "yarn",
+              "format:check"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083527.5094159,
+            "finishedAt": 1793083528.9715762
+          },
+          "scoped-lint": {
+            "command": [
+              "yarn",
+              "oxlint",
+              "--type-aware",
+              "app/scenes/Settings/Authentication.tsx",
+              "app/scenes/Settings/Authentication.test.tsx",
+              "server/commands/teamUpdater.ts",
+              "server/commands/teamUpdater.test.ts",
+              "server/routes/api/teams/schema.ts",
+              "server/routes/api/teams/teams.test.ts",
+              "server/utils/emailSigninMetadata.ts",
+              "server/utils/emailSigninMetadata.test.ts"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083528.972018,
+            "finishedAt": 1793083531.518157
+          },
+          "diff": {
+            "command": [
+              "git",
+              "diff",
+              "--check"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083531.5186446,
+            "finishedAt": 1793083531.534021
+          }
+        },
+        "staticAfterReviewTests": {
+          "review-tsc": {
+            "command": [
+              "yarn",
+              "tsc",
+              "--incremental",
+              "false"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083672.8865871,
+            "finishedAt": 1793083691.1473384
+          },
+          "review-lint": {
+            "command": [
+              "yarn",
+              "oxlint",
+              "--type-aware",
+              "app/scenes/Settings/Authentication.tsx",
+              "app/scenes/Settings/Authentication.test.tsx",
+              "server/commands/teamUpdater.ts",
+              "server/commands/teamUpdater.test.ts",
+              "server/routes/api/teams/schema.ts",
+              "server/routes/api/teams/teams.test.ts",
+              "server/utils/emailSigninMetadata.ts",
+              "server/utils/emailSigninMetadata.test.ts",
+              "server/emails/templates/SigninEmail.test.tsx"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083691.1478107,
+            "finishedAt": 1793083693.7955964
+          },
+          "review-format": {
+            "command": [
+              "yarn",
+              "format:check"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083693.7960684,
+            "finishedAt": 1793083695.3121657
+          },
+          "review-diff": {
+            "command": [
+              "git",
+              "diff",
+              "--check"
+            ],
+            "exitCode": 0,
+            "startedAt": 1793083695.312664,
+            "finishedAt": 1793083695.3292708
+          }
+        },
+        "fullLintWarnings": 178,
+        "productionBuild": {
+          "command": [
+            "yarn",
+            "build"
+          ],
+          "exitCode": 0,
+          "log": "/tmp/outline-email-u7-final-build.log",
+          "automaticExtractionIdempotent": true
+        },
+        "localeDiff": {
+          "en_US": {
+            "added": 1,
+            "changedOrRemovedExisting": 0
+          },
+          "zh_CN": {
+            "added": 25,
+            "changedOrRemovedExisting": 0
+          }
+        },
+        "runtimeTranslations": {
+          "approvedMappings": 25,
+          "interpolationAndMarkupParity": true,
+          "loginInstructionRenderedWithEmphasis": true,
+          "defaultLabelVariants": 2,
+          "codeFirstChineseSubject": true,
+          "defaultNamespaceSeparatorPreserved": true,
+          "command": [
+            "node",
+            "/tmp/outline-email-u7-final-locale-runtime.cjs"
+          ]
+        },
+        "files": [
+          ".env.sample",
+          "app/scenes/Settings/Authentication.test.tsx",
+          "app/scenes/Settings/Authentication.tsx",
+          "server/commands/teamUpdater.test.ts",
+          "server/commands/teamUpdater.ts",
+          "server/emails/templates/SigninEmail.test.tsx",
+          "server/routes/api/teams/schema.ts",
+          "server/routes/api/teams/teams.test.ts",
+          "server/utils/emailSigninMetadata.test.ts",
+          "server/utils/emailSigninMetadata.ts",
+          "shared/i18n/locales/en_US/translation.json",
+          "shared/i18n/locales/zh_CN/translation.json"
+        ],
+        "sha256": {
+          ".env.sample": "b804227292e78358900d03c5891072a8ca32f1b1aade74b6b59c8228abdd9ca8",
+          "app/scenes/Settings/Authentication.test.tsx": "2da13c7a307fabb7e6bd5090765fa3672ae651f929aefad1a4f7364c678d694c",
+          "app/scenes/Settings/Authentication.tsx": "89073e0147cc99393ec2e7d6efe7f8541a6c0f8bfc15c5725766c645c265486c",
+          "server/commands/teamUpdater.test.ts": "69870ceb550b515a1e65f05d62d2af779f5f892f747c46c88480cee493d2d2d9",
+          "server/commands/teamUpdater.ts": "944af7eed6f483d0943753f4f39ead69be2cac90628ccdc54ab7c0b3e8f6a97b",
+          "server/emails/templates/SigninEmail.test.tsx": "c1a96036b7a99e3cd73f3cd5db62c758884fd30a4a8c5bb9a2a6cf70f01433b1",
+          "server/routes/api/teams/schema.ts": "7950d8542e113b02b72e94f2db500bba2358de8c700660b0470f53b8b6e15b58",
+          "server/routes/api/teams/teams.test.ts": "add738f9d9464316b1876691fb79e9b963eab77673a156e7ed9d843d9329ef21",
+          "server/utils/emailSigninMetadata.test.ts": "4225e6ad5a5785dd0b031f92c57491f4f058a856aa9fa65a9a57071d73f51cd1",
+          "server/utils/emailSigninMetadata.ts": "cb166077eca9eb17fc0bc776ca84bb92a1e1000ca7578e0f99ac410c8b7f91da",
+          "shared/i18n/locales/en_US/translation.json": "60c65c638b30c23b728fe0a62d7d4c637e67f71de33bd54e88438c6c711891b1",
+          "shared/i18n/locales/zh_CN/translation.json": "415b2b8efa99587851f08ab14c51ecb74b6fa4278f520f30432f96389b45f73c"
+        },
+        "review": {
+          "productDefectsFound": 0,
+          "testOnlyAdditions": [
+            "real Chinese settings labels and reset through actual Radix selection for both installation defaults",
+            "real Chinese code/link SigninEmail subject/preview/HTML/text with device interpolation and minute-only explicit zones"
+          ],
+          "productSourceFrozen": true,
+          "dbSlotReleased": true
+        },
+        "manualPending": [
+          "real SMTP inbox delivery",
+          "mail-provider and proxy logs redact credentials",
+          "Safari OTP autofill",
+          "real Electron and PWA device flows",
+          "browser Sentry and tracer inspection",
+          "first deployment with explicit EMAIL_SIGNIN_DEFAULT_METHOD=link",
+          "promotion only after all manual checks, followed by web/worker restart"
+        ],
+        "reviewFinishedAt": 1793083732.882775
+      },
+      "u7Commit": {
+        "branch": "feat/email-code-signin-release",
+        "commit": "204a13711ce704496feb5d577a9d272ccd8a417f",
+        "parent": "543c1058b12c52b7710fdbbf808a684eb5f320a6",
+        "tree": "482d2cc99d7bfb0f32ac9c7f1a3bf3204741b856",
+        "message": "feat: localize email sign-in and refine release defaults",
+        "files": [
+          ".env.sample",
+          "app/scenes/Settings/Authentication.test.tsx",
+          "app/scenes/Settings/Authentication.tsx",
+          "server/commands/teamUpdater.test.ts",
+          "server/commands/teamUpdater.ts",
+          "server/emails/templates/SigninEmail.test.tsx",
+          "server/routes/api/teams/schema.ts",
+          "server/routes/api/teams/teams.test.ts",
+          "server/utils/emailSigninMetadata.test.ts",
+          "server/utils/emailSigninMetadata.ts",
+          "shared/i18n/locales/en_US/translation.json",
+          "shared/i18n/locales/zh_CN/translation.json"
+        ],
+        "sourceDefault": "code",
+        "firstDeploymentSample": "link",
+        "reviewEvidence": "/tmp/outline-email-u7-final-result.json",
+        "worktreeClean": true,
+        "remoteActions": "none"
+      }
+    },
+    "localization": {
+      "reviewFile": ".trellis/tasks/10-26-email-code-signin/translation-review.json",
+      "approved": true,
+      "approvedAt": "2026-10-27T06:35:56.376049+00:00",
+      "keyCount": 25,
+      "state": "completed:25 approved translations written, actual Chinese UI/mail rendering and extraction/idempotence verified",
+      "validation": {
+        "englishAdded": {
+          "Default (currently {{ method }})": "Default (currently {{ method }})"
+        },
+        "englishExistingEntriesChanged": 0,
+        "chineseAdded": 25,
+        "chineseExistingEntriesChanged": 0,
+        "jsonValid": true,
+        "interpolationAndMarkupParity": true,
+        "codeFirstSubject": true,
+        "sha256": {
+          "shared/i18n/locales/en_US/translation.json": "60c65c638b30c23b728fe0a62d7d4c637e67f71de33bd54e88438c6c711891b1",
+          "shared/i18n/locales/zh_CN/translation.json": "415b2b8efa99587851f08ab14c51ecb74b6fa4278f520f30432f96389b45f73c"
+        },
+        "normalExtractionIdempotent": true,
+        "runtimeApprovedMappingsRendered": 25,
+        "runtimeInheritedDefaultVariants": 2
+      }
+    },
+    "release": {
+      "status": "pending_manual_verification",
+      "firstDeploymentEnvironment": {
+        "EMAIL_SIGNIN_DEFAULT_METHOD": "link"
+      },
+      "firstDeploymentApplied": false,
+      "sourceDefault": "code",
+      "checks": {
+        "realSmtpDelivery": "pending",
+        "mailProviderAndProxyLogsNoCredentials": "pending",
+        "safariAutofill": "pending",
+        "electronRealDevice": "pending",
+        "pwaRealDevice": "pending",
+        "sentryNoCredentials": "pending",
+        "tracerNoCredentials": "pending"
+      },
+      "codeDefaultSwitchAllowed": false,
+      "promotion": "After every listed manual check passes, remove EMAIL_SIGNIN_DEFAULT_METHOD or set it to code, then restart web and email worker. Explicit workspace selections retain precedence; PWA OTP upgrade remains.",
+      "implementationCompleteDoesNotMeanReleaseApproved": true
+    },
+    "completion": {
+      "scope": "development and repository task complete",
+      "releaseStatus": "pending_manual_verification",
+      "manualChecksClaimedPassed": false,
+      "archive": "retained at current task path for operator release checklist"
     }
   },
   "worktree": "/root/outline-email-signin-remaining"

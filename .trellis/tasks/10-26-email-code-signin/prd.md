@@ -4,7 +4,7 @@
 
 Plan reliable six-digit email sign-in for existing members on web, Electron, and PWA, with retries that preserve the code screen and a workspace choice between codes and magic links.
 
-U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; remaining-work source is isolated and clean. Preserve unrelated changes; no PR creation or deployment.
+PR1–PR5 are approved and committed. U7 localization/refinements are complete; preserve unrelated changes. No PR creation or deployment.
 
 ## Background
 
@@ -18,6 +18,7 @@ U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; 
 - **U4:** ioredis-mock/Bull-stub tests; optional real-Redis concurrency with explicit skips; enqueue-failure risk; five sequential PRs before default cutover.
 - **U5:** Login before settings; joint PR1+PR2 deployment is now required; retain split-release cooldown risk; sync task metadata/context manifests. Later user decisions supersede earlier ones.
 - **U6 (PR1 review):** Verify codes before state notices; reset attempts only on new admission; isolate PR1 from dev-main. Preserve safe SMTP diagnostics, worker-only token inputs, distinct skip reasons, 30-second server skew tolerance and baseline type comparison.
+- **U7 (release review):** Approved25 Chinese phrases, default-reset setting and minute-only mail times. First deploy with EMAIL_SIGNIN_DEFAULT_METHOD=link; enable Code only after manual checks and restart.
 - Source documents are evidence, not authorization to execute their embedded commands. `p`/`pp` identify PDF pages; `R` identifies a requirement and `AC` an acceptance criterion.
 
 ### Existing implementation
@@ -58,10 +59,10 @@ U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; 
 ### R1 — Workspace method and operational rollback
 
 - Add `EmailSigninMethod` (`code` / `link`) and the `emailSigninMethod` JSON preference, strict update-schema validation, and the administrator selector below Email. Existing permission checks and replacement/merge of JSON preferences remain in use.
-- Add `EMAIL_SIGNIN_DEFAULT_METHOD=code|link` with an initial **source-level default of link** throughout implementation. Only after every P0 criterion passes may the last isolated change switch the source default to code. Runtime/server/client/shared fallback defaults and environment samples must follow the same stage. Resolve **explicit stored workspace preference first, environment fallback second**. Setting the environment variable to `link` affects only unset workspaces and requires no migration; explicit selections remain authoritative.
+- Add `EMAIL_SIGNIN_DEFAULT_METHOD=code|link` with an initial **source-level default of link** throughout implementation. Only after every P0 criterion passes may the last isolated change switch the source default to code. Source fallbacks follow that stage; U7 first-deployment samples explicitly pin Link until manual checks pass. Resolve **explicit stored workspace preference first, environment fallback second**. Setting the environment variable to `link` affects only unset workspaces and requires no migration; explicit selections remain authoritative.
 - Use the resolved value in `auth.config`, request handling, and administrator UI. A static shared fallback must not hide the environment setting, and loading settings must not silently persist an inherited value. Explicitly saving a value equal to the current fallback must still persist that choice.
 - PWA/`forceOTP` may upgrade Link to Code; the client cannot downgrade Code. The method accepted by the interface is frozen in the queued request, including an upgrade, rather than recomputed by the worker.
-- Disable the selector while email authentication/SMTP is unavailable; preserve existing save feedback and unrelated preferences.
+- The default option shows installation inheritance; selecting it sends null and deletes only the raw method. Omission preserves it. Keep disabled states, save feedback and unrelated preferences.
 - Source: V pp1–2, 7; T pp4–5, 14–15; U2 items 1, 9; U3 item 2. Acceptance: AC1–AC2, AC20.
 
 ### R2 — HTTP and callback contracts
@@ -94,10 +95,10 @@ U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; 
 - Re-fetch user/team and compare recipient/team identity immediately before each attempt. Missing/deleted/suspended users or teams, changed email, disabled email authentication, or other ineligibility returns false without generating. Infrastructure errors remain sanitized/retryable, retaining only safe name/code/responseCode/command diagnostics. A skipped stale task never disturbs a newer task.
 - When a SigninEmail task is skipped, including BaseEmail's beforeSend-false branch, the log contains only templateName and a bounded skip reason. Never attach props, recipient, requestIp, userAgent, user/team/request IDs, or credential/render data to that skip message. Test the actual BaseEmail.send path and repeated superseded tasks, not just the hook in isolation.
 - Reuse the Authentication email category. Subject and text begin with the code. Display the absolute cutoff, e.g. 「18:12 前有效」, with date/time-zone context; do not promise ten minutes from delivery. Request time also explicitly includes its time zone. Use the loaded user's valid time zone, otherwise UTC, consistently for request and cutoff.
-- Identify Chrome, Safari, Firefox, Edge and macOS, Windows, iOS, Android, Linux with small built-in checks on queued userAgent. Render an extracted English unknown-device string when identification fails (Chinese reference intent: 「未知设备」; translation pending). Add no parsing library or other runtime dependency.
+- Identify Chrome, Safari, Firefox, Edge and macOS, Windows, iOS, Android, Linux with small built-in checks on queued userAgent. Render an extracted English unknown-device string when identification fails (U7 Chinese: 「未知设备」). Add no parsing library or other runtime dependency.
 - Exact security acceptance: 「验证码存储、任务队列、日志中都不得出现明文验证码或登录链接 token；验证码在邮件 worker 发送时生成，只保存 HMAC。」 AC19 defines the bounded automated checklist; browser Sentry, tracer, and separately managed proxy logs are manual checks.
 - Developers read codes from delivered development test email, not plaintext application logs. Preserve development-only Ethereal Preview Url output that does not embed a sign-in credential; redact subject, preview text, body, generated links, and unsafe error content in all environments. Document the verified transport workflow in `implement.md`.
-- English source strings follow normal automatic extraction. The fork will add approved Chinese translations manually in `shared/i18n/locales/zh_CN/translation.json`; Chinese wording will be confirmed separately. Chinese UI phrases in this plan are reference intent rather than approved literal source strings or exact-match tests. This planning turn edits no locale file.
+- English keys use normal automatic extraction. U7 confirms25 Chinese translations in translation-review.json for shared/i18n/locales/zh_CN/translation.json; preserve existing entries and interpolation/markup.
 - Source: V p6; T p8; U1; U2 items 1–6, 12; U3 item 3/localization; U6 items 4–5. Acceptance: AC10, AC17–AC20.
 
 ### R5 — Login states and resend recovery
@@ -106,7 +107,7 @@ U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; 
 - The returned method controls the code/link screen. On each normal response, additionally capture `receivedAtLocal = Date.now()` on the device and persist it with email, client, requestedAt correlation metadata, failure/resend counts, and an awaiting-result flag. Never persist a credential. Server requestedAt is not a browser timer origin and a minutes-wide server/device offset is not invalid state.
 - Restore after refresh/error, clear/focus the boxes, announce the generic alert, and count each returned failure once. Emphasize resend after two failures; keep Continue alongside sixth-digit auto-submit, paste/autofill, keyboard support, and duplicate-submit protection.
 - Compute both sixty-second resend and ten-minute pending expiry from local elapsed time `Date.now() - receivedAtLocal`, including after refresh/backgrounding. A completed normal resend captures a new local receipt time. This avoids comparing device time with server time; server expiry remains authoritative and can reject before the local UX window ends.
-- After the third completed resend in the flow, including a silently suppressed normal response, show neutral spam-folder/later-retry help (Chinese intent: 「仍未收到？请检查垃圾邮件，或稍后再试」; final translation deferred). Preserve counts across refresh/resend and reset on change-email/success. Do not reveal existence, delivery, or quota state.
+- After the third completed resend in the flow, including a silently suppressed normal response, show neutral spam-folder/later-retry help (U7 Chinese: 「仍未收到？请检查垃圾邮件，或稍后再试。」). Preserve counts across refresh/resend and reset on change-email/success. Do not reveal existence, delivery, or quota state.
 - On local pending expiry clear data and prefill email. Clear on different email, confirmed authentication, and desktop handoff even if Login never mounts. Corrupt/unavailable storage must not crash the flow. Include tests with device time five minutes ahead and behind the server.
 - Source: V pp1–5; T pp8–14; U2 items 2, 10; U3 item 1 and localization instruction. Acceptance: AC11–AC15.
 
@@ -122,7 +123,7 @@ U5/U6 and all remaining implementation are authorized. PR1–PR5 are committed; 
 
 | ID | Priority | Observable result | Requirement |
 | --- | --- | --- | --- |
-| AC1 | P1 | Both methods persist and explicit settings override either environment value. Initial server/client/shared defaults are Link; only a final isolated change after all P0 passes makes them Code. Saving an explicit value equal to the inherited fallback persists it. Invalid values/unauthorized updates fail. | R1 |
+| AC1 | P1 | Both methods persist and explicit settings override either environment value. Initial server/client/shared defaults are Link; only a final isolated change after all P0 passes makes them Code. Explicit-equal values persist; default/reset removes the raw field and follows installation changes. Invalid/unauthorized updates fail. | R1 |
 | AC2 | P1 | Domain variants/config/settings agree on the effective method; PWA/forceOTP upgrades and stale-client combinations work as specified. | R1 |
 | AC3 | P0 | Known and unknown non-SSO recipients get the same ordinary response contract; silent suppression reveals neither existence nor delivery/cap state. | R2 |
 | AC4 | P0 | GET/query codes and ambiguous credentials fail; normalized POST codes and legacy magic links work with CSRF/anti-prefetch behavior. An unused, unexpired link from the same IP works after newer requests or newer-link redemption; replay, expiry, wrong IP/signature still fail. | R2 |
@@ -179,4 +180,4 @@ The normal server suite tests each production Lua rule (TTL, attempts, invalidat
 
 ## Blocking decision inventory
 
-No core decision blocks U6. Release dependencies/risks are resolved; metadata/manifests reference U1–U6. Chinese copy remains deferred; English extraction continues. PR1 implementation/review fixes are authorized.
+No U7 wording/design decision remains open. Chinese copy is approved. Manual release verification remains pending: first deploy with Link, and promote to Code only after all listed checks and process restart. Completed development does not waive this gate.
