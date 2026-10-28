@@ -1,8 +1,10 @@
 # Email verification code sign-in — technical design
 
+U9 limits current delivery/acceptance to desktop and mobile browsers. Existing Electron/PWA paths/tests remain compatibility baseline; no client-specific work or real-device sign-off is required for this release.
+
 ## Status and authority
 
-Current U8 design; prd.md owns R1–R6/AC1–AC21. Preserve U1–U7 credential safety, method-aware Login before settings, approved Chinese copy and Link-first deployment gate. U8 supersedes sending quotas/countdown and the temporary flag with permanent unlimited sending; verification protection and the original approval/commit history remain.
+Current U9 browser-only release design; prd.md owns R1–R6/AC1–AC21. Preserve U1–U7 credential safety, method-aware Login before settings, approved Chinese copy and Link-first deployment gate. U8 supersedes sending quotas/countdown and the temporary flag with permanent unlimited sending; verification protection and the original approval/commit history remain.
 
 ## Boundaries and affected code
 
@@ -158,7 +160,7 @@ The existing Metrics client already adds its global prefix. Tags must never cont
 
 ## 10. Release, compatibility, and rollback
 
-U7 first-deployment gate: explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link (also in .env.sample). Keep this override until real SMTP delivery, credential-free mail-provider/proxy logs, Safari autofill, real Electron/PWA, Sentry and tracer checks all pass. Then remove the override or set code and restart web/worker. Source defaults stay Code; completed implementation metadata does not claim manual checks or release approval.
+U9 browser-only first-deployment gate: explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link (also in .env.sample). Keep this override until browser SMTP delivery, credential-free mail-provider/proxy logs, Safari autofill, Sentry and tracer checks pass; Electron/PWA are deferred and excluded from this release gate. Then remove the override or set code and restart web/worker. Source defaults stay Code; completed implementation metadata does not claim manual checks or release approval.
 
 - Follow P0/P1 grading exactly: P0 = AC3, AC4, AC6–AC9, AC17–AC20; all other criteria including new AC21 are P1. All remain in planned scope. P0 must pass before the installation fallback becomes Code.
 - Merge PRs in this order: (1) admission/worker/verification and all confidentiality fixes, retaining existing Link/preferOTP behavior and returning method; (2) login states, response-method selection, local timers and responsive OTP input; (3) explicit workspace setting, environment fallback and settings UI; (4) mail copy/device/time display and aggregate metrics; (5) final source-default switch. Run focused tests with the actual Link default for every preceding PR and against PR5's Link base; PR5 also verifies explicit Link/rollback after the Code switch. Do not defer security or tests to the mail-copy PR.
@@ -180,6 +182,6 @@ CI evidence: `.github/workflows/ci.yml:11` sets REDIS_URL, but the server job at
 
 ## Known risks and deferred checks
 
-Retain daily-lock abuse, SMTP duplicates/out-of-order mail, the brief no-OTP interval after an admitted resend, and millisecond recipient timing differences. Enqueue can fail after invalidating the old OTP while HTTP returns normal success; immediate resend can recover. U8 removes the old PR1 cooldown risk, while joint rollout/method-aware Login ordering remains. Older unused links stay independently redeemable. External provider/proxy, Sentry/tracer and real Safari/Electron/PWA checks remain manual; optional Redis coverage may skip in CI, which does not provision Redis. Development completion does not waive release checks.
+Retain daily-lock abuse, SMTP duplicates/out-of-order mail, the brief no-OTP interval after an admitted resend, and millisecond recipient timing differences. Enqueue can fail after invalidating the old OTP while HTTP returns normal success; immediate resend can recover. U8 removes the old PR1 cooldown risk, while joint rollout/method-aware Login ordering remains. Older unused links stay independently redeemable. External provider/proxy, Sentry/tracer and real Safari browser checks remain manual; Electron/PWA are deferred, not current blockers; optional Redis coverage may skip in CI, which does not provision Redis. Development completion does not waive release checks.
 
 PR1 U6 isolation: source is in /root/outline-email-signin-pr1 on feat/email-code-signin-pr1 directly from dev-main. Stage only PR1 code/tests; original planning/spec/tools and reminder work stay outside its index. Compare dev-main and PR1 yarn tsc diagnostics before readiness.

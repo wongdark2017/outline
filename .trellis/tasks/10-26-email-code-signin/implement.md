@@ -2,7 +2,7 @@
 
 ## Status and review gates
 
-PR1–PR5, U7 and CSRF fixes are committed. U8 permanently removes email-send throttling and its temporary switch; verification protection remains. The user authorized spec sync, local commits and wrap-up.
+PR1–PR5/U7/CSRF/U8 are committed; U9 scopes this release to browsers. U8 permanently removes email-send throttling and its temporary switch; verification protection remains. Electron/PWA delivery/real-device checks are deferred, not blockers.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
@@ -72,7 +72,7 @@ Queue tests must exercise the actual scheduling boundary: BaseEmail.schedule alr
 - [x] Use one login-only flex/max-44×48 box style with 4 px gaps (284 px total at maxima within 288 px). No compact mode; leave deletion forms untouched. Keep themes and accessibility.
 - [x] Collocated helper/UI tests cover immediate Code/Link resend, in-flight duplicates, +/-5minute device offsets, 599/600second expiry, refresh/background recovery, future server correlation times, one-shot failures, neutral help and native submission/cleanup.
 
-- [ ] Manually verify real-phone layout, operating-system OTP autofill and Electron handoff. Automated UI coverage does not replace these checks.
+- [ ] Verify phone-browser layout and Safari OTP autofill. Electron/PWA real-device checks are deferred under U9 and do not block this browser release.
 
 ## 5. Method configuration and rollback — R1, AC1–AC2 (P1)
 
@@ -135,7 +135,7 @@ Manual checks (not automated AC19 criteria):
 
 - [ ] Browser Sentry events/transaction URLs, tracer/APM observations, and separately managed proxy/access logs redact callback credentials; record findings without widening the automated checklist.
 - [ ] Ethereal Preview Url opens delivered code/link mail while application subject/body logs stay redacted; configured SMTP inbox also works.
-- [ ] Five screens/settings at 320 px phone (288 px column), reference and desktop viewports, light/dark, keyboard, Safari Mail autofill, PWA and Electron handoff.
+- [ ] Browser five screens/settings:320px mobile (288px column), desktop/reference viewports, light/dark, keyboard and Safari autofill. Electron/PWA acceptance is deferred, not blocking.
 - [ ] Subdomain/custom-domain/self-hosted flow, invitations, suspended entities, and email disabled mid-flow preserve expected behavior.
 - [ ] Stop old credential-producing web/worker versions; inspect/skip/remove only legacy SigninEmail jobs and legacy verifier records, without dumping raw payloads or touching unrelated queues.
 - [ ] Deploy PR1+PR2 together and confirm response-method UI; PR2 must precede PR3 settings. Include U8 follow-up so no sending cooldown or temporary flag is deployed.
@@ -173,7 +173,7 @@ PR1 a6d32806d, isolated from dev-main83a94a206:32files,267focused tests, Redis3/
 
 ## PR2 implementation evidence
 
-PR2 is committed as93f28388e in /root/outline-email-signin-pr2, based on PR1. Four files/40tests, zero tsc diagnostics, full lint/format and scoped10file checks passed. Review fixed forceOTP recovery, stale notices and late initial/resend responses restoring cleared state. Task.json retains full evidence. PR2 is not pushed; user canceled PR creation. Real-phone layout, OS autofill and Electron handoff remain manual.
+PR2 is committed as93f28388e in /root/outline-email-signin-pr2, based on PR1. Four files/40tests, zero tsc diagnostics, full lint/format and scoped10file checks passed. Review fixed forceOTP recovery, stale notices and late initial/resend responses restoring cleared state. Task.json retains full evidence. PR2 is not pushed; user canceled PR creation. Phone-browser layout and Safari autofill remain manual; Electron/PWA acceptance is deferred under U9.
 
 ## Remaining implementation evidence (PR3–PR5)
 
@@ -187,7 +187,7 @@ PR3/PR4/PR5 trees are separately checkpointed in /tmp/outline-email-checkpoints.
 
 PR3–PR5 are accepted existing commits; do not re-confirm or rewrite them. Apply the25 user-approved Chinese translations from translation-review.json, including the default option. Add the inheritance/reset option with strict null-to-absent API normalization and persisted unrelated-preference preservation. Show mail times to the minute without changing exact credential deadlines. Record focused tests and independent review in task.json.
 
-**First deployment:** explicitly set EMAIL_SIGNIN_DEFAULT_METHOD=link. Require real SMTP delivery; credential-free mail-provider and proxy logs; Safari autofill; real Electron and PWA; Sentry and tracer inspection. Only after every check passes, remove the variable or set code and restart web/worker. Keep pending manual evidence in task.json even when this development task is completed. This session does not deploy or restart services.
+**Current browser release (U9):** first deploy EMAIL_SIGNIN_DEFAULT_METHOD=link. Require browser SMTP delivery, safe mail-provider/proxy logs, Safari autofill, Sentry and tracer checks. Defer Electron/PWA without claiming they passed. Promote to Code only after required browser checks and web/worker restart.
 
 U7 completion:204a13711 on feat/email-code-signin-release contains12 reviewed files; existing PR3–PR5 refs are unchanged. Full27-path gate489pass/3existing skips, actualRedis3/3; four added real-Chinese regressions leave the two affected files45/45. Final tsc, full/scoped lint,2693-file format, diff and production build pass. English+1/Chinese+25 with no old-entry changes; extraction is idempotent. Task status is completed for development, while every manual release item remains pending. Detailed commands/hashes/results are in task.json.
 

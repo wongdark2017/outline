@@ -57,6 +57,8 @@ Questions to answer:
 
 Login crosses the asynchronous email request, native callback navigation, session storage and authenticated-store boundaries. The implementation lives in `app/utils/emailSignin.ts`, `app/scenes/Login/components/EmailSignin.tsx`, `Login.tsx`, `AuthenticationProvider.tsx`, `AuthStore.ts` and `DesktopRedirect.tsx`. PR1/PR2 retain joint deployment and Login-before-settings ordering. U8 permanently removes sending limits and countdown; the previous cooldown-feedback risk is superseded.
 
+U9 limits current release/acceptance to desktop and mobile browsers. Electron/PWA real-device checks are deferred and excluded from the release gate; retain existing compatibility paths/tests without claiming client-specific acceptance.
+
 ### 2. Signatures
 
 - `receiveEmailSignin(email, client, response, previous?) -> PendingEmailSignin` captures `Date.now()` on a normal response and starts or updates the flow.

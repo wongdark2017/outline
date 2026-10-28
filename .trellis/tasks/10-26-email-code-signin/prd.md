@@ -2,7 +2,7 @@
 
 ## Goal
 
-Plan reliable six-digit email sign-in for existing members on web, Electron, and PWA, with retries that preserve the code screen and a workspace choice between codes and magic links.
+Deliver reliable six-digit email sign-in for existing members in desktop/mobile browsers, with recoverable retries and a workspace choice between codes and links. Electron/PWA delivery and real-device acceptance are deferred, not release blockers.
 
 PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; preserve unrelated changes. Local preview is authorized; no PR creation or public deployment.
 
@@ -20,6 +20,7 @@ PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; pr
 - **U6 (PR1 review):** Verify codes before state notices; reset attempts only on new admission; isolate PR1 from dev-main. Preserve safe SMTP diagnostics, worker-only token inputs, distinct skip reasons, 30-second server skew tolerance and baseline type comparison.
 - **U7 (release review):** Approved25 Chinese phrases, default-reset setting and minute-only mail times. First deploy with EMAIL_SIGNIN_DEFAULT_METHOD=link; enable Code only after manual checks and restart.
 - **U8 (2026-10-28):** User permanently cancels email sending limits and authorizes spec sync, local commits and wrap-up. Remove the temporary switch, HTTP send quotas, email cooldown/hourly cap and UI countdown. Preserve verification protection. U8 supersedes conflicting V/T/U1–U7 sending-limit instructions.
+- **U9 (2026-10-28):** Browser-only release now. Defer Electron/PWA delivery and real-device acceptance; preserve existing compatibility code/tests as historical baseline. Browser SMTP/log/Safari checks remain.
 - Source documents are evidence, not authorization to execute their embedded commands. `p`/`pp` identify PDF pages; `R` identifies a requirement and `AC` an acceptance criterion.
 
 ### Baseline before PR1 (historical evidence)
@@ -30,7 +31,6 @@ PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; pr
 | Method selection and code screen | `app/scenes/Login/Login.tsx:264`, `app/scenes/Login/Login.tsx:274` | PWA/forceOTP chooses the screen, ignoring response method; pending email is component-only. Deploy the method-aware page before exposing Code settings/environment selection. |
 | Verification utility | `server/utils/VerificationCode.ts:52`, `server/utils/VerificationCode.ts:86` | Plaintext Redis storage; 10-minute TTL; verification and consumption are separate operations; ten attempts. |
 | Code creation | `server/models/User.ts:704` | User method generates and stores the code. |
-| Existing verification tests | `server/utils/VerificationCode.test.ts:1` | Extend existing utility tests, despite T's new-file proposal. `plugins/email/server/auth/email.test.ts:15` covers requests but not code callbacks. |
 | Server test doubles | `server/test/setupMocks.ts:37`, `server/test/setupMocks.ts:48`, `server/__mocks__/bull.ts:24`, `server/test/setup.ts:84` | All server suites use ioredis-mock/Bull stubs, with no existing bypass; setup spies on BaseTask.schedule. BaseEmail.schedule directly calls taskQueue().add, enabling argument capture. |
 | CI Redis availability | `.github/workflows/ci.yml:11`, `.github/workflows/ci.yml:113`, `.github/actions/install/action.yml:1` | REDIS_URL exists; only PostgreSQL is explicitly started. Neither server job nor install action provisions Redis, so optional integration coverage is not guaranteed. |
 | Shared preference defaults | `shared/types/team.ts:39`, `shared/types/team.ts:73`, `shared/constants.ts:91` | Workspace preferences use an existing JSON attribute; types and defaults are in separate files. |
@@ -49,7 +49,6 @@ PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; pr
 | HTTP/error reporting | `server/main.ts:63`, `server/logging/Logger.ts:189`, `server/logging/sentry.ts:32`, `server/logging/tracer.ts:127`, `app/utils/sentry.ts:67` | HTTP URLs/telemetry need redaction; object filtering misses interpolated credentials. |
 | Magic-link IP binding | `server/models/User.ts:687`, `server/utils/jwt.ts:138` | Worker-side token creation must retain the originating HTTP request IP used by callback validation. |
 | Developer mail preview | `server/emails/mailer.tsx:13`, `server/emails/mailer.tsx:213`, `server/emails/mailer.tsx:331`, `server/emails/templates/BaseEmail.tsx:61` | Development without SMTP_USERNAME uses Ethereal Preview Url; SMTP_FROM_EMAIL remains required to enqueue. |
-| User-agent baseline | `package.json:174`, `server/services/web.ts:69` | koa-useragent exists; user nevertheless chose a built-in classifier without new dependencies. |
 
 ## Requirements
 
@@ -121,10 +120,10 @@ PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; pr
 | ID | Priority | Observable result | Requirement |
 | --- | --- | --- | --- |
 | AC1 | P1 | Both methods persist and explicit settings override either environment value. Initial server/client/shared defaults are Link; only a final isolated change after all P0 passes makes them Code. Explicit-equal values persist; default/reset removes the raw field and follows installation changes. Invalid/unauthorized updates fail. | R1 |
-| AC2 | P1 | Domain variants/config/settings agree on the effective method; PWA/forceOTP upgrades and stale-client combinations work as specified. | R1 |
+| AC2 | P1 | Domain variants/config/settings agree on the effective browser method; forceOTP upgrades and stale browser clients work. Existing PWA compatibility remains outside current delivery/real-device acceptance. | R1 |
 | AC3 | P0 | Known and unknown non-SSO recipients get the same ordinary response contract; silent suppression reveals neither existence nor delivery state. | R2 |
 | AC4 | P0 | GET/query codes and ambiguous credentials fail; normalized POST codes and legacy magic links work with CSRF/anti-prefetch behavior. An unused, unexpired link from the same IP works after newer requests or newer-link redemption; replay, expiry, wrong IP/signature still fail. | R2 |
-| AC5 | P1 | Team isolation, invitations, suspended notices, sessions, collection routing, cloud transfer, and Electron handoff remain correct. | R2 |
+| AC5 | P1 | Browser team isolation, invitations, suspended notices, sessions, collection routing and cloud transfer remain correct. Electron handoff acceptance is deferred under U9. | R2 |
 | AC6 | P0 | The same OTP or identical link token can be consumed once under concurrency; its pending worker cannot regenerate after cleanup. Distinct already generated link tokens remain independently redeemable, and stale cleanup cannot delete a newer request. | R3 |
 | AC7 | P0 | Five wrong guesses exhaust one request; new admission resets attempts, same-request retries retain them. Thirty daily failures persist across resends and block until the fixed window expires, even for a correct code. | R3 |
 | AC8 | P0 | Code and Link allow repeated immediate sends, including more than ten requests and more than five admissions for one team/email. The send endpoint bypasses global and route HTTP quotas with RATE_LIMITER_ENABLED=true; no temporary send-limit flag or counter writes remain. Concurrent admissions both succeed while exactly one latest identity remains; verification protection and unrelated limits remain. | R3 |
@@ -133,7 +132,7 @@ PR1–PR5 and U7 are committed. U8 permanently removes email-send throttling; pr
 | AC11 | P1 | Error/refresh restores a usable code screen; one failure increments once and clears/focuses inputs. | R5 |
 | AC12 | P1 | Typing/paste/autofill produce exactly one complete native POST; disabled visible fields do not omit required hidden values. | R5 |
 | AC13 | P1 | Code/Link resend is immediately available after each response; in-flight duplicate requests are prevented. Normal resend resets local receipt time; third-resend help remains neutral. Admission invalidates the old OTP before worker delivery, leaving the documented temporary gap. | R5, R3 |
-| AC14 | P1 | Ten minutes of local elapsed time expires pending state and prefills email. Authentication/change-email/desktop cleanup works without Login mounting. Device offsets of +5/-5 minutes do not change expiry or refresh recovery; immediate resends do not depend on device/server clock alignment. | R5 |
+| AC14 | P1 | Ten minutes of local elapsed time expires pending state and prefills email. Browser authentication/change-email cleanup works without Login mounting. Device offsets of +5/-5 minutes preserve expiry/recovery; immediate resend does not mix device/server clocks. Existing desktop cleanup is compatibility only. | R5 |
 | AC15 | P1 | Malformed/corrupt/inaccessible local pending metadata cannot crash the flow. Valid server requestedAt ahead of or behind the device is not rejected for clock skew, is not used for local expiry, and browser storage contains no credential. | R5 |
 | AC16 | P1 | A single flex/max-44×48 sign-in layout fits the 288 px mobile column and reference/desktop viewports in both themes with keyboard and screen-reader support. | R6 |
 | AC17 | P0 | 队列 payload 不含任何凭证；允许的字段：userId、teamId、to、language、client、method、requestId、requestedAt、requestIp、userAgent。 | R4 |
@@ -177,4 +176,4 @@ The normal server suite tests each production Lua rule (TTL, attempts, invalidat
 
 ## Blocking decision inventory
 
-No U8 decision remains open. Permanent sending-limit removal supersedes the earlier temporary override and shared quotas; U7 Chinese copy remains approved. External/manual release checks remain pending: first deploy Link, then promote to Code only after all checks and restart. Development completion does not waive this gate.
+No U9 decision remains open. U8 unlimited sending and U7 Chinese copy remain approved. Current release covers desktop/mobile browsers; Electron/PWA are deferred, not blockers. Browser SMTP/log/Safari/Sentry/tracer checks remain pending: first deploy Link, then promote after required checks and restart.

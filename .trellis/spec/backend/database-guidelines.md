@@ -90,7 +90,7 @@ Good: an unset workspace inherits Code; the admin selects the displayed Code opt
 
 ### 6. Tests Required
 
-Cover server/client getters, both env values, missing/explicit preferences, invalid values, raw JSON reload, unrelated field preservation and unauthorized saves. Exercise all auth.config hostname branches and non-PWA method responses. Use actual Radix keyboard selection for both inherited-equal methods, plus no-save-on-load, disabled states, normal change and failure toasts. Verify Link-stage and final-Code-stage defaults separately. Cover reset-to-absent persistence/reload, installation-derived default labels with an opposite explicit override, omission and both env methods. First deployment explicitly sets EMAIL_SIGNIN_DEFAULT_METHOD=link until manual release checks pass; source defaults remain Code.
+Cover server/client getters, both env values, missing/explicit preferences, invalid values, raw JSON reload, unrelated field preservation and unauthorized saves. Exercise all auth.config hostname branches and non-PWA method responses. Use actual Radix keyboard selection for both inherited-equal methods, plus no-save-on-load, disabled states, normal change and failure toasts. Verify Link-stage and final-Code-stage defaults separately. Cover reset-to-absent persistence/reload, installation-derived default labels with an opposite explicit override, omission and both env methods. First deployment explicitly sets EMAIL_SIGNIN_DEFAULT_METHOD=link until required browser SMTP/log/Safari/telemetry checks pass; source defaults remain Code. Under U9 Electron/PWA device checks are deferred and do not block this release.
 
 ### 7. Wrong vs Correct
 

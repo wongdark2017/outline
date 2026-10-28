@@ -2,7 +2,7 @@
   "id": "email-code-signin",
   "name": "email-code-signin",
   "title": "Email verification code sign-in implementation",
-  "description": "Approved U1–U8 email sign-in development, permanent sending-limit removal and local validation complete; first public deployment remains Link pending external manual checks.",
+  "description": "Browser-only email sign-in release: U1–U8 development and unlimited sending complete; U9 defers Electron/PWA acceptance. Required browser manual checks pending; first deployment Link.",
   "status": "completed",
   "dev_type": "fullstack",
   "scope": "authentication",
@@ -25,10 +25,10 @@
     "temp/Outline Email verification code sign-in — design.pdf",
     ".trellis/tasks/10-26-email-code-signin/permanent-rate-limits-verification.json"
   ],
-  "notes": "U8 permanent email sending-limit removal committed as b32246ce5 after final native Trellis review.215tests incl3actualRedis/type/lint/format/build pass;12unknownUI requests200,6localSMTP mails/3.694s and latest-code login. Global limiter true/default1000, no temporary flag; callback/credential protections remain. PR1–PR5/U7/CSRF commits and user work unchanged. Existing task only; source/task/spec local commits plus finish-work journal, no push/PR/public deployment. External provider/device/telemetry manual release gate remains pending.",
+  "notes": "U8 permanent email sending-limit removal committed as b32246ce5 after final native Trellis review.215tests incl3actualRedis/type/lint/format/build pass;12unknownUI requests200,6localSMTP mails/3.694s and latest-code login. Global limiter true/default1000, no temporary flag; callback/credential protections remain. PR1–PR5/U7/CSRF commits and user work unchanged. Existing task only; source/task/spec local commits plus finish-work journal, no push/PR/public deployment. External provider/device/telemetry manual release gate remains pending. U9: current delivery covers desktop/mobile browsers only. Electron/PWA real-device acceptance deferred, not a release blocker; browser SMTP, safe provider/proxy logs, Safari and Sentry/tracer checks remain required.",
   "meta": {
     "planning_review": {
-      "revision": "U8",
+      "revision": "U9",
       "reviewItemsCovered": 8,
       "revisionsCovered": [
         "U1",
@@ -38,9 +38,10 @@
         "U5",
         "U6",
         "U7",
-        "U8"
+        "U8",
+        "U9"
       ],
-      "contextManifestsRevision": "U8",
+      "contextManifestsRevision": "U9",
       "blockingDecisions": 0,
       "requirements": 6,
       "acceptanceCriteria": 21,
@@ -58,12 +59,12 @@
       ],
       "planningChecks": "passed",
       "implementationApproval": "approved",
-      "notes": "U8 supersedes prior sending quotas and the temporary switch: permanent removal of HTTP send limits, email cooldown/hourly caps and client countdown. Credential verification protection remains. User explicitly authorized existing-task spec sync, local commits and wrap-up; no new task, push or PR. U7 translation/release decisions and pending manual Link-first gate remain."
+      "notes": "U8 supersedes prior sending quotas and the temporary switch: permanent removal of HTTP send limits, email cooldown/hourly caps and client countdown. Credential verification protection remains. User explicitly authorized existing-task spec sync, local commits and wrap-up; no new task, push or PR. U7 translation/release decisions and pending manual Link-first gate remain. U9 narrows the current delivery/release gate to browsers and defers Electron/PWA; prior compatibility code and test evidence are preserved."
     },
     "implementation": {
-      "approvedRevision": "U8",
+      "approvedRevision": "U9",
       "currentPR": null,
-      "scope": "PR1–PR5/U7 plus CSRF fix and user-authorized U8 permanent sending-limit removal; original accepted commits unchanged.",
+      "scope": "PR1–PR5/U7 plus CSRF fix and user-authorized U8 permanent sending-limit removal; original accepted commits unchanged. Current release scope: desktop/mobile browsers; Electron/PWA deferred.",
       "stage": "Completed: U8 review, spec sync and authorized15-file local source commit; session close recorded separately.",
       "nextPR": null,
       "typeBaseline": {
@@ -131,7 +132,6 @@
           "real SMTP inbox delivery",
           "mail-provider and proxy logs redact credentials",
           "Safari OTP autofill",
-          "real Electron and PWA device flows",
           "browser Sentry and tracer inspection",
           "first deployment with explicit EMAIL_SIGNIN_DEFAULT_METHOD=link",
           "promotion only after all manual checks, followed by web/worker restart"
@@ -613,7 +613,6 @@
         "real SMTP inbox delivery",
         "mail-provider and proxy logs redact credentials",
         "Safari OTP autofill",
-        "real Electron and PWA device flows",
         "browser Sentry and tracer inspection",
         "first deployment with explicit EMAIL_SIGNIN_DEFAULT_METHOD=link",
         "promotion only after all manual checks, followed by web/worker restart"
@@ -999,21 +998,49 @@
         "realSmtpDelivery": "pending",
         "mailProviderAndProxyLogsNoCredentials": "pending",
         "safariAutofill": "pending",
-        "electronRealDevice": "pending",
-        "pwaRealDevice": "pending",
         "sentryNoCredentials": "pending",
         "tracerNoCredentials": "pending"
       },
       "codeDefaultSwitchAllowed": false,
-      "promotion": "After every listed manual check passes, remove EMAIL_SIGNIN_DEFAULT_METHOD or set it to code, then restart web and email worker. Explicit workspace selections retain precedence; PWA OTP upgrade remains.",
-      "implementationCompleteDoesNotMeanReleaseApproved": true
+      "promotion": "After all required browser checks pass, remove EMAIL_SIGNIN_DEFAULT_METHOD or set code and restart web/email worker. Electron/PWA checks are deferred and excluded; explicit workspace choices retain precedence.",
+      "implementationCompleteDoesNotMeanReleaseApproved": true,
+      "deferredChecks": {
+        "electronRealDevice": {
+          "status": "deferred",
+          "blocksCurrentRelease": false,
+          "previousStatus": "pending",
+          "reason": "U9 browser-only current delivery"
+        },
+        "pwaRealDevice": {
+          "status": "deferred",
+          "blocksCurrentRelease": false,
+          "previousStatus": "pending",
+          "reason": "U9 browser-only current delivery"
+        }
+      },
+      "deliveryScope": [
+        "desktop browser",
+        "mobile browser"
+      ],
+      "deferredPlatforms": [
+        "Electron",
+        "PWA"
+      ],
+      "requiredChecks": [
+        "realSmtpDelivery",
+        "mailProviderAndProxyLogsNoCredentials",
+        "safariAutofill",
+        "sentryNoCredentials",
+        "tracerNoCredentials"
+      ],
+      "scopeRevision": "U9"
     },
     "completion": {
       "scope": "development and repository task complete",
       "releaseStatus": "pending_manual_verification",
       "manualChecksClaimedPassed": false,
       "archive": "No active task or additional archive request; retain existing completed record and pending operator release checklist.",
-      "latestFollowUp": "U8 permanent sending-limit removal,215-test/native review, spec/context sync and authorized source/docs commits complete; finish-work records the session journal."
+      "latestFollowUp": "U9 browser-only delivery/release scope synchronized; Electron/PWA deferred without changing completed source or claiming client acceptance."
     },
     "localVerification": {
       "status": "functional_journeys_pass_with_preexisting_console_issue",
@@ -1216,6 +1243,24 @@
         "worktreeClean": true,
         "closureAuthorization": "完成剩下的动作吧"
       }
+    },
+    "browserOnlyScope": {
+      "revision": "U9",
+      "date": "2026-10-28",
+      "requestedByUser": "Electron和PWA 暂时先不要了 我们先只做浏览器形态的",
+      "included": [
+        "desktop browser",
+        "mobile browser",
+        "Safari browser autofill"
+      ],
+      "deferred": [
+        "Electron delivery/real-device acceptance",
+        "PWA delivery/real-device acceptance"
+      ],
+      "productCodeChanged": false,
+      "compatibilityCodeRetained": true,
+      "deferredChecksClaimedPassed": false,
+      "sourceCommitUnchanged": "b32246ce5467de9723bcde95e243aec48177a1b2"
     }
   },
   "worktree": "/root/outline-email-signin-remaining"
