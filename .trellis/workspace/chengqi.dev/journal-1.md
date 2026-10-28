@@ -216,3 +216,40 @@ User-requested reversible rate-limit override implemented and active in isolated
 ### Next Steps
 
 - Keep current local preview running; external SMTP/device/telemetry release gate remains pending and first deployment stays explicitLink.
+
+
+## Session 7: Finish permanent email sign-in send-limit removal
+<!-- trellis-session: v=2 fp=eae01608c9390ebf -->
+
+**Date**: 2026-10-28
+**Task**: Finish permanent email sign-in send-limit removal
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+Completed U8 permanent sending-limit removal, final review, spec/context sync and user-authorized local commits.
+
+### Main Changes
+
+- Committed exact15source/test files; removed send quotas, countdown and temporary flag while preserving credential verification protection.
+- Revised R3/AC8/AC13/AC14, seven-section specs,16-entry manifests and U8 metadata; historical temporary configuration marked superseded.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b32246ce5467de9723bcde95e243aec48177a1b2` | feat: permanently remove email sign-in send limits |
+| `b176b2b4ab0910a57ffce8d730b6e21253020c2a` | docs: align email sign-in plans with permanent limit removal |
+
+### Testing
+
+- [OK] 215tests incl3actualRedis, type/lint/format/build and native review pass;12unknown requests200,6real localSMTP mails/3.694s and latest-code login.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- External SMTP/provider/proxy/device/Sentry/tracer manual release checks remain pending; first public deployment stays Link.
+- No active task or new task creation; archive skipped and completed operator checklist retained. No push/PR/public deploy; original staged user work untouched.
