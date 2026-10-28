@@ -253,3 +253,37 @@ Completed U8 permanent sending-limit removal, final review, spec/context sync an
 
 - External SMTP/provider/proxy/device/Sentry/tracer manual release checks remain pending; first public deployment stays Link.
 - No active task or new task creation; archive skipped and completed operator checklist retained. No push/PR/public deploy; original staged user work untouched.
+
+
+## Session 8: Scope email sign-in release to browsers
+<!-- trellis-session: v=2 fp=26236828ffc0e337 -->
+
+**Date**: 2026-10-28
+**Task**: Scope email sign-in release to browsers
+**Branch**: `feat/trellis-init`
+
+### Summary
+
+U9 limits current delivery to desktop/mobile browsers; Electron/PWA are deferred and excluded from release blocking.
+
+### Main Changes
+
+- Updated three plans, task release required/deferred checks, context manifests and frontend/backend specs; existing compatibility source/tests retained.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e39771511dab3497ed481a63e92cb48fccc2e15e` | docs: scope email sign-in release to browsers |
+
+### Testing
+
+- [OK] Validated five required browser checks, two deferred nonblocking platform checks,16-entry manifests,Markdown limits and diff; product source unchanged atb32246ce5.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Complete browser SMTP, safe provider/proxy logs, Safari autofill and Sentry/tracer checks; first deployment stays Link.
