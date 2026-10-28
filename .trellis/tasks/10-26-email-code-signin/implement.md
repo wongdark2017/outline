@@ -2,33 +2,33 @@
 
 ## Status and review gates
 
-PR1–PR5, U7 and the CSRF fix are committed. Current user direction temporarily disables local request/send throttling through explicit configuration; repository defaults and credential protections remain enabled.
+PR1–PR5, U7 and CSRF fixes are committed. U8 permanently removes email-send throttling and its temporary switch; verification protection remains. The user authorized spec sync, local commits and wrap-up.
 
 **P0 before changing the installation fallback to Code:** AC3, AC4, AC6–AC9, AC17–AC20. **P1:** all remaining criteria. P1 requirements stay in scope; do not silently drop them.
 
 ## Sequential PR delivery
 
-Keep one planning task. Implement and merge the following PRs in order; each is independently reviewable/mergeable. Deploy PR1+PR2 together. If deployed separately, record the cooldown feedback risk below; PR3 must always wait for PR2's method-aware login deployment. Section 8's applicable checks run in every PR, rather than waiting until the end.
+Keep the approved five-PR merge order and joint PR1+PR2 deployment; PR3 still requires method-aware Login. U8 permanently removes sending limits/countdown and supersedes historical quota steps. Section 8 checks apply to each PR.
 
 | PR | Scope / checklist sections | Default and validation |
 | --- | --- | --- |
 | 1 | Backend security: admission, worker/verification, all AC19 sinks; sections 1–3. Include the minimal typed queued method contract and response method. | Preserve existing Link/preferOTP selection; Link stays the actual default. Exercise Code explicitly through preferOTP, run backend/privacy tests and coordinate legacy-job cutover. Deploy together with PR2. |
-| 2 | Login page, response-method selection, pending state, local timers and responsive inputs; section 4. Depends on PR1, not PR3. | Keep source defaults Link. Test returned code/link methods without settings metadata, including non-PWA Code responses, existing PWA behavior and the sixty-second countdown. Deploy together with PR1. |
+| 2 | Login page, method selection, pending recovery, local expiry and responsive inputs; section 4. Depends on PR1. | Source Link until the final gate; test returned methods, non-PWA Code and PWA. U8 replaces countdown behavior with immediate resend/in-flight protection. Deploy with PR1. |
 | 3 | Workspace setting, environment fallback, auth.config and settings UI; section 5. Depends on deployed PR2. | EMAIL_SIGNIN_DEFAULT_METHOD and every source fallback initially default to Link. Test missing/explicit preferences, both methods and permissions; explicit/env Code must show PR2's code input. |
 | 4 | Mail copy, coarse device/time labels and metrics; sections 6–7. | Keep source defaults Link; test both mail variants, metrics and the completed P0 checklist. Security/redaction is already in PR1. |
 | 5 | Final source-default switch; section 9, after section 8's core checks. | Validate the preceding Link-default base first. Only after P0 passes, change source defaults to Code, rerun affected/P0 checks, and retain explicit Link/rollback coverage. |
 
-PR1 and PR2 remain separate review/merge units and must share a deployment. During any gap with PR1 alone, both methods have the new sixty-second interval while the old page has no countdown: returning and resubmitting within sixty seconds yields normal success and no second mail. Record that temporary risk rather than relaxing quotas or exposing suppression. PR3 must not expose workspace/env Code selection before PR2 is deployed. PR1–PR2 are committed; PR3–PR5 are now authorized and retain this dependency order.
+PR1/PR2 remain separate review units with joint deployment; PR3 follows method-aware Login. U8 permanently removes the earlier sixty-second suppression/countdown gap. Original PR1–PR5 commits remain unchanged; permanent removal is a follow-up on the release branch.
 
 ## 1. Admission, payload, and deadline — R2–R3, AC3, AC8, AC17, AC20 (P0)
 
-- [x] Centralize normalization, absolute deadline, quotas, latest-key names and compare-delete in a narrow EmailSigninRequest helper with collocated tests; do not create a request-context repository.
+- [x] Centralize normalization, absolute deadline, latest-key names and compare-delete in a narrow EmailSigninRequest helper with collocated tests; do not create a request-context repository.
 - [x] Define the minimal typed queued Code/Link method contract in backend PR1, keeping current Link/preferOTP selection until PR3 adds workspace/environment configuration. PR1's response method is consumed by PR2; the login page must not depend on PR3 metadata to select its post-response screen.
 - [x] Generate server-owned requestedAt and requestId. Return normal `{ success: true, method, requestedAt }` for both known/unknown recipients and silent suppression. Do not return actual-delivery or remaining-quota fields.
-- [x] Atomically reserve a **common Code/Link** sixty-second cooldown and five-send/hour/team/email allowance, delete the previous OTP verifier and reset its attempts while preserving daily failures, and SET email_signin_latest:{teamId}:{email}=requestId with request-deadline expiry. Suppressed requests do not supersede an admitted pointer or invalidate an old credential.
+- [x] U8: atomically validate the request deadline, SET latest with remaining expiry and delete the old OTP verifier/attempts/legacy verifier while retaining daily failures. Delete sending cooldown/hourly quota checks and writes; old quota keys are ignored. POST /auth/email bypasses global limiting and has no TenPerHour middleware. No temporary EMAIL_SIGNIN_RATE_LIMITER_ENABLED field remains.
 - [x] Enqueue only userId, teamId, to, language, client, method, requestId, requestedAt, requestIp, userAgent. Method is the accepted effective choice including PWA upgrade; IP/UA/time are captured by the server. No credentials are generated here.
 - [x] Keep SSO redirects, common team selection, existing status/CSRF behavior and asynchronous response semantics. On enqueue failure, use conditional pointer cleanup and no synchronous SMTP or recipient-specific response. If the old OTP was already deleted, retain its invalidation and the normal success response; a later admitted resend can recover.
-- [x] In ioredis-mock, test each reservation rule and controlled ordering for Code, Link and alternating methods, the common cap/sixty-second boundaries, response parity, PWA metadata and unknown recipients. Inject an add failure after admission: expect normal success, no old/replacement OTP, safe conditional cleanup and successful recovery on a later allowed resend. With the replacement worker paused, prove admission already invalidates the old OTP and generates no credential. Genuine concurrent admissions belong to the optional Redis integration cases in section 8.
+- [x] In ioredis-mock, test repeated immediate admission, unchanged obsolete quota keys/TTLs, normalization, latest/invalidation, expiry and Redis faults. Route tests enqueue13immediate Code and13Link requests with global limiting enabled; retain unknown parity and credential-free payload tests. Enqueue failure returns normal success; immediately resend to recover. Pause the worker to prove old-code invalidation before generation; real concurrency uses section 8.
 
 ## 2. Worker and atomic verification — R2–R4, AC4, AC6–AC9, AC17–AC20 (P0)
 
@@ -66,11 +66,11 @@ Queue tests must exercise the actual scheduling boundary: BaseEmail.schedule alr
 - [x] On normal response capture receivedAtLocal=Date.now() and persist it with email/client, requestedAt as correlation metadata, counts and awaiting-result. Keep credentials out of storage. Validate local metadata without treating a minutes-ahead server timestamp as corruption.
 - [x] In PR2, use PR1's response method for Code/Link even without PR3 configuration metadata. Keep existing Link initial labels until PR3 exposes effective-method labels. Test a non-PWA browser without forceOTP receiving method=code and showing the input, as well as method=link and existing PWA behavior. Implement five states and recovery, alert/focus, manual Continue and sixth-digit auto-submit.
 - [x] Reuse installed Radix sanitization/autofill/keyboard behavior; guard duplicate native submissions and keep required hidden fields successful when visible inputs disable.
-- [x] Derive sixty-second resend and ten-minute local pending expiry from Date.now()-receivedAtLocal, surviving refresh/backgrounding. Never subtract requestedAt from device time. A normal resend captures a new local receipt time and increments cumulative resendCount; errors do not claim delivery. Server validity remains independently authoritative.
+- [x] U8: remove resend wait/countdown and public configuration; keep synchronous duplicate/in-flight guards for Code/Link. Derive only ten-minute pending expiry from local Date.now()-receivedAtLocal across refresh/backgrounding. Normal resend resets local receipt time and increments resendCount; errors preserve prior metadata. Server expiry stays independently authoritative.
 - [x] After the third normal resend show neutral spam/later-retry help from English source strings, including on silent suppression. Preserve count across refresh and reset on change-email/success; U7 Chinese wording is confirmed.
 - [x] Clear pending state on local expiry/change-email/confirmed authentication/DesktopRedirect without relying on Login mounting.
 - [x] Use one login-only flex/max-44×48 box style with 4 px gaps (284 px total at maxima within 288 px). No compact mode; leave deletion forms untouched. Keep themes and accessibility.
-- [x] Add collocated helper/UI tests with server time and device time offset by +5/-5 minutes. Verify 59/60-second and 599/600-second boundaries, background/refresh recovery and acceptance of a numerically future server requestedAt. Cover once-only failure counts, neutral help, paste/submit and cleanup.
+- [x] Collocated helper/UI tests cover immediate Code/Link resend, in-flight duplicates, +/-5minute device offsets, 599/600second expiry, refresh/background recovery, future server correlation times, one-shot failures, neutral help and native submission/cleanup.
 
 - [ ] Manually verify real-phone layout, operating-system OTP autofill and Electron handoff. Automated UI coverage does not replace these checks.
 
@@ -98,13 +98,13 @@ Verified developer workflow to preserve and document in the completed feature:
 3. Request sign-in, wait for the worker to deliver to that test service, then open the **Preview Url** already produced at mailer.tsx:213–216. Read the code or link inside the delivered test message, not from the console subject/body. This URL is development-only and contains no generated sign-in credential itself.
 4. With explicitly configured SMTP credentials, read the recipient's real inbox instead. If the test service/transport is unavailable, report a safe failure/retry; never restore plaintext logging as a fallback.
 
-Automated tests verify these paths; this implementation session did not create a test account or send mail.
+Original PR validation did not create an Ethereal account or send provider mail. Later U8 real local Mailpit SMTP evidence is recorded separately below.
 
 ## 7. Aggregate metrics — R3, AC21 (P1)
 
 - [x] Use existing Metrics.increment for issued, skipped, verification_success, verification_failure and newly locked transitions, with the exact events in design.md.
 - [x] Use only bounded constant method/reason tags; no email/IP/UA/user/team/request identifier, credential, URL or rendered text.
-- [x] Assert counters on real branch outcomes and one lock-transition increment; retries may create issuance metrics but never additional HTTP quota counts. Do not label issuance as confirmed SMTP delivery.
+- [x] Assert actual metric branches and one daily lock transition; issuance is not SMTP confirmation. U8 removes quota/cooldown skip reasons and leaves verification and delivery metrics unchanged.
 
 ## 8. Validation, cutover, rollback, and manual checks
 
@@ -114,7 +114,7 @@ Run focused files only. Server tests using vi.mock/vi.doUnmock/vi.resetModules o
 
 - [x] Add one small collocated isolated file, proposed server/utils/emailSignin.integration.test.ts. Gate it with the test-only RUN_REDIS_INTEGRATION=1 and REDIS_URL. If opt-in/URL is absent or a bounded connect/PING probe fails, explicitly skip with a safe reason and close clients; do not hang on the Redis adapter's normal retry policy or print a URL with credentials.
 - [x] In that isolated file, call vi.doUnmock("ioredis") and vi.resetModules **before dynamically importing** fresh Redis/helper modules. setupMocks/setup eagerly import application modules, so unmocking alone does not replace an already constructed Redis.defaultClient. Use fresh explicitly created clients and test-only getter spies to bind the narrow helper operations to those clients; do not reuse the cached singleton. Bull stays stubbed. Close every fresh client in teardown and delete only unique test-owned keys; never FLUSHDB.
-- [x] Use two independent real connections to the configured test REDIS_URL. Exercise the same production Lua/helper operations: two correct submissions released together produce exactly one success; pause old-worker flow after its precheck, race its publication against resend admission, and ensure neither ordering leaves the old verifier active after admission or overwrites the newer pointer. Include common Code/Link admission contention to check a single allowed reservation. No real SMTP or Bull worker is needed to exercise these Redis boundaries.
+- [x] Use two independent real connections to the configured test REDIS_URL. Exercise the same production Lua/helper operations: two correct submissions released together produce exactly one success; pause old-worker flow after its precheck, race its publication against resend admission, and ensure neither ordering leaves the old verifier active after admission or overwrites the newer pointer. Race two valid admissions: both succeed and exactly one latest identity remains; stale-worker publication is refused. No real SMTP or Bull worker is needed to exercise these Redis boundaries.
 - [x] Use real server expiry with short bounded fixtures/tolerances for any integration TTL smoke check; a fake JS clock does not advance Redis time. A successful connection followed by a script or assertion failure is a failure, never an automatic skip. Report optional cases as passed/failed/skipped separately; a skip is not evidence that AC6/AC8/AC18's concurrent behavior was verified.
 
 Verified CI configuration: .github/workflows/ci.yml:11 declares REDIS_URL, but the server job (:113–134) only starts PostgreSQL; there is no Redis services declaration or startup step. .github/actions/install/action.yml only sets up Node/Corepack and installs dependencies. Therefore CI does **not explicitly provision Redis**, and current CI cannot be claimed to execute the optional concurrency suite. No CI provisioning change was made. A future optional integration run must provide a test Redis and opt in; preserve explicit skip reporting otherwise.
@@ -138,14 +138,14 @@ Manual checks (not automated AC19 criteria):
 - [ ] Five screens/settings at 320 px phone (288 px column), reference and desktop viewports, light/dark, keyboard, Safari Mail autofill, PWA and Electron handoff.
 - [ ] Subdomain/custom-domain/self-hosted flow, invitations, suspended entities, and email disabled mid-flow preserve expected behavior.
 - [ ] Stop old credential-producing web/worker versions; inspect/skip/remove only legacy SigninEmail jobs and legacy verifier records, without dumping raw payloads or touching unrelated queues.
-- [ ] Require a single deployment containing PR1+PR2 and verify returned method plus cooldown UI together. If released separately, record the window in which the old page lacks countdown feedback and repeat requests within sixty seconds silently produce no new mail. Confirm PR2 is deployed before releasing PR3's settings/environment Code selection.
+- [ ] Deploy PR1+PR2 together and confirm response-method UI; PR2 must precede PR3 settings. Include U8 follow-up so no sending cooldown or temporary flag is deployed.
 - [ ] Verify all source defaults and absent-variable behavior remain Link through steps 1–8; do not rely on an operator setting the variable. Rehearse environment-only rollback to Link: unset workspaces change, explicit choices do not, and hardened asynchronous sending stays active. Perform the final source-default change only in step 9.
 
-Risky areas: staged fallback-versus-explicit persistence, server deadline versus local elapsed UI timers, atomic old-OTP invalidation, independent older-link redemption, pointer cleanup, remaining TTL and skip-log privacy. Retain the no-OTP interval on admitted resend, accepted-request enqueue failure (normal success but no email after old-code deletion; a later admitted resend recovers), and PR1-without-PR2 cooldown feedback risk (normal repeat response within sixty seconds, no new email and no old-UI countdown). Also retain the residual millisecond timing signal, daily-lock abuse, SMTP duplicate risk and manual telemetry boundary. Optional Redis cases may skip under current CI; preserve that limitation in validation evidence.
+Risks retained: raw/explicit fallback persistence, local expiry versus server deadline, atomic old-OTP invalidation, independent older links, cleanup, remaining TTL, log privacy, no-OTP resend gap, accepted-request enqueue failure, residual timing, daily-lock abuse, SMTP duplicates and manual telemetry. U8 removes the earlier cooldown feedback risk. Optional Redis tests may skip in CI; record actual coverage.
 
 ## 9. Final isolated source-default change — only after every P0 passes
 
-- [x] Finish the planned core feature and targeted validation with Link still the actual initial default. Record passing evidence for AC3, AC4, AC6–AC9 and AC17–AC20, including both method quotas and old-link redemption.
+- [x] Historical PR5 gate: core P0 tests passed with initial Link before the isolated source-default change; retain those recorded commits/results. U8 unlimited-send checks ran later on the existing Code-default release branch; first deployment remains explicitly Link.
 - [x] As the **last isolated change**, switch EMAIL_SIGNIN_DEFAULT_METHOD's code default, matching shared/client fallback defaults, sample descriptions and default-value test expectations from Link to Code. Add no unfinished security feature in this change; explicit environment/workspace choices retain precedence.
 - [x] Re-run affected default/config tests and all focused P0 checks after the switch. A new failure keeps/reverts the source default to Link; resolve it before retrying the final change. Run applicable static checks and review the final diff.
 - [x] Keep fork-owned Chinese wording/translation as the separately confirmed follow-up; do not claim Chinese copy approval from this default switch.
@@ -153,7 +153,7 @@ Risky areas: staged fallback-versus-explicit persistence, server deadline versus
 ## U6 PR1 review corrections
 
 - [x] Verify/consume OTP before disabled/suspended notices; bad codes match unknown-account behavior.
-- [x] Reset five-attempt budget only on new admission; preserve retry, daily and send limits; test resend recovery.
+- [x] Reset the five-attempt budget only on new admission; preserve retry attempts and daily failures; test immediate resend recovery. U8 removes sending limits only.
 - [x] Move only PR1 changes to feat/email-code-signin-pr1 from dev-main in /root/outline-email-signin-pr1.
 - [x] Preserve safe error diagnostics through all wrappers and production logs.
 - [x] Remove token-generation Context overload; retain signed legacy-link redemption.
@@ -168,7 +168,7 @@ PR1 a6d32806d, isolated from dev-main83a94a206:32files,267focused tests, Redis3/
 ## Before task activation
 
 - [x] Cross-read both PDFs and U1–U6; retain R1–R6, AC1–AC21, exact security copy and deferred-localization history.
-- [x] Reconcile local timers, independent links, common quotas, mock-compatible tests/optional Redis, joint PR1+PR2 delivery and Link-first/final-Code staging.
+- [x] Reconcile local expiry, independent links, U8 unlimited sends, mock-compatible tests/optional Redis, joint PR1+PR2 delivery and Link-first/final-Code staging.
 - [x] Synchronize/validate task metadata and context manifests, then receive explicit U5 implementation approval. Detailed revisions and subsequent approvals remain in task.json.
 
 ## PR2 implementation evidence
@@ -195,8 +195,10 @@ U7 completion:204a13711 on feat/email-code-signin-release contains12 reviewed fi
 
 Completed as597166e31: HTTP selects only csrfToken; HTTPS selects only __Host-csrfToken, no fallback.56 related tests/type/lint/format and real browser checks pass: mixed oldsecure/newplain403→200, native callback302→invalid-code, invalid matching token still403. Server keys/data unchanged; CSRF and limits remain enabled. See csrf-verification.json and task.json.
 
-## Temporary local rate-disable configuration
+## U8 — Permanent sending-limit removal and finish
 
-Latest user direction permits explicit local RATE_LIMITER_ENABLED=false plus EMAIL_SIGNIN_RATE_LIMITER_ENABLED=false. Both default true in source. The latter is public and controls backend common send quotas and frontend resend timing together. Disabled mode ignores existing cooldown/hourly counters without modifying them, while the same atomic admission still supersedes the old code and sets latest/deadline. Keep CSRF, ten-minute expiry, HMAC, replay protection and verification locks. Verify repeated real requests and more than five sequential SMTP deliveries without waits; restore by configuration, not code deletion.
+The user superseded the temporary311385ef6 switch and explicitly authorized remaining spec sync, local commits and wrap-up. Do not create another task. Remove Code/Link send cooldown/hourly keys and their Lua operations; remove TenPerHour and exempt only POST /auth/email from the global limiter. Keep default global limiting for other routes and callback FivePerMinute. Delete EMAIL_SIGNIN_RATE_LIMITER_ENABLED from env/public/sample and replace the client timing helper with isEmailSigninExpired; remove countdown UI while keeping in-flight guards.
 
-Verified311385ef6:194 tests (3actual Redis), type/lint/format/build pass;12requests200,6local SMTP mails/3.711s, latest code login, unchanged quota; report `temporary-rate-limits-verification.json`.
+Preserve CSRF, HMAC-only worker credentials, exact ten-minute server deadline, browser-local expiry, latest-worker guard, immediate old-code invalidation, one-time use, five guesses and daily30failures. No migration, Redis flush, temporary override or new dependency is needed. Legacy send-counter keys expire naturally.
+
+Verification:215tests/11files including3actualRedis; type/lint/format/build pass. With global limiter true/default1000 and no temporary flag,12unknown UI requests200 and6real localSMTP deliveries/3.694s; latest code login succeeds and old quota keys remain unchanged. See permanent-rate-limits-verification.json for hashes, final review and commits. External/manual gate remains pending; first deployment stays Link. Commit exactly the15reviewed source/test files, then updated task/spec docs, then the session journal. Preserve unrelated staged original work; no push/PR/public deployment. No active task exists, so finish-work skips archival and keeps the operator release checklist here.

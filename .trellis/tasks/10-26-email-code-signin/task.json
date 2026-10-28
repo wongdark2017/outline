@@ -2,7 +2,7 @@
   "id": "email-code-signin",
   "name": "email-code-signin",
   "title": "Email verification code sign-in implementation",
-  "description": "Approved U1–U7 email sign-in development completed, reviewed and committed; first deployment remains explicitly Link pending manual release checks.",
+  "description": "Approved U1–U8 email sign-in development, permanent sending-limit removal and local validation complete; first public deployment remains Link pending external manual checks.",
   "status": "completed",
   "dev_type": "fullstack",
   "scope": "authentication",
@@ -15,19 +15,20 @@
   "branch": "feat/email-code-signin-release",
   "base_branch": "feat/email-code-signin-pr2",
   "worktree_path": "/root/outline-email-signin-remaining",
-  "commit": "311385ef665f002612883a06d1bdf86a73531e40",
+  "commit": "b32246ce5467de9723bcde95e243aec48177a1b2",
   "pr_url": null,
   "subtasks": [],
   "children": [],
   "parent": null,
   "relatedFiles": [
     "temp/邮箱验证码登录 · 页面设计.pdf",
-    "temp/Outline Email verification code sign-in — design.pdf"
+    "temp/Outline Email verification code sign-in — design.pdf",
+    ".trellis/tasks/10-26-email-code-signin/permanent-rate-limits-verification.json"
   ],
-  "notes": "Development complete, including CSRF protocol fix597166e31 and user-requested temporary limit configuration311385ef6. Current isolated local preview has both rate-limit flags false: HTTP/IP limits, Code/Link60s and5/hour quotas, frontend resend wait disabled; expiry/HMAC/latest/one-use/failed-code locks retained.194 related tests including3actualRedis pass;12unknown requests200 and6real localSMTP deliveries in3.711s, latest code login succeeded. Local installationLink/demo workspaceCode; accepted PR refs/user work preserved. No push/public deploy; external/manual release gate pending.",
+  "notes": "U8 permanent email sending-limit removal committed as b32246ce5 after final native Trellis review.215tests incl3actualRedis/type/lint/format/build pass;12unknownUI requests200,6localSMTP mails/3.694s and latest-code login. Global limiter true/default1000, no temporary flag; callback/credential protections remain. PR1–PR5/U7/CSRF commits and user work unchanged. Existing task only; source/task/spec local commits plus finish-work journal, no push/PR/public deployment. External provider/device/telemetry manual release gate remains pending.",
   "meta": {
     "planning_review": {
-      "revision": "U7",
+      "revision": "U8",
       "reviewItemsCovered": 8,
       "revisionsCovered": [
         "U1",
@@ -36,9 +37,10 @@
         "U4",
         "U5",
         "U6",
-        "U7"
+        "U7",
+        "U8"
       ],
-      "contextManifestsRevision": "U7",
+      "contextManifestsRevision": "U8",
       "blockingDecisions": 0,
       "requirements": 6,
       "acceptanceCriteria": 21,
@@ -56,13 +58,13 @@
       ],
       "planningChecks": "passed",
       "implementationApproval": "approved",
-      "notes": "PR3–PR5 reviewed and accepted; no re-confirmation of existing commits. User approved25 Chinese phrases, optional reset-to-installation-default selector and minute-only mail times. First deployment must explicitly remain Link pending all manual checks."
+      "notes": "U8 supersedes prior sending quotas and the temporary switch: permanent removal of HTTP send limits, email cooldown/hourly caps and client countdown. Credential verification protection remains. User explicitly authorized existing-task spec sync, local commits and wrap-up; no new task, push or PR. U7 translation/release decisions and pending manual Link-first gate remain."
     },
     "implementation": {
-      "approvedRevision": "U7",
+      "approvedRevision": "U8",
       "currentPR": null,
-      "scope": "Completed PR1–PR5 and U7 approved Chinese localization, inheritance reset, minute-only mail display and explicit Link first-deployment template.",
-      "stage": "Completed and reviewed; temporary rate-limit override applied to isolated local preview only.",
+      "scope": "PR1–PR5/U7 plus CSRF fix and user-authorized U8 permanent sending-limit removal; original accepted commits unchanged.",
+      "stage": "Completed: U8 review, spec sync and authorized15-file local source commit; session close recorded separately.",
       "nextPR": null,
       "typeBaseline": {
         "ref": "dev-main",
@@ -78,7 +80,7 @@
       "baseCommit": "93f28388e",
       "stagedSourceTestFiles": 0,
       "pr1Commit": "a6d32806d",
-      "publishingAuthorization": "PR1 commit/push completed; PR2 local commit approved/completed; PR3–PR5 plus Trellis docs local commit batch explicitly approved by user: 按计划提交. No new push/PR/deploy.",
+      "publishingAuthorization": "PR1 commit/push completed; PR2 local commit approved/completed; PR3–PR5 plus Trellis docs local commit batch explicitly approved by user: 按计划提交. No new push/PR/deploy. User now explicitly authorizes completing spec sync, committing the15permanent-limit files and wrap-up: 完成剩下的动作吧. Local only; no push/PR/public deployment.",
       "deploymentConstraint": "PR1 and PR2 must deploy together; independently mergeable",
       "pr1Validation": {
         "focusedTestFiles": 14,
@@ -158,7 +160,7 @@
       ],
       "reviewedHashFile": "/tmp/outline-email-pr2-reviewed-hashes.json",
       "proposedCommit": "feat: add recoverable email code sign-in page",
-      "commitDecision": "Existing approved PR3–PR5 commits unchanged; U7 follow-up committed independently as204a13711 after wording approval and review. No repeated prior-commit confirmation.",
+      "commitDecision": "Preserve all accepted PR refs. User authorized remaining closure actions; exact15reviewed U8 source/test files committed locally as b32246ce5467de9723bcde95e243aec48177a1b2. No repeated commit confirmation, push or PR.",
       "pr2Commit": "93f28388e653b45b4c9755765c69d3761ef3beac",
       "committedSourceTestFiles": 10,
       "pr2Validation": {
@@ -1010,7 +1012,8 @@
       "scope": "development and repository task complete",
       "releaseStatus": "pending_manual_verification",
       "manualChecksClaimedPassed": false,
-      "archive": "retained at current task path for operator release checklist"
+      "archive": "No active task or additional archive request; retain existing completed record and pending operator release checklist.",
+      "latestFollowUp": "U8 permanent sending-limit removal,215-test/native review, spec/context sync and authorized source/docs commits complete; finish-work records the session journal."
     },
     "localVerification": {
       "status": "functional_journeys_pass_with_preexisting_console_issue",
@@ -1037,7 +1040,7 @@
       },
       "commercialSmtpAndRealDevicesVerified": false,
       "firstDeploymentManualGateWaived": false,
-      "currentPreviewCommit": "311385ef665f002612883a06d1bdf86a73531e40"
+      "currentPreviewCommit": "b32246ce5467de9723bcde95e243aec48177a1b2"
     },
     "runtimeFollowUp": {
       "csrf": {
@@ -1095,7 +1098,7 @@
         "nativeFormCallbackPassesCsrf": true
       },
       "temporaryRateLimits": {
-        "status": "completed, reviewed, committed and applied to local preview",
+        "status": "historical, superseded by U8 permanent sending-limit removal",
         "requestedByUser": "把现在的限流给取消掉 暂时不做限流",
         "scope": "current isolated local preview only",
         "date": "2026-10-28",
@@ -1141,7 +1144,77 @@
           "codeAndLinkImmediateResend": true,
           "inflightGuardPreserved": true
         },
-        "remoteActions": "none"
+        "remoteActions": "none",
+        "supersededBy": "permanentRateLimits",
+        "configurationHistoricalOnly": true
+      },
+      "permanentRateLimits": {
+        "status": "completed, reviewed, committed and applied to local preview",
+        "requestedByUser": "这个限流改成永久地取消 不要淋湿取消",
+        "finishAuthorizedByUser": "完成剩下的动作吧",
+        "date": "2026-10-28",
+        "report": ".trellis/tasks/10-26-email-code-signin/permanent-rate-limits-verification.json",
+        "sourceBranch": "feat/email-code-signin-release",
+        "sourceWorktree": "/root/outline-email-signin-remaining",
+        "removed": [
+          "send HTTP quota, including global limiter for normalized POST /auth/email",
+          "Code/Link sixty-second cooldown and five/hour counter",
+          "client resend wait and countdown",
+          "temporary EMAIL_SIGNIN_RATE_LIMITER_ENABLED env/public/sample flag"
+        ],
+        "retained": [
+          "CSRF",
+          "ten-minute server deadline and device-local expiry",
+          "HMAC-only worker credentials",
+          "latest-worker guard and immediate old-OTP invalidation",
+          "one-time consumption",
+          "per-code and daily failed-verification protection",
+          "callback FivePerMinute and unrelated HTTP limits"
+        ],
+        "runtime": {
+          "globalHttpLimiterEnabled": true,
+          "emailTemporaryFlagPresent": false,
+          "globalRequests": 1000,
+          "defaultMethod": "link"
+        },
+        "validation": {
+          "passed": 215,
+          "failed": 0,
+          "skipped": 0,
+          "realRedisPassed": 3,
+          "typeCheck": "passed",
+          "lint": "passed",
+          "format": "passed",
+          "productionBuild": "passed",
+          "browserUnknownRequests": 12,
+          "smtpDeliveries": 6,
+          "smtpElapsedMs": 3694,
+          "latestCodeLogin": true
+        },
+        "newTaskCreated": false,
+        "publicDeployment": false,
+        "releaseGateWaived": false,
+        "sourceCommit": "b32246ce5467de9723bcde95e243aec48177a1b2",
+        "finalReview": "passed;0source edits;4documentation findings resolved",
+        "sourceFiles": [
+          ".env.sample",
+          "app/scenes/Login/Login.test.tsx",
+          "app/scenes/Login/components/EmailSignin.tsx",
+          "app/utils/emailSignin.test.ts",
+          "app/utils/emailSignin.ts",
+          "plugins/email/server/auth/email.test.ts",
+          "plugins/email/server/auth/email.ts",
+          "server/emails/templates/SigninEmail.test.tsx",
+          "server/env.test.ts",
+          "server/env.ts",
+          "server/middlewares/rateLimiter.test.ts",
+          "server/middlewares/rateLimiter.ts",
+          "server/utils/EmailSigninRequest.test.ts",
+          "server/utils/EmailSigninRequest.ts",
+          "server/utils/emailSignin.integration.test.ts"
+        ],
+        "worktreeClean": true,
+        "closureAuthorization": "完成剩下的动作吧"
       }
     }
   },

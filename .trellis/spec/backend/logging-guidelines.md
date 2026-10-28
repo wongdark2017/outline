@@ -66,7 +66,7 @@ Mail copy and observability cross worker rendering, Lua verification and HTTP ca
 
 ### 3. Contracts
 
-Use authentication.email.issued when an eligible worker publishes a code or generates a link for sending; retries may issue again but never reserve HTTP quota. Use authentication.email.skipped for an actual HTTP/worker suppression branch. verification_success counts one-time credential consumption, verification_failure a failed attempt, and locked only the atomic transition to the daily threshold. An already locked attempt must not emit another locked event or renew its window. Count Code outcomes in VerificationCode; Link outcomes belong to the callback, so do not double-count Code there.
+Use authentication.email.issued when an eligible worker publishes a code or generates a link for sending; retries may issue again but do not perform HTTP admission or extend the request deadline. Use authentication.email.skipped for an actual HTTP/worker suppression branch. verification_success counts one-time credential consumption, verification_failure a failed attempt, and locked only the atomic transition to the daily threshold. An already locked attempt must not emit another locked event or renew its window. Count Code outcomes in VerificationCode; Link outcomes belong to the callback, so do not double-count Code there.
 
 Tags contain only constant method/reason values. Never include email, IP, UA, user/team/request IDs, code/token, URL, rendered text or raw errors. Skipped login logs remain only templateName plus bounded reason. Code-leading subjects and text stay redacted in application logs in every environment. Development codes are read from delivered Ethereal preview mail, never console message bodies.
 

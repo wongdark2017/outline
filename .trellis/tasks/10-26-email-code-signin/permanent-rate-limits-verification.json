@@ -1,0 +1,196 @@
+{
+  "status": "passed, reviewed and committed locally",
+  "date": "2026-10-28",
+  "scope": "U8 permanent email send-limit removal; existing task finish authorized, no new task",
+  "sourceBranch": "feat/email-code-signin-release",
+  "sourceBase": "311385ef665f002612883a06d1bdf86a73531e40",
+  "sha256": {
+    ".env.sample": "24d1c25a43cd4ac7a17ee14393605adbc2c1204ee631e2055ab4fc706bcf6c0f",
+    "app/scenes/Login/Login.test.tsx": "8ab44ba3d8946123e7b84a70b1ee95055976d320f61d68e272f28221a32d1125",
+    "app/scenes/Login/components/EmailSignin.tsx": "774034071628c14ca5872bb7bb840a7cd8443df47e3e1c503240da6add06662a",
+    "app/utils/emailSignin.test.ts": "8345c0fb76a47413e15eada6cb4899dfe779baaf86fccc37ee74d4c6a4f310e3",
+    "app/utils/emailSignin.ts": "d16181ae7545ce9b1994ae4c725ae7e0262183afdac85df6db79e3c6cab33f19",
+    "plugins/email/server/auth/email.test.ts": "b154668cfae766c6c12abf41797133fd2c345eadd60532f8d9ab64d880adf6b0",
+    "plugins/email/server/auth/email.ts": "380e4ed9310905eb9a483ba4c534d321a9814c897c645096ab8483aeeb04ceac",
+    "server/emails/templates/SigninEmail.test.tsx": "2c34ecc3beee2fb3840cc9643e50e41249181b2bedf5fadacfd2ae56a3869974",
+    "server/env.test.ts": "836b5a87cd2c05b3dc653319a7886f2d50c5e1dc9eac3028584a90ada256b322",
+    "server/env.ts": "c81247fd7f2175234bf815d66e68822d1b623843edbba78c63c0795f38b532a5",
+    "server/middlewares/rateLimiter.test.ts": "4e8e32206298fb79ef7ffb5d1ee5e9e1fc710076e0c623cea1dea2ab9df3081d",
+    "server/middlewares/rateLimiter.ts": "ce51cfdb72270f20146561fbfa29d9912bc61ccabadc7eb19edff9b5391ea53e",
+    "server/utils/EmailSigninRequest.test.ts": "fef2f8678cf3a487b5b54a7b6c09f9675a63071f9226af3ed3b03e3d23d83b24",
+    "server/utils/EmailSigninRequest.ts": "65b1621636b212ebead8836e5dc656c80a79f0fbc19430560a42b05d1d17c24d",
+    "server/utils/emailSignin.integration.test.ts": "d36b11de73a733f3d9dc6dcb33b7a58bd6aabdf487c49480bdfa439f19c92849"
+  },
+  "testsPassed": 215,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "typeCheck": "passed",
+  "lint": "passed",
+  "format": "passed",
+  "productionBuild": "passed",
+  "runtime": {
+    "globalHttpLimiterEnabled": true,
+    "emailTemporaryFlagPresent": false,
+    "globalRequests": 1000,
+    "defaultMethod": "link"
+  },
+  "browser": {
+    "unknownRequests": 12,
+    "smtpDeliveries": 6,
+    "elapsedMs": 3694,
+    "noQuotaChanges": true,
+    "latestCodeLogin": true,
+    "codeAndLinkImmediateResend": true
+  },
+  "knownIssue": "preexisting anonymous auth.info401 promise error; unchanged",
+  "security": "CSRF, expiry, HMAC, latest-request invalidation, one-time use and failed-verification protection retained",
+  "remoteActions": "none",
+  "sourceCommit": "b32246ce5467de9723bcde95e243aec48177a1b2",
+  "releaseGate": "external/manual checks pending; first deployment explicitly Link",
+  "sourceFiles": [
+    ".env.sample",
+    "app/scenes/Login/Login.test.tsx",
+    "app/scenes/Login/components/EmailSignin.tsx",
+    "app/utils/emailSignin.test.ts",
+    "app/utils/emailSignin.ts",
+    "plugins/email/server/auth/email.test.ts",
+    "plugins/email/server/auth/email.ts",
+    "server/emails/templates/SigninEmail.test.tsx",
+    "server/env.test.ts",
+    "server/env.ts",
+    "server/middlewares/rateLimiter.test.ts",
+    "server/middlewares/rateLimiter.ts",
+    "server/utils/EmailSigninRequest.test.ts",
+    "server/utils/EmailSigninRequest.ts",
+    "server/utils/emailSignin.integration.test.ts"
+  ],
+  "sourceSnapshotClean": true,
+  "review": {
+    "status": "pass",
+    "date": "2026-10-28",
+    "reviewer": "trellis-check: permanent_limits_final_review",
+    "sourceRoot": "/root/outline-email-signin-remaining",
+    "sourceBranch": "feat/email-code-signin-release",
+    "sourceBase": "311385ef665f002612883a06d1bdf86a73531e40",
+    "sourceFiles": {
+      ".env.sample": "24d1c25a43cd4ac7a17ee14393605adbc2c1204ee631e2055ab4fc706bcf6c0f",
+      "app/scenes/Login/Login.test.tsx": "8ab44ba3d8946123e7b84a70b1ee95055976d320f61d68e272f28221a32d1125",
+      "app/scenes/Login/components/EmailSignin.tsx": "774034071628c14ca5872bb7bb840a7cd8443df47e3e1c503240da6add06662a",
+      "app/utils/emailSignin.test.ts": "8345c0fb76a47413e15eada6cb4899dfe779baaf86fccc37ee74d4c6a4f310e3",
+      "app/utils/emailSignin.ts": "d16181ae7545ce9b1994ae4c725ae7e0262183afdac85df6db79e3c6cab33f19",
+      "plugins/email/server/auth/email.test.ts": "b154668cfae766c6c12abf41797133fd2c345eadd60532f8d9ab64d880adf6b0",
+      "plugins/email/server/auth/email.ts": "380e4ed9310905eb9a483ba4c534d321a9814c897c645096ab8483aeeb04ceac",
+      "server/emails/templates/SigninEmail.test.tsx": "2c34ecc3beee2fb3840cc9643e50e41249181b2bedf5fadacfd2ae56a3869974",
+      "server/env.test.ts": "836b5a87cd2c05b3dc653319a7886f2d50c5e1dc9eac3028584a90ada256b322",
+      "server/env.ts": "c81247fd7f2175234bf815d66e68822d1b623843edbba78c63c0795f38b532a5",
+      "server/middlewares/rateLimiter.test.ts": "4e8e32206298fb79ef7ffb5d1ee5e9e1fc710076e0c623cea1dea2ab9df3081d",
+      "server/middlewares/rateLimiter.ts": "ce51cfdb72270f20146561fbfa29d9912bc61ccabadc7eb19edff9b5391ea53e",
+      "server/utils/EmailSigninRequest.test.ts": "fef2f8678cf3a487b5b54a7b6c09f9675a63071f9226af3ed3b03e3d23d83b24",
+      "server/utils/EmailSigninRequest.ts": "65b1621636b212ebead8836e5dc656c80a79f0fbc19430560a42b05d1d17c24d",
+      "server/utils/emailSignin.integration.test.ts": "d36b11de73a733f3d9dc6dcb33b7a58bd6aabdf487c49480bdfa439f19c92849"
+    },
+    "sourceFileCount": 15,
+    "sourceEditsByReviewer": 0,
+    "findingsFixed": [
+      {
+        "file": ".trellis/tasks/10-26-email-code-signin/implement.md",
+        "issue": "Top status still described temporary configuration instead of U8 permanent removal.",
+        "resolution": "Root replaced current status with permanent-removal wording."
+      },
+      {
+        "file": ".trellis/tasks/10-26-email-code-signin/design.md",
+        "issue": "Interface section still described both UI timers.",
+        "resolution": "Root narrowed it to browser-local pending expiry."
+      },
+      {
+        "file": ".trellis/tasks/10-26-email-code-signin/prd.md",
+        "issue": "Broad403/429 preservation could imply restoring send429.",
+        "resolution": "Root distinguished CSRF/authorization403 and callback429 from unthrottled sending."
+      },
+      {
+        "file": ".trellis/tasks/10-26-email-code-signin/implement.md",
+        "issue": "Historical Link-stage gate text implied U8 was verified before the original PR5.",
+        "resolution": "Root separated original staged gates from the later U8 Code-default follow-up and distinguished Ethereal history from localSMTP proof."
+      }
+    ],
+    "findingsNotFixed": [],
+    "technicalDocSha256": {
+      ".trellis/tasks/10-26-email-code-signin/prd.md": "5663d1f24afef5fd0ce31d3abcaecf0f612af3a436d5139c9749b59b0a37e582",
+      ".trellis/tasks/10-26-email-code-signin/design.md": "54a1b657b751b8e17cd42c62a2253a637b2099208d94a91c1406e46a218c75c6",
+      ".trellis/tasks/10-26-email-code-signin/implement.md": "149584bd19398af0a7a1dbeed1a6c94016c4c8b3cb872fcf3ddd0b8413901b9f",
+      ".trellis/tasks/10-26-email-code-signin/implement.jsonl": "e1d645419bb72f0010370dec188276fe610fc094765fe1eebbf00d453649fd8e",
+      ".trellis/tasks/10-26-email-code-signin/check.jsonl": "54a71408a7fba967992633809f52d608c625dc913a6d0607962c1950ad18820c",
+      ".trellis/spec/backend/error-handling.md": "b1081c4cd7a4507fe9698fc47d89d239f93ce2b1da0a9b3ca6940f6c72fa9c7c",
+      ".trellis/spec/backend/logging-guidelines.md": "36fcfa4c95f0a5f969adddccab722f505a895771a702afa19c9d0db4628f0186",
+      ".trellis/spec/backend/index.md": "15d936735f87b5f5819a57a42ee1de7de80df82c524e1521be79150c8458ace8",
+      ".trellis/spec/frontend/state-management.md": "4ac55f9b4f9a2383d205e2a4e5f162f4c79daa1f982e0a73cca465dd74d6379a",
+      ".trellis/spec/frontend/index.md": "b33f4af9994d1a6230b4af4a4a1aa2fcda1438dfa8b3189a54dc39dca3274abb"
+    },
+    "documentation": "R3/AC8,AC13/14,callbacks versus sends, immediate resend/inflight guard, isEmailSigninExpired, updated metric skip reasons and concurrent-admission semantics consistent with source. U8 metadata and16-entry context manifests current; temporary proof explicitly historical.",
+    "verification": {
+      "testFiles": 11,
+      "testsPassed": 215,
+      "testsFailed": 0,
+      "testsSkipped": 0,
+      "actualRedisPassed": 3,
+      "typeCheck": "pass: full yarn tsc --incremental false",
+      "lint": "pass: fourteen changed TypeScript files with type-aware Oxlint",
+      "format": "pass: fourteen changed TypeScript files",
+      "diffCheck": "pass",
+      "productionBuild": "pass: snapshot yarn build",
+      "reuseReason": "All15source/test hashes and snapshot match the original passing runs; no source changes, so no duplicate test/static/build reruns.",
+      "evidence": [
+        "/tmp/outline-email-permanent-limits-command.json",
+        "/tmp/outline-email-permanent-limits-tests.json",
+        "/tmp/outline-email-permanent-limits-tsc.log",
+        "/tmp/outline-email-permanent-limits-lint.log",
+        "/tmp/outline-email-permanent-limits-format.log",
+        "/tmp/outline-email-local-demo/permanent-limits-build.log",
+        "/tmp/outline-email-local-demo/evidence/08-permanent-limits-result.json"
+      ]
+    },
+    "runtime": {
+      "globalHttpLimiterEnabled": true,
+      "emailTemporaryFlagPresent": false,
+      "globalRequests": 1000,
+      "defaultMethod": "link"
+    },
+    "browser": {
+      "unknownRequests": 12,
+      "smtpDeliveries": 6,
+      "elapsedMs": 3694,
+      "noQuotaChanges": true,
+      "latestCodeLogin": true,
+      "codeAndLinkImmediateResend": true
+    },
+    "manualReleaseGate": "unchanged pending; commercial provider/proxy logs, Safari/Electron/PWA, Sentry and tracer not claimed passed",
+    "knownIssue": "Preexisting anonymous auth.info AuthorizationError remains outside this change.",
+    "canCommit": true,
+    "commitBoundary": "Exact15reviewed source/test files only; root may then fill code SHA/receipt/status metadata and record the separate task/spec and journal commits. No push/public deploy."
+  },
+  "commitReceipt": {
+    "sourceCommit": "b32246ce5467de9723bcde95e243aec48177a1b2",
+    "sourceBranch": "feat/email-code-signin-release",
+    "sourceBase": "311385ef665f002612883a06d1bdf86a73531e40",
+    "files": [
+      ".env.sample",
+      "app/scenes/Login/Login.test.tsx",
+      "app/scenes/Login/components/EmailSignin.tsx",
+      "app/utils/emailSignin.test.ts",
+      "app/utils/emailSignin.ts",
+      "plugins/email/server/auth/email.test.ts",
+      "plugins/email/server/auth/email.ts",
+      "server/emails/templates/SigninEmail.test.tsx",
+      "server/env.test.ts",
+      "server/env.ts",
+      "server/middlewares/rateLimiter.test.ts",
+      "server/middlewares/rateLimiter.ts",
+      "server/utils/EmailSigninRequest.test.ts",
+      "server/utils/EmailSigninRequest.ts",
+      "server/utils/emailSignin.integration.test.ts"
+    ],
+    "review": "pass",
+    "userAuthorization": "完成剩下的动作吧",
+    "remoteActions": "none"
+  }
+}

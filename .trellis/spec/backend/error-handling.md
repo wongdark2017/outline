@@ -54,11 +54,11 @@ Questions to answer:
 
 ### 1. Scope / Trigger
 
-Email sign-in spans the HTTP callback, Redis Lua, asynchronous mail, task errors and production logs. These contracts prevent account-state disclosure, indefinitely extended attempt exhaustion and diagnostic credential leakage. Code lives in the PR1 worktree recorded by the active task; task/spec/tool directories are not part of the product index.
+Email sign-in spans the HTTP callback, Redis Lua, asynchronous mail, task errors and production logs. These contracts prevent account-state disclosure, indefinitely extended attempt exhaustion and diagnostic credential leakage. Current source is /root/outline-email-signin-remaining; task/spec/tool directories are separate from the product index.
 
 ### 2. Signatures
 
-- `EmailSigninRequest.admit(request): Promise<boolean>` atomically supersedes credentials and reserves the configured shared send quota.
+- `EmailSigninRequest.admit(request): Promise<boolean>` atomically records latest identity/deadline and invalidates the prior OTP.
 - `VerificationCode.verify(teamId, email, code): Promise<boolean>` consumes a valid HMAC verifier atomically.
 - `VerificationCode.publish(request, code): Promise<VerificationCodePublishResult>` returns `{ published: true }` or `{ published: false, reason }` from one Lua outcome.
 - `User.getEmailSigninToken(input: EmailSigninTokenInput): string` accepts only explicit original request metadata, never a Koa Context.
@@ -66,7 +66,7 @@ Email sign-in spans the HTTP callback, Redis Lua, asynchronous mail, task errors
 
 ### 3. Contracts
 
-- A new accepted request deletes the old verifier and attempts. It retains the daily failure counter. Code/Link share a sixty-second interval and five sends/hour unless `EMAIL_SIGNIN_RATE_LIMITER_ENABLED=false`. A suppressed request changes none of the prior credential/attempt state.
+- A new accepted request atomically deletes the old verifier/attempts, records latest/deadline and retains daily failures. Code/Link sends have no request quota, cooldown or hourly cap. Invalid/expired admission leaves the prior state intact.
 - Five failed guesses exhaust one request. Worker retries keep that request’s attempts and deadline; a newly admitted resend starts five new attempts. Thirty failures retain the fixed 24-hour lock across requests.
 - Check OTP proof before any disabled/suspended response. Incorrect or unknown codes share `/?notice=invalid-code`; a correct code may be consumed before returning a fixed account-state notice. Magic links verify signatures before state checks and redeem independently of latest-request identity.
 - Accept at most 30 seconds of future server requestedAt skew. Redis TIME still enforces the absolute requestedAt + 600000 deadline; skew tolerance never renews TTL.
@@ -93,7 +93,7 @@ Email sign-in spans the HTTP callback, Redis Lua, asynchronous mail, task errors
 
 ### 6. Tests Required
 
-Execute production Lua under ioredis-mock. Assert reset only on accepted admission, suppressed admission leaves state intact, retry preserves attempts, daily lock survives resend, and publication reasons come from the atomic result. Test invalid-code parity across account states and valid-proof status notices. Assert safe diagnostics survive mailer/template/task/queue wrapping and actual production serialization; malicious values in every candidate field must be omitted. Optional real-Redis tests use isolated connections/keys, auto-skip unreachable Redis and never flush shared data. Compare `yarn tsc --incremental false` on actual dev-main and PR1 snapshots.
+Execute production Lua under ioredis-mock. Assert reset only on accepted admission, invalid/expired admission leaves state intact, retry preserves attempts, daily lock survives resend, and publication reasons come from the atomic result. Test invalid-code parity across account states and valid-proof status notices. Assert safe diagnostics survive mailer/template/task/queue wrapping and actual production serialization; malicious values in every candidate field must be omitted. Optional real-Redis tests use isolated connections/keys, auto-skip unreachable Redis and never flush shared data. Compare `yarn tsc --incremental false` on actual dev-main and PR1 snapshots.
 
 ### 7. Wrong vs Correct
 
@@ -112,38 +112,40 @@ if (!(await VerificationCode.verify(team.id, email, code))) {
 New admission resets attempts in the same Lua boundary that supersedes the verifier. Retry preserves the same request’s budget. Re-wrap only with `createEmailSigninError("task", error)` so only whitelisted diagnostics survive.
 
 
-## Scenario: Temporary email sending limits
+## Scenario: Permanent unlimited email sending
 
 ### 1. Scope / Trigger
 
-Local preview operators can temporarily disable request and send limits without changing credential verification. Do not delete rate-limiter middleware or weaken CSRF to unblock a preview.
+U8 supersedes the temporary preview switch and removes sending limits permanently. Ordinary server configuration must allow repeated Code/Link requests while retaining credential-verification protection.
 
 ### 2. Signatures
 
-`Environment.EMAIL_SIGNIN_RATE_LIMITER_ENABLED: boolean` is public browser configuration consumed by `EmailSigninRequest.admit` and `emailSigninTiming`.
+- `EmailSigninRequest.admit(request): Promise<boolean>` validates metadata/deadline, sets latest and deletes the prior verifier/attempts/legacy verifier in one Lua operation.
+- `defaultRateLimiter()` skips only normalized `POST /auth/email`; the email route has no `TenPerHour` middleware.
+- `isEmailSigninExpired(pending, now?): boolean` measures local pending expiry; there is no resend timer result.
 
 ### 3. Contracts
 
-Both `RATE_LIMITER_ENABLED` (HTTP/IP middleware) and `EMAIL_SIGNIN_RATE_LIMITER_ENABLED` (Code/Link cooldown and hourly quota) default to true and are independent. Explicitly set both false on the current preview to remove both layers. The Lua admission bypasses only cooldown/hourly checks and writes; existing counter values and expirations remain untouched. Deadline validation, latest pointer update and old verifier/attempts deletion stay atomic. Preserve ten-minute expiry, HMAC-only storage, one-time use, per-code guesses and daily failures. The public flag also removes only the frontend resend wait. Restart the server and refresh the browser after changing configuration; restore true to reinstate limits.
+Delete `EMAIL_SIGNIN_RATE_LIMITER_ENABLED` from Environment/public/sample configuration; it is not a switch to restore. `RATE_LIMITER_ENABLED` remains enabled by default for other endpoints; verification callbacks retain `FivePerMinute`. Send admission neither reads nor writes cooldown/hourly keys; old keys expire naturally. Deadline validation, latest-pointer update and previous-verifier deletion stay atomic. Preserve CSRF, ten-minute expiry, HMAC-only storage, one-time use, per-code guesses and daily failures. Browser resends are always available after each completed request, with in-flight guards.
 
 ### 4. Validation & Error Matrix
 
 | Condition | Required behavior |
 | --- | --- |
-| Default / true | Existing sixty-second and five/hour rules. |
-| Email flag false with old quota keys | Admit valid requests without reading or updating those quotas. |
-| Expired request / unavailable Redis | Reject admission in both modes. |
-| False flag and exhausted daily failures | Admission never clears the daily failure lock; verification/publication remain blocked. |
-| Invalid boolean environment value | Configuration validation fails. |
+| Global limiter enabled/exhausted, normalized POST /auth/email | Do not consume any HTTP bucket; continue to normal validation/CSRF/admission. |
+| Callback, unrelated route or another HTTP verb | Keep ordinary global/route limiting. |
+| Repeated valid sends or obsolete send-counter keys | Admit without sending quotas; leave old counters/TTLs untouched. |
+| Invalid/expired metadata or Redis failure | Do not publish credentials; admission fails closed. |
+| Daily verification lock exhausted | New admission never clears daily failures; publication/verification remain blocked. |
 
 ### 5. Good / Base / Bad Cases
 
-Good: disable both flags only in the isolated preview and immediately resend Code or Link. Base: unrelated deployments and tests retain enabled send quotas. Bad: using the existing global flag alone while leaving the independent hourly cap, or clearing all Redis data.
+Good: default global limiting stays on while13immediate Code requests and13Link requests enqueue successfully. Base: repeated sends replace latest/old OTP without extending an existing request deadline. Bad: disable global limiting for every route, retain a hidden quota, restore the removed flag, or bypass the entire admission script.
 
 ### 6. Tests Required
 
-Collocated env/admission tests assert public boolean defaults and false parsing, more than five immediate admissions, unchanged existing quota values/TTL, latest/invalidation updates, unchanged daily failures and fail-closed Redis. Helper and mounted Code/Link tests assert immediate resends while retaining duplicate/inflight guards and 599/600-second expiry. Browser proof uses more than ten unknown-recipient requests and six actual sequential SMTP deliveries within sixty seconds; do not fake time or reset counters.
+Use existing ioredis-mock/Bull stubs: more than five immediate admissions, unchanged obsolete counters/TTLs, invalidation/latest/deadline, daily failures and Redis faults. Middleware tests exhaust the HTTP limiter and verify only normalized POST /auth/email bypasses consumption; callback/other-method/other-route checks still reject. Code/Link route tests accept13immediate requests with global limiting enabled. Real-Redis races accept both admissions with exactly one current identity and retain one-time consumption/worker-race tests. Browser proof uses12unknown requests and6sequential real localSMTP deliveries without temporary flags/time manipulation/counter resets. Commercial-provider and real-device checks remain manual.
 
 ### 7. Wrong vs Correct
 
-Wrong: bypass the entire admission script or delete verifier locks to disable sending limits. Correct: branch only the cooldown/hourly Lua operations on the configured flag, keep every credential operation in the same atomic script, and publish the same flag to the client.
+Wrong: keep quota code behind false flags or remove verifier locks. Correct: delete send-quota operations and countdown configuration, exempt only POST /auth/email from HTTP limiting, and retain all credential operations in the same atomic admission script. Use `isEmailSigninExpired(pending)` only for the ten-minute local waiting window.
