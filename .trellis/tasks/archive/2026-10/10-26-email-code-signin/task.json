@@ -2,7 +2,7 @@
   "id": "email-code-signin",
   "name": "email-code-signin",
   "title": "Email verification code sign-in implementation",
-  "description": "Browser-only email sign-in release: U1–U8 development and unlimited sending complete; U9 defers Electron/PWA acceptance. Required browser manual checks pending; first deployment Link.",
+  "description": "Implementation archived; further email code sign-in development and rollout are deferred by explicit user request. Existing source commits, validation evidence and outstanding release checks are preserved.",
   "status": "completed",
   "dev_type": "fullstack",
   "scope": "authentication",
@@ -14,7 +14,7 @@
   "completedAt": "2026-10-28",
   "branch": "feat/email-code-signin-release",
   "base_branch": "feat/email-code-signin-pr2",
-  "worktree_path": "/root/outline-email-signin-remaining",
+  "worktree_path": null,
   "commit": "b32246ce5467de9723bcde95e243aec48177a1b2",
   "pr_url": null,
   "subtasks": [],
@@ -23,7 +23,7 @@
   "relatedFiles": [
     "temp/邮箱验证码登录 · 页面设计.pdf",
     "temp/Outline Email verification code sign-in — design.pdf",
-    ".trellis/tasks/10-26-email-code-signin/permanent-rate-limits-verification.json"
+    ".trellis/tasks/archive/2026-10/10-26-email-code-signin/permanent-rate-limits-verification.json"
   ],
   "notes": "U8 permanent email sending-limit removal committed as b32246ce5 after final native Trellis review.215tests incl3actualRedis/type/lint/format/build pass;12unknownUI requests200,6localSMTP mails/3.694s and latest-code login. Global limiter true/default1000, no temporary flag; callback/credential protections remain. PR1–PR5/U7/CSRF commits and user work unchanged. Existing task only; source/task/spec local commits plus finish-work journal, no push/PR/public deployment. External provider/device/telemetry manual release gate remains pending. U9: current delivery covers desktop/mobile browsers only. Electron/PWA real-device acceptance deferred, not a release blocker; browser SMTP, safe provider/proxy logs, Safari and Sentry/tracer checks remain required.",
   "meta": {
@@ -963,7 +963,7 @@
       }
     },
     "localization": {
-      "reviewFile": ".trellis/tasks/10-26-email-code-signin/translation-review.json",
+      "reviewFile": ".trellis/tasks/archive/2026-10/10-26-email-code-signin/translation-review.json",
       "approved": true,
       "approvedAt": "2026-10-27T06:35:56.376049+00:00",
       "keyCount": 25,
@@ -988,7 +988,7 @@
       }
     },
     "release": {
-      "status": "pending_manual_verification",
+      "status": "deferred_by_user",
       "firstDeploymentEnvironment": {
         "EMAIL_SIGNIN_DEFAULT_METHOD": "link"
       },
@@ -1037,15 +1037,15 @@
     },
     "completion": {
       "scope": "development and repository task complete",
-      "releaseStatus": "pending_manual_verification",
+      "releaseStatus": "deferred_by_user",
       "manualChecksClaimedPassed": false,
-      "archive": "No active task or additional archive request; retain existing completed record and pending operator release checklist.",
-      "latestFollowUp": "U9 browser-only delivery/release scope synchronized; Electron/PWA deferred without changing completed source or claiming client acceptance."
+      "archive": "Archived at explicit user request; further development and rollout are deferred until explicitly resumed.",
+      "latestFollowUp": "2026-10-30: User paused further development. Clean checkouts removed, dedicated verification containers stopped, temporary artifacts consolidated and current archive references repaired. Source branches and prior validation evidence retained."
     },
     "localVerification": {
       "status": "functional_journeys_pass_with_preexisting_console_issue",
       "date": "2026-10-28",
-      "report": ".trellis/tasks/10-26-email-code-signin/local-verification.json",
+      "report": ".trellis/tasks/archive/2026-10/10-26-email-code-signin/local-verification.json",
       "url": "http://localhost:3000",
       "mailUrl": "http://localhost:8025",
       "sourceCommit": "204a13711",
@@ -1067,7 +1067,8 @@
       },
       "commercialSmtpAndRealDevicesVerified": false,
       "firstDeploymentManualGateWaived": false,
-      "currentPreviewCommit": "b32246ce5467de9723bcde95e243aec48177a1b2"
+      "currentPreviewCommit": "b32246ce5467de9723bcde95e243aec48177a1b2",
+      "previewState": "stopped_by_user_request"
     },
     "runtimeFollowUp": {
       "csrf": {
@@ -1117,7 +1118,7 @@
           "backendKeyRotation": false,
           "publicDeployment": false
         },
-        "report": ".trellis/tasks/10-26-email-code-signin/csrf-verification.json",
+        "report": ".trellis/tasks/archive/2026-10/10-26-email-code-signin/csrf-verification.json",
         "browserBefore": 403,
         "browserAfter": 200,
         "invalidTokenStillRejected": 403,
@@ -1150,7 +1151,7 @@
         ],
         "releaseGate": "external/manual release gate unchanged",
         "commit": "311385ef665f002612883a06d1bdf86a73531e40",
-        "report": ".trellis/tasks/10-26-email-code-signin/temporary-rate-limits-verification.json",
+        "report": ".trellis/tasks/archive/2026-10/10-26-email-code-signin/temporary-rate-limits-verification.json",
         "validation": {
           "testsPassed": 194,
           "failed": 0,
@@ -1180,7 +1181,7 @@
         "requestedByUser": "这个限流改成永久地取消 不要淋湿取消",
         "finishAuthorizedByUser": "完成剩下的动作吧",
         "date": "2026-10-28",
-        "report": ".trellis/tasks/10-26-email-code-signin/permanent-rate-limits-verification.json",
+        "report": ".trellis/tasks/archive/2026-10/10-26-email-code-signin/permanent-rate-limits-verification.json",
         "sourceBranch": "feat/email-code-signin-release",
         "sourceWorktree": "/root/outline-email-signin-remaining",
         "removed": [
@@ -1261,7 +1262,41 @@
       "compatibilityCodeRetained": true,
       "deferredChecksClaimedPassed": false,
       "sourceCommitUnchanged": "b32246ce5467de9723bcde95e243aec48177a1b2"
+    },
+    "disposition": {
+      "status": "deferred",
+      "date": "2026-10-30",
+      "requestedByUser": "验证码登录任务暂时不继续开发 你继续清理一下",
+      "resumeRequiresExplicitRequest": true,
+      "developmentAlreadyCommitted": true,
+      "manualReleaseChecksRemainUnverified": true
+    },
+    "cleanup": {
+      "date": "2026-10-30",
+      "removedCleanWorktrees": [
+        "/root/outline-email-signin-pr1",
+        "/root/outline-email-signin-pr2",
+        "/root/outline-email-signin-remaining"
+      ],
+      "preservedBranchCommits": {
+        "feat/email-code-signin-pr1": "a6d32806d3c786fe7ec5e8d981d843f9ab314e96",
+        "feat/email-code-signin-pr2": "93f28388e653b45b4c9755765c69d3761ef3beac",
+        "feat/email-code-signin-release": "b32246ce5467de9723bcde95e243aec48177a1b2"
+      },
+      "stoppedVerificationContainers": [
+        "outline-verify-email-signin-20261028-redis",
+        "outline-verify-email-signin-20261028-pg",
+        "outline-verify-email-signin-20261028-mail"
+      ],
+      "containersAndDatabaseVolumesPreserved": true,
+      "temporaryRecoveryArchive": "/tmp/outline-paused-email-code-signin-20261030.tar.gz",
+      "temporaryRecoveryManifest": "/tmp/outline-paused-email-code-signin-20261030-manifest.json",
+      "currentNavigationReferencesRepaired": 18,
+      "remoteTestDeploymentChanged": false,
+      "sourceFilesChanged": false,
+      "committedOrPushed": false,
+      "resumeCheckoutCommand": "git worktree add /root/outline-email-signin-remaining feat/email-code-signin-release"
     }
   },
-  "worktree": "/root/outline-email-signin-remaining"
+  "worktree": null
 }

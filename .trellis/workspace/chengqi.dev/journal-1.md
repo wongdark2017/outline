@@ -287,3 +287,77 @@ U9 limits current delivery to desktop/mobile browsers; Electron/PWA are deferred
 ### Next Steps
 
 - Complete browser SMTP, safe provider/proxy logs, Safari autofill and Sentry/tracer checks; first deployment stays Link.
+
+
+## Session 9: Archive email code sign-in task
+<!-- trellis-session: v=2 fp=98fd1a3b9db83eca -->
+
+**Date**: 2026-10-30
+**Task**: Archive email code sign-in task
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+Archived the completed email code sign-in development task at the user's request. Preserved its original completion date, validation evidence and pending external release gates. The deployed test environment currently uses a shared administrator entry with email delivery disabled.
+
+### Main Changes
+
+- Moved 10-26-email-code-signin to .trellis/tasks/archive/2026-10/; left bootstrap-guidelines active.
+- Preserved all task files and existing Git staging; no source edits, commit or push.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b32246ce5467de9723bcde95e243aec48177a1b2` | feat: permanently remove email sign-in send limits |
+
+### Testing
+
+- [OK] Source worktree is clean; archived artifact hashes, Git index and HEAD verified unchanged.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Before real email login is enabled in deployment, configure provider PTR, remove the temporary test-login entry and complete the recorded manual release checks.
+
+
+## Session 10: Pause email code sign-in and clean development resources
+<!-- trellis-session: v=2 fp=8099daa01a175e68 -->
+
+**Date**: 2026-10-30
+**Task**: Pause email code sign-in and clean development resources
+**Branch**: `feat/email-code-signin-release`
+
+### Summary
+
+User explicitly paused further email code sign-in development and rollout. Cleaned local checkouts, dedicated verification resources and temporary artifacts while retaining committed code, branches, database volumes and historical acceptance evidence. Current remote test deployment stays available with shared test login and email delivery disabled.
+
+### Main Changes
+
+- Removed three clean email worktree checkouts; retained PR1, PR2 and release branch commits.
+- Stopped the three task-specific Redis/PostgreSQL/Mailpit containers without removing containers or database volumes; main development databases remain running.
+- Consolidated 197 temporary paths into a private recovery archive at /tmp/outline-paused-email-code-signin-20261030.tar.gz; verified 629 files.
+- Repaired 18 current archive references and migrated exactly 10 staged task paths while preserving their original blobs and all unrelated staging.
+- Recorded deferred disposition and explicit-resume requirement; retained original completion date and historical validation results.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b32246ce5467de9723bcde95e243aec48177a1b2` | feat: permanently remove email sign-in send limits |
+
+### Testing
+
+- [OK] Verified source hashes, retained branch commits, main HEAD, archive references, historical evidence and private backup checksum.
+- [OK] Verified dedicated containers stopped, main databases running, remote health OK and only test-login provider enabled.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Further development and rollout remain paused; resume only after an explicit user request, using the retained source branches and archived task records.
