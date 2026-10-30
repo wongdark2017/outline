@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-28T02:27:57.892423+08:00",
+  "scope": "protocol-specific CSRF client helper and local preview",
+  "source": {
+    "commit": "597166e317947d098fef4f946b4ab9ac69314884",
+    "branch": "feat/email-code-signin-release",
+    "tree": "3112e3bfdc3ef552d7b53da51f2c3a8f893de169",
+    "files": [
+      "app/utils/csrf.ts",
+      "app/utils/csrf.test.ts"
+    ],
+    "unitRelatedTestsPassed": 56,
+    "protocolCasesPassed": 9,
+    "typeCheck": "passed",
+    "scopedLint": "passed",
+    "format": "passed",
+    "browserMixedCookiesBefore": 403,
+    "browserMixedCookiesAfter": 200,
+    "invalidTokenStillRejected": 403,
+    "nativeFormCallback": 302,
+    "deployedToLocalPreview": true,
+    "backendKeyRotation": false,
+    "publicDeployment": false
+  },
+  "before": {
+    "stage": "before",
+    "cases": [
+      {
+        "context": "current-http-only",
+        "httpCookieObtainedFromRealServerGet": true,
+        "oldSecureCookieReadable": false,
+        "staleAccessCookieActuallySent": true,
+        "plainCsrfCookieActuallySent": true,
+        "requestHeaderMatchesCurrentHttpCookie": true,
+        "requestHeaderMatchesSyntheticSecureCookie": false,
+        "responseStatus": 200,
+        "responseSuccess": true,
+        "responseMethod": "code",
+        "pageErrors": [
+          {
+            "name": "AuthorizationError",
+            "message": "b"
+          }
+        ]
+      },
+      {
+        "context": "mixed-old-secure-and-current-http",
+        "httpCookieObtainedFromRealServerGet": true,
+        "oldSecureCookieReadable": true,
+        "staleAccessCookieActuallySent": true,
+        "plainCsrfCookieActuallySent": true,
+        "requestHeaderMatchesCurrentHttpCookie": false,
+        "requestHeaderMatchesSyntheticSecureCookie": true,
+        "responseStatus": 403,
+        "responseError": "csrf_error",
+        "pageErrors": [
+          {
+            "name": "AuthorizationError",
+            "message": "b"
+          }
+        ]
+      }
+    ],
+    "noLiveUserCookiesUsed": true,
+    "noCredentialsPersisted": true,
+    "committedSourceCommit": "204a13711",
+    "committedHelperSha256": "b7d318cda5da5d663cd1e3bd2e2d11942a26be7656b22cb21eafca2b64f64036"
+  },
+  "after": {
+    "stage": "after",
+    "cases": [
+      {
+        "context": "current-http-only",
+        "httpCookieObtainedFromRealServerGet": true,
+        "oldSecureCookieReadable": false,
+        "staleAccessCookieActuallySent": true,
+        "plainCsrfCookieActuallySent": true,
+        "requestHeaderMatchesCurrentHttpCookie": true,
+        "requestHeaderMatchesSyntheticSecureCookie": false,
+        "responseStatus": 200,
+        "responseSuccess": true,
+        "responseMethod": "code",
+        "scriptAssets": [
+          "/static/assets/ApiClient.BM8T61gQ.js",
+          "/static/assets/csrf.DJIEh1Lk.js"
+        ],
+        "pageErrors": [
+          {
+            "name": "AuthorizationError",
+            "message": "b"
+          }
+        ]
+      },
+      {
+        "context": "mixed-old-secure-and-current-http",
+        "httpCookieObtainedFromRealServerGet": true,
+        "oldSecureCookieReadable": true,
+        "staleAccessCookieActuallySent": true,
+        "plainCsrfCookieActuallySent": true,
+        "requestHeaderMatchesCurrentHttpCookie": true,
+        "requestHeaderMatchesSyntheticSecureCookie": false,
+        "responseStatus": 200,
+        "responseSuccess": true,
+        "responseMethod": "code",
+        "scriptAssets": [
+          "/static/assets/ApiClient.BM8T61gQ.js",
+          "/static/assets/csrf.DJIEh1Lk.js"
+        ],
+        "pageErrors": [
+          {
+            "name": "AuthorizationError",
+            "message": "b"
+          },
+          {
+            "name": "AuthorizationError",
+            "message": "b"
+          }
+        ],
+        "nativeForm": {
+          "hiddenCsrfMatchesCurrentHttpCookie": true,
+          "hiddenCsrfMatchesSyntheticSecureCookie": false,
+          "staleAccessCookieActuallySent": true,
+          "callbackStatus": 302,
+          "finalNotice": "invalid-code"
+        }
+      }
+    ],
+    "invalidHttpCookie": {
+      "staleAccessCookieActuallySent": true,
+      "requestHeaderMatchesInvalidHttpCookie": true,
+      "requestHeaderMatchesSyntheticSecureCookie": false,
+      "responseStatus": 403,
+      "responseError": "csrf_error"
+    },
+    "sourceHashes": {
+      "worktreeHelper": "e980384a7ef4d1cf1ddc692d1259d568b7a899d14e9727c2a58cf820a05abdd9",
+      "runtimeSnapshotHelper": "e980384a7ef4d1cf1ddc692d1259d568b7a899d14e9727c2a58cf820a05abdd9"
+    },
+    "retainedPostFixBaseline": true,
+    "noLiveUserCookiesUsed": true,
+    "noCredentialsPersisted": true
+  },
+  "serverKeysPreserved": true,
+  "csrfProtectionDisabled": false,
+  "existingAnonymousPromiseIssue": "unchanged preexisting issue; unrelated to CSRF cookie selection",
+  "manualReleaseGate": "still pending"
+}

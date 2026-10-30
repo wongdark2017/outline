@@ -1,0 +1,39 @@
+{
+  "status": "approved by user: 确认，采用以上译法",
+  "originalNewKeys": 24,
+  "optionalNewKeys": 1,
+  "translations": {
+    "Send code": "发送验证码",
+    "Send sign-in link": "发送登录链接",
+    "Enter the sign-in code sent to <em>{{ email }}</em> if an account exists.": "若该邮箱已注册，请输入发送至 <em>{{ email }}</em> 的登录验证码。",
+    "Sign-in code": "登录验证码",
+    "Signing in…": "正在登录…",
+    "Sending…": "正在发送…",
+    "Resend email in {{ seconds }}s": "{{ seconds }} 秒后可重新发送",
+    "Resend email": "重新发送邮件",
+    "You can now resend the email.": "现在可以重新发送邮件。",
+    "Unable to request another email. Please try again later.": "暂时无法重新发送邮件，请稍后再试。",
+    "Still haven’t received it? Check spam or try again later.": "仍未收到？请检查垃圾邮件，或稍后再试。",
+    "Use a different email": "使用其他邮箱",
+    "Your email sign-in request has expired. Request a new email to continue.": "邮箱登录请求已过期，请重新发送邮件以继续。",
+    "Verification code": "验证码",
+    "Magic link": "登录链接",
+    "Email sign-in method": "邮箱登录方式",
+    "Choose how members sign in with email": "选择成员通过邮箱登录的方式",
+    "{{ browser }} on {{ operatingSystem }}": "{{ operatingSystem }} 上的 {{ browser }}",
+    "Unknown device": "未知设备",
+    "{{ code }} is your sign-in code": "{{ code }} 是您的登录验证码",
+    "Enter your verification code to sign in to {{ appName }}.": "输入验证码以登录 {{ appName }}。",
+    "Valid until {{ cutoffTime }}.": "{{ cutoffTime }} 前有效。",
+    "Requested at {{ requestTime }} from {{ device }}.": "请求时间：{{ requestTime }}；设备：{{ device }}。",
+    "Your sign-in code": "您的登录验证码",
+    "Default (currently {{ method }})": "默认（当前：{{ method }}）"
+  },
+  "notes": "Preserve interpolation tokens and <em> markup. Existing translations are outside this proposed list.",
+  "approvedAt": "2026-10-27T06:35:56.376049+00:00",
+  "sourceKeyAdjustment": {
+    "original": "Default (currently: {{ method }})",
+    "current": "Default (currently {{ method }})",
+    "reason": "Repository parser uses colon as namespaceSeparator and a shared output file; remove the English colon to preserve normal extraction and runtime lookup. The approved Chinese wording remains unchanged."
+  }
+}
