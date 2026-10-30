@@ -1,34 +1,34 @@
-# Translation
+# 翻译
 
-Outline is localized through community contributions. The text in Outline's user interface is in American English by default, we're very thankful for all help that the community provides bringing the app to different languages.
+Outline 的本地化由社区贡献完成。Outline 用户界面中的文本默认是美式英语，我们非常感谢社区为把应用带到不同语言所付出的所有努力。
 
-## Externalizing strings
+## 字符串外部化
 
-Before a string can be translated, it must be externalized. This is the process where English strings in the source code are wrapped in a function that retrieves the translated string for the user’s language.
+一段字符串在能被翻译之前，必须先被"外部化"。这个过程会把源代码中的英文字符串包裹进一个函数中，从而在运行时根据用户的语言取出对应的译文。
 
-For externalization we use [react-i18next](https://react.i18next.com/), this provides the hooks [useTranslation](https://react.i18next.com/latest/usetranslation-hook) and the [Trans](https://react.i18next.com/latest/trans-component) component for wrapping English text.
+我们使用 [react-i18next](https://react.i18next.com/) 进行外部化，它提供 [useTranslation](https://react.i18next.com/latest/usetranslation-hook) hook 和 [Trans](https://react.i18next.com/latest/trans-component) 组件来包裹英文文本。
 
-PR's are accepted for wrapping English strings in the codebase that were not previously externalized.
+如果你发现代码库中还有未外部化的英文字符串，欢迎提交 PR 把它们包裹起来。
 
-## Translating strings
+## 翻译字符串
 
-To manage the translation process we use [CrowdIn](https://translate.getoutline.com/), it keeps track of which strings in which languages still need translating, synchronizes with the codebase automatically, and provides a great editor interface.
+我们使用 [CrowdIn](https://translate.getoutline.com/) 来管理翻译流程。它会跟踪每种语言中还有哪些字符串待翻译，自动与代码库同步，并提供出色的编辑界面。
 
-You'll need to create a free account to use CrowdIn. Once you have joined, you can provide translations by following these steps:
+使用 CrowdIn 需要注册一个免费账号。加入项目后，你可以按以下步骤提供翻译：
 
-1. Select the language for which you want to contribute (or vote for) a translation (below the language you can see the progress of the translation)
+1. 选择你想贡献（或投票）翻译的语言（在语言下方可以看到翻译进度）
    ![CrowdIn UI](https://i.imgur.com/AkbDY60.png)
 
-2. Please choose the translation.json file from your desired language
+2. 请选择你所选语言下的 translation.json 文件
 
-3. Once a file is selected, all the strings associated with the version are displayed on the left side. To display the untranslated strings first, select the filter icon next to the search bar and select “All, Untranslated First”.The red square next to an English string shows that a string has not been translated yet. To provide a translation, select a string on the left side, provide a translation in the target language in the text box in the right side (singular and plural) and press the save button. As soon as a translation has been provided by another user (green square next to string), you can also vote on a translation provided by another user. The translation with the most votes is used unless a different translation has been approved by a proof reader. ![Editor UI](https://i.imgur.com/pldZCRs.png)
+3. 选中文件后，左侧会显示该版本对应的所有字符串。想优先显示未翻译的字符串，请点击搜索框旁边的筛选图标，选择 "All, Untranslated First"。英文字符串旁边的红色方块表示该字符串尚未翻译。要提供翻译，请在左侧选中一个字符串，在右侧文本框中输入目标语言的译文（单数和复数形式），然后点击保存按钮。一旦某个字符串已经有其他用户提交了翻译（字符串旁会显示绿色方块），你也可以对其他用户的翻译进行投票。除非审校人员批准了其他译文，否则得票最多的翻译会被采用。![Editor UI](https://i.imgur.com/pldZCRs.png)
 
-## Proofreading
+## 审校
 
-Once a translation has been provided, a proof reader can approve the translation and mark it for use in Outline.
+在有人提交翻译之后，审校人员可以批准该翻译并将其标记为可在 Outline 中使用。
 
-If you are interested in becoming a proof reader, please contact one of the project managers in the Outline CrowdIn project or contact [@tommoor](https://github.com/tommoor). Similarly, if your language is not listed in the list of CrowdIn languages, please contact our project managers or [send us an email](https://www.getoutline.com/contact) so we can add your language.
+如果你有兴趣成为审校人员，请联系 Outline CrowdIn 项目中的一位项目经理，或联系 [@tommoor](https://github.com/tommoor)。同样，如果你的语言不在 CrowdIn 的语言列表中，请联系我们的项目经理或[给我们发邮件](https://www.getoutline.com/contact)，我们会把你的语言加进去。
 
-## Release
+## 发布
 
-Updated translations are automatically PR'd against the codebase by a bot and will be merged regularly so that new translations appear in the next release of Outline.
+更新后的翻译会由 bot 自动向代码库发起 PR，并被定期合并，这样新的翻译就会出现在下一个 Outline 版本中。

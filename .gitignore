@@ -3,6 +3,7 @@ build
 node_modules/*
 .env
 .env.local
+.env.shared
 .env.production
 .log
 .vscode/*

@@ -1,19 +1,19 @@
-The heart of Outline is the document editor. We let you write in whichever way you prefer – be it Markdown, WYSIWYG, or taking advantage of the many keyboard shortcuts (Type `?` to see them all).
+Outline 的核心是文档编辑器。我们让你用自己喜欢的方式书写——可以是 Markdown、所见即所得（WYSIWYG），也可以善用众多键盘快捷键（输入 `?` 查看完整列表）。
 
 ## Markdown
 
-If you’re comfortable writing markdown then all of the shortcuts you are used to are supported, for example type \*\*bold\*\* to instantly create **bold** text. If you forget some syntax or are after a quick refresher hit the keyboard icon in the bottom right hand corner for our guide. Learning some of the key Markdown shortcuts will definitely make using Outline faster and more enjoyable!
+如果你习惯用 Markdown 写作，那么你熟悉的所有快捷键都被支持——例如输入 \*\*bold\*\* 就会立即得到**加粗**文本。如果忘了某些语法或想快速回顾一下，点击右下角的键盘图标查看我们的指南。掌握一些常用的 Markdown 快捷键，绝对能让你用 Outline 更快速、更愉快！
 
 \
 
 :::info
-You can also paste markdown, html, or rich text from elsewhere directly into a document.
+你也可以直接把别处的 Markdown、HTML 或富文本粘贴到文档中。
 :::
 
-## References
+## 引用
 
-Linking to another document automatically creates backlinks which are kept up-to-date and shown at the bottom of the document, so you can create a library of linked information and easily answer the question "which other documents link here?".
+链接到另一篇文档时，会自动生成反向链接（backlink），并显示在该文档的底部且保持更新。这样你就能搭建一个相互链接的信息库，轻松回答"还有哪些文档链接到这里？"这个问题。
 
-## Rich documents
+## 富文档
 
-The editor supports a variety of content blocks including images, tables, lists, quotes, task lists, videos, and more. Type `/` on an empty line or click on the `+` icon to trigger the block insert menu, you can keep typing to filter it down. Of course, you can also drag and drop images to include them in your document or paste a link to embed content from one of the many supported [integrations](https://www.getoutline.com/integrations)
+编辑器支持多种内容块，包括图片、表格、列表、引用、任务列表、视频等等。在空行输入 `/` 或点击 `+` 图标即可唤起插入菜单，继续输入可以过滤选项。当然，你也可以直接把图片拖进文档，或粘贴一个链接，嵌入来自众多受支持的[集成](https://www.getoutline.com/integrations)之一的内容。

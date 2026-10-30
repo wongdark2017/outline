@@ -1,11 +1,8 @@
-# Backend Services
+# 后端服务
 
-Outline's backend is split into several distinct [services](../server/services)
-that combined form the application. When running the official Docker container
-it will run all of the production services by default.
+Outline 的后端被拆分为多个独立的 [service](../server/services)，它们共同组成完整的应用。运行官方 Docker 容器时，默认会启动所有生产环境所需的 service。
 
-You can choose which services to run through either a comma separated CLI flag,
-`--services`, or the `SERVICES` environment variable. For example:
+你可以通过逗号分隔的 CLI 参数 `--services`，或通过 `SERVICES` 环境变量来选择要启动哪些 service。例如：
 
 ```bash
 yarn start --services=web,worker
@@ -13,33 +10,27 @@ yarn start --services=web,worker
 
 ## Admin
 
-Currently this service is only used in development to view and debug the queues.
-It can be viewed at `/admin` when enabled.
+目前这个 service 仅用于开发环境，用来查看和调试队列。启用后可以通过 `/admin` 访问。
 
 ## Web
 
-The web server hosts the Application and API, as such this is the main service
-and must be run by at least one process.
+Web 服务器承载应用本体和 API，因此它是最核心的 service，至少要有一个进程在运行。
 
 ## Websockets
 
-The websocket server is used to communicate with the frontend, it can be ran on
-the same box as the web server or separately.
+WebSocket 服务器用于与前端通信，它可以与 Web 服务器部署在同一台机器上，也可以独立部署。
 
 ## Worker
 
-At least one worker process is required to process the [queues](../server/queues).
+至少需要一个 worker 进程来处理[队列](../server/queues)。
 
 ## Collaboration
 
-The collaboration server coordinates all realtime editing and updating of documents,
-it can be ran on the same box as the web server or separately.
+Collaboration 服务器负责协调所有文档的实时编辑与更新，它可以与 Web 服务器部署在同一台机器上，也可以独立部署。
 
 ```bash
 yarn start --services=collaboration
 ```
 
-If the collaboration service is hosted on a separate domain then the `COLLABORATION_URL`
-env must be set to the publicly accessible URL. For example, if the app is hosted at
-`https://docs.example.com` you may use something like:
-`COLLABORATION_URL=wss://docs-collaboration.example.com`.
+如果 collaboration service 托管在独立的域名下，那么必须把 `COLLABORATION_URL` 环境变量设置为可公开访问的 URL。例如，如果应用托管在 `https://docs.example.com`，可以使用类似这样的配置：
+`COLLABORATION_URL=wss://docs-collaboration.example.com`。
