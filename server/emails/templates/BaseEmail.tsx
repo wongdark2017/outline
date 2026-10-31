@@ -110,11 +110,7 @@ export default abstract class BaseEmail<
     const bsResponse = await this.beforeSend?.(this.props);
 
     if (bsResponse === false) {
-      Logger.info(
-        "email",
-        `Email ${templateName} not sent due to beforeSend hook`,
-        this.props
-      );
+      this.logSkipped(this.props);
       return;
     }
 
@@ -232,6 +228,20 @@ export default abstract class BaseEmail<
 
   private pixel(notification: Notification) {
     return <img src={notification.pixelUrl} alt="" width="1" height="1" />;
+  }
+
+  /**
+   * Log a delivery skipped by the beforeSend hook.
+   *
+   * @param props the original queued email properties.
+   * @returns nothing.
+   */
+  protected logSkipped(props: T): void {
+    Logger.info(
+      "email",
+      `Email ${this.constructor.name} not sent due to beforeSend hook`,
+      props
+    );
   }
 
   /**

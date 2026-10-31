@@ -1,6 +1,10 @@
 import { faker } from "@faker-js/faker";
+import JWT from "jsonwebtoken";
 import { Plan, TeamPreference, UserRole } from "@shared/types";
 import ConfirmUpdateEmail from "@server/emails/templates/ConfirmUpdateEmail";
+import env from "@server/env";
+import Logger from "@server/logging/Logger";
+import { taskQueue } from "@server/queues";
 import { Team, TeamDomain } from "@server/models";
 import {
   buildTeam,
@@ -867,6 +871,51 @@ describe("#users.invite", () => {
   it("should require authentication", async () => {
     const res = await server.post("/api/users.invite");
     expect(res.status).toEqual(401);
+  });
+});
+
+describe("#users.resendInvite", () => {
+  it("schedules development resend mail without creating or logging a sign-in shortcut", async () => {
+    const smtpFromEmail = env.SMTP_FROM_EMAIL;
+    env.SMTP_FROM_EMAIL = "sender@example.com";
+    const development = vi
+      .spyOn(env, "isDevelopment", "get")
+      .mockReturnValue(true);
+    const token = vi.spyOn(JWT, "sign");
+    const logs = vi.spyOn(Logger, "info");
+    const enqueue = vi.spyOn(taskQueue(), "add");
+    onTestFinished(() => {
+      env.SMTP_FROM_EMAIL = smtpFromEmail;
+      development.mockRestore();
+      token.mockRestore();
+      logs.mockRestore();
+      enqueue.mockRestore();
+    });
+    const actor = await buildAdmin();
+    const invite = await buildInvite({
+      teamId: actor.teamId,
+      invitedById: actor.id,
+    });
+
+    const res = await server.post("/api/users.resendInvite", actor, {
+      body: { id: invite.id },
+    });
+
+    expect(res.status).toBe(200);
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "EmailTask",
+        props: expect.objectContaining({ templateName: "InviteEmail" }),
+      }),
+      expect.any(Object)
+    );
+    expect(token).not.toHaveBeenCalledWith(
+      expect.objectContaining({ type: "email-signin" }),
+      expect.anything()
+    );
+    expect(JSON.stringify(logs.mock.calls)).not.toMatch(
+      /Sign in immediately|token=/
+    );
   });
 });
 

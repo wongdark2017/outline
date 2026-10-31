@@ -7,6 +7,7 @@ import env from "@server/env";
 import Metrics from "@server/logging/Metrics";
 import Sentry from "@server/logging/sentry";
 import ShutdownHelper from "@server/utils/ShutdownHelper";
+import { EmailSigninError } from "@server/utils/emailSigninRedaction";
 import * as Tracing from "./tracer";
 
 type LogCategory =
@@ -157,6 +158,14 @@ class Logger {
       this.output.error(message, {
         error: error.message,
         stack: error.stack,
+        ...(error instanceof EmailSigninError
+          ? {
+              name: error.name,
+              code: error.code,
+              responseCode: error.responseCode,
+              command: error.command,
+            }
+          : {}),
       });
     } else {
       console.error(message);

@@ -52,7 +52,7 @@ import env from "@server/env";
 import DeleteAttachmentTask from "@server/queues/tasks/DeleteAttachmentTask";
 import { LockHelper } from "@server/storage/LockHelper";
 import type { APIContext } from "@server/types";
-import { VerificationCode } from "@server/utils/VerificationCode";
+import { EmailSigninRequest } from "@server/utils/EmailSigninRequest";
 import parseAttachmentIds from "@server/utils/parseAttachmentIds";
 import { CacheHelper } from "@server/utils/CacheHelper";
 import { normalizeIp } from "@server/utils/ip";
@@ -73,6 +73,13 @@ import IsUrlOrRelativePath from "./validators/IsUrlOrRelativePath";
 import Length from "./validators/Length";
 import NotContainsUrl from "./validators/NotContainsUrl";
 import { SkipChangeset } from "./decorators/Changeset";
+
+/** Original request metadata used to issue an email sign-in token in the worker. */
+export interface EmailSigninTokenInput {
+  requestIp: string;
+  requestId: string;
+  requestedAt: number;
+}
 
 /**
  * Flags that are available for setting on the user.
@@ -677,38 +684,39 @@ class User extends ParanoidModel<
     );
 
   /**
-   * Returns a temporary token that is only used for logging in from an email.
-   * It can only be used to sign in once, from the IP address that requested
-   * it, and expires after 10 minutes.
+   * Returns an IP-bound email token using the original admitted request deadline.
    *
-   * @param ctx The request context, used to get the IP address of the request
-   * @returns The email signin token
+   * @param input the original admitted request metadata.
+   * @returns the signed email sign-in token.
+   * @throws ValidationError if explicit request metadata is invalid or expired.
    */
-  getEmailSigninToken = (ctx: Context) =>
-    JWT.sign(
+  getEmailSigninToken = (input: EmailSigninTokenInput): string => {
+    const { requestedAt, requestIp } = input;
+    const deadline = EmailSigninRequest.getDeadline(requestedAt);
+    if (
+      !requestIp ||
+      !EmailSigninRequest.isValid({
+        teamId: this.teamId,
+        email: this.email ?? "",
+        requestId: input.requestId,
+        requestedAt,
+      })
+    ) {
+      throw ValidationError("Invalid email sign-in request");
+    }
+    return JWT.sign(
       {
         id: this.id,
-        ip: ctx.request.ip,
-        createdAt: new Date().toISOString(),
+        ip: requestIp,
+        createdAt: new Date(requestedAt).toISOString(),
         type: "email-signin",
+        requestId: input.requestId,
+        requestedAt,
+        expiresAt: new Date(deadline).toISOString(),
+        jti: crypto.randomUUID(),
       },
       this.jwtSecret
     );
-
-  /**
-   * Generate a 6-digit verification code for email authentication
-   * and store it in Redis with a 10-minute TTL.
-   *
-   * @returns The 6-digit verification code
-   */
-  getEmailVerificationCode = async (): Promise<string> => {
-    if (!this.email) {
-      throw ValidationError("Email is required");
-    }
-
-    const code = VerificationCode.generate();
-    await VerificationCode.store(this.teamId, this.email, code);
-    return code;
   };
 
   /**
