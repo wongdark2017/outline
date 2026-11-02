@@ -5,7 +5,10 @@ import { DocumentValidation } from "@shared/validations";
 import { serializer } from "@server/editor";
 import { traceFunction } from "@server/logging/tracing";
 import type { User } from "@server/models";
-import { ProsemirrorHelper } from "@server/models/helpers/ProsemirrorHelper";
+import {
+  ProsemirrorHelper,
+  type ReplaceImagesOptions,
+} from "@server/models/helpers/ProsemirrorHelper";
 import type { APIContext } from "@server/types";
 import { DocumentConverter } from "@server/converters/DocumentConverter";
 import { InvalidRequestError } from "../errors";
@@ -16,6 +19,9 @@ type Props = {
   fileName: string;
   content: Buffer | string;
   ctx: APIContext;
+
+  /** Expiry for created attachments and a callback reporting each one. */
+  attachmentOptions?: ReplaceImagesOptions;
 };
 
 type ImportResult = {
@@ -51,6 +57,7 @@ async function documentImporter({
   content,
   user,
   ctx,
+  attachmentOptions,
 }: Props): Promise<ImportResult> {
   // Find valid extensions and remove them from the title
   const extensions = [
@@ -87,7 +94,8 @@ async function documentImporter({
   const processedDoc = await ProsemirrorHelper.replaceImagesWithAttachments(
     ctx,
     doc,
-    user
+    user,
+    attachmentOptions
   );
 
   // Serialize final text and handle empty documents

@@ -94,6 +94,15 @@ export type MentionAttrs = {
   unfurl?: UnfurlResponse[keyof UnfurlResponse];
 };
 
+/** Options for attachments created while replacing document images and embedded files. */
+export interface ReplaceImagesOptions {
+  /** Expiry for each created attachment, so it is removed unless kept. */
+  expiresAt?: Date;
+
+  /** Called synchronously with each created attachment. */
+  onAttachment?: (attachment: Attachment) => void;
+}
+
 const pluginsWithSafeDecorations = new WeakSet<Plugin>();
 
 // jsdom does not implement ResizeObserver, and the exported document never
@@ -1213,12 +1222,14 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
    * @param ctx The API context.
    * @param doc The Prosemirror node to process.
    * @param user The user context.
+   * @param options the attachment expiry and callback reporting created attachments.
    * @returns A new Prosemirror node with images and embedded files replaced.
    */
   static async replaceImagesWithAttachments(
     ctx: APIContext,
     doc: Node,
-    user: User
+    user: User,
+    options: ReplaceImagesOptions = {}
   ): Promise<Node> {
     const images = ProsemirrorHelper.getImages(doc);
     const videos = ProsemirrorHelper.getVideos(doc);
@@ -1286,11 +1297,13 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
               fetchOptions: {
                 timeout: timeoutPerImage,
               },
+              expiresAt: options.expiresAt,
               ctx,
             });
 
             if (attachment) {
               urlToAttachment.set(src, attachment);
+              options.onAttachment?.(attachment);
             }
           } catch (err) {
             Logger.warn("Failed to download image for attachment", {
