@@ -97,3 +97,59 @@ Cover server/client getters, both env values, missing/explicit preferences, inva
 Wrong: compare incoming emailSigninMethod to team.getPreference(key), or bind a controlled selector only to the resolved fallback. Both can suppress an explicit equal-to-default choice.
 
 Correct: compare raw stored JSON, keep the selector's raw value distinct from its display fallback, and use the shared resolver at each policy consumer. Return method from the server and let the waiting screen follow the response.
+
+## Scenario: Temporary import attachments and atomic retention
+
+### 1. Scope / Trigger
+
+Document imports upload files and create Attachment records before opening their document transaction. A1 requires eventual removal of failed imports' attachment records and best-effort logged file deletion. B1 applies that lifecycle to single-file imports too. This contract spans attachmentCreator, documentImporter, ProsemirrorHelper and DocumentImportTask; no migration or new file-deletion queue is required.
+
+### 2. Signatures
+
+- `attachmentCreator({ ..., expiresAt?: Date }): Promise<Attachment | undefined>` creates an optionally expiring attachment.
+- `ReplaceImagesOptions { expiresAt?: Date; onAttachment?: (attachment: Attachment) => void }` is the optional fourth argument to `ProsemirrorHelper.replaceImagesWithAttachments`.
+- `documentImporter({ ..., attachmentOptions?: ReplaceImagesOptions })` passes both fields through to image conversion.
+- Task-local `ImportAttachments.keep(transaction: Transaction): Promise<void>` clears expiry; `discard(): Promise<void>` attempts cleanup without replacing the import error.
+
+### 3. Contracts
+
+New import attachments receive `AttachmentHelper.presetToExpiry(AttachmentPreset.Import)` (24 hours). Track both directly uploaded files and remote/data images reported synchronously through onAttachment. Conversion and uploads stay outside the document transaction. In the same transaction as document creation, retain tracked attachments:
+
+```typescript
+await Attachment.update(
+  { expiresAt: null },
+  {
+    where: { id: this.attachments.map((attachment) => attachment.id) },
+    transaction,
+  }
+);
+```
+
+Failure rolls back documents and expiry clearing together, then discards tracked attachments. Surviving records retain their expiry for the existing hourly CleanupExpiredAttachmentsTask; cron and the database must be operating for eventual cleanup. Staged-upload deletion and rejected discard results are logged without changing the success/error result. Ordinary callers that omit the new options keep permanent attachments as before.
+
+After a storage write, attachmentCreator compensates failed record creation by deleting that key and rethrowing the original error. If a caller supplied an id and insertion raises UniqueConstraintError, do not delete: another concurrent creator may have won using the same user/id/name-derived key. File-deletion failures after record removal and crashes between storage and record creation remain accepted A1 gaps. Ambiguous commit acknowledgement and HTTP request timeout are separately recorded limitations.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Import succeeds | Reloaded attachments have expiresAt null; document and retention commit together. |
+| Conversion/document/retention fails | Preserve original error, roll back documents and retention, attempt tracked attachment deletion. |
+| Discard fails | Log attachment id and error; record keeps expiry and remains eligible for the hourly cleanup job. |
+| Staged-file deletion fails | Log storage key and error; committed success stays success and an import error stays the original error. |
+| Attachment row insertion fails after upload | Compensate stored file and rethrow the original insertion error, even if compensation also fails. |
+| Concurrent same supplied id | Preserve the winner's record/file; unique-constraint failure must not delete their shared key. |
+
+### 5. Good / Base / Bad Cases
+
+Good: an image is created temporary before conversion; document creation and expiry clearing commit together. Base: a non-import caller omits expiresAt and retains its existing permanent-attachment behavior. Bad: clearing expiry after committing documents can leave valid documents whose images later expire; unconditionally deleting after an ID collision can break the concurrent winner.
+
+### 6. Tests Required
+
+Use attachmentCreator.test.ts and DocumentImportTask.test.ts. Reload records to verify persisted expiry and its transaction rollback. Exercise actual data/remote uploads before injecting failure and assert creation counts: FileStorage.store spies must resolve to a URL because storeFromUrl treats undefined as a skipped upload. Test compensation and original-error identity, a same-user/same-id concurrent barrier, staged deletion preserving both outcomes, failed discard retaining expiry, and subsequent cleanup by the actual existing expiry task. Restore spies, Sequelize hooks and stubbed proxy environment after each test.
+
+### 7. Wrong vs Correct
+
+Wrong: only track images uploaded directly by the task, create downloaded images permanently, or let finally throw a staged-cleanup error.
+
+Correct: pass attachmentOptions through conversion, register each created attachment, clear expiry inside the document transaction and keep cleanup failures separate from the business result.
