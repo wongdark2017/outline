@@ -1,0 +1,260 @@
+category,module,method,path,availability,source,line,schema_file
+core_api,accessRequests,POST,/api/accessRequests.approve,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/accessRequests/accessRequests.ts,88,server/routes/api/accessRequests/schema.ts
+core_api,accessRequests,POST,/api/accessRequests.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/accessRequests/accessRequests.ts,17,server/routes/api/accessRequests/schema.ts
+core_api,accessRequests,POST,/api/accessRequests.dismiss,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/accessRequests/accessRequests.ts,144,server/routes/api/accessRequests/schema.ts
+core_api,accessRequests,POST,/api/accessRequests.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/accessRequests/accessRequests.ts,55,server/routes/api/accessRequests/schema.ts
+core_api,apiKeys,POST,/api/apiKeys.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/apiKeys/apiKeys.ts,19,server/routes/api/apiKeys/schema.ts
+core_api,apiKeys,POST,/api/apiKeys.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/apiKeys/apiKeys.ts,116,server/routes/api/apiKeys/schema.ts
+core_api,apiKeys,POST,/api/apiKeys.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/apiKeys/apiKeys.ts,48,server/routes/api/apiKeys/schema.ts
+core_api,attachments,POST,/api/attachments.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,83,server/routes/api/attachments/schema.ts
+core_api,attachments,POST,/api/attachments.createFromUrl,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,201,server/routes/api/attachments/schema.ts
+core_api,attachments,POST,/api/attachments.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,272,server/routes/api/attachments/schema.ts
+core_api,attachments,POST,/api/attachments.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,34,server/routes/api/attachments/schema.ts
+core_api,attachments,GET,/api/attachments.redirect,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,344,server/routes/api/attachments/schema.ts
+core_api,attachments,POST,/api/attachments.redirect,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/attachments/attachments.ts,344,server/routes/api/attachments/schema.ts
+core_api,auth,POST,/api/auth.config,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/auth/auth.ts,29,server/routes/api/auth/schema.ts
+core_api,auth,POST,/api/auth.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/auth/auth.ts,186,server/routes/api/auth/schema.ts
+core_api,auth,POST,/api/auth.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/auth/auth.ts,122,server/routes/api/auth/schema.ts
+core_api,authenticationProviders,POST,/api/authenticationProviders.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/authenticationProviders/authenticationProviders.ts,138,server/routes/api/authenticationProviders/schema.ts
+core_api,authenticationProviders,POST,/api/authenticationProviders.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/authenticationProviders/authenticationProviders.ts,21,server/routes/api/authenticationProviders/schema.ts
+core_api,authenticationProviders,POST,/api/authenticationProviders.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/authenticationProviders/authenticationProviders.ts,173,server/routes/api/authenticationProviders/schema.ts
+core_api,authenticationProviders,POST,/api/authenticationProviders.startGroupSync,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/authenticationProviders/authenticationProviders.ts,101,server/routes/api/authenticationProviders/schema.ts
+core_api,authenticationProviders,POST,/api/authenticationProviders.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/authenticationProviders/authenticationProviders.ts,39,server/routes/api/authenticationProviders/schema.ts
+core_api,batch,POST,/api/batch,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/batch/batch.ts,205,server/routes/api/batch/schema.ts
+core_api,collections,POST,/api/collections.add_group,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,235,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.add_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,392,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.archive,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,895,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,59,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,866,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.documents,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,168,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.duplicate,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,116,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.export,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,537,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.export_all,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,571,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.group_memberships,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,327,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.import,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,189,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,146,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,755,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.memberships,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,476,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.move,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,976,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.remove_group,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,286,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.remove_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,443,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.restore,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,926,server/routes/api/collections/schema.ts
+core_api,collections,POST,/api/collections.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/collections/collections.ts,600,server/routes/api/collections/schema.ts
+core_api,comments,POST,/api/comments.add_reaction,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,399,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,26,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,293,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,133,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,162,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.remove_reaction,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,455,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.resolve,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,327,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.unresolve,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,363,server/routes/api/comments/schema.ts
+core_api,comments,POST,/api/comments.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/comments/comments.ts,217,server/routes/api/comments/schema.ts
+core_api,cron,GET,/api/cron.:period,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/cron/cron.ts,102,server/routes/api/cron/schema.ts
+core_api,cron,POST,/api/cron.:period,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/cron/cron.ts,102,server/routes/api/cron/schema.ts
+core_api,cron,GET,/api/utils.gc,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/cron/cron.ts,109,server/routes/api/cron/schema.ts
+core_api,cron,POST,/api/utils.gc,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/cron/cron.ts,109,server/routes/api/cron/schema.ts
+core_api,developer,POST,/api/developer.create_test_notifications,仅开发环境挂载,server/routes/api/developer/developer.ts,67,server/routes/api/developer/schema.ts
+core_api,developer,POST,/api/developer.create_test_users,仅开发环境挂载,server/routes/api/developer/developer.ts,30,server/routes/api/developer/schema.ts
+core_api,documents,POST,/api/documents.add_group,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2058,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.add_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1917,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.archive,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1658,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.archived,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,476,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1838,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1689,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.deleted,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,533,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.documents,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,934,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.drafts,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,672,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.duplicate,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1524,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.empty_trash,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2286,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.export,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,963,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.group_memberships,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2222,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.import,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1762,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,729,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.insights,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,810,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,200,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.memberships,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2162,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.move,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1602,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.remove_group,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2119,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.remove_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,2006,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.restore,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1168,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.search,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1244,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.search_titles,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1194,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.templatize,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1409,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.unpublish,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1738,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,1464,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.users,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,848,server/routes/api/documents/schema.ts
+core_api,documents,POST,/api/documents.viewed,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/documents/documents.ts,605,server/routes/api/documents/schema.ts
+core_api,emojis,POST,/api/emojis.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,166,server/routes/api/emojis/schema.ts
+core_api,emojis,POST,/api/emojis.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,250,server/routes/api/emojis/schema.ts
+core_api,emojis,POST,/api/emojis.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,23,server/routes/api/emojis/schema.ts
+core_api,emojis,POST,/api/emojis.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,114,server/routes/api/emojis/schema.ts
+core_api,emojis,GET,/api/emojis.redirect,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,70,server/routes/api/emojis/schema.ts
+core_api,emojis,POST,/api/emojis.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/emojis/emojis.ts,200,server/routes/api/emojis/schema.ts
+core_api,events,POST,/api/events.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/events/events.ts,17,server/routes/api/events/schema.ts
+core_api,fileOperations,POST,/api/fileOperations.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/fileOperations/fileOperations.ts,126,server/routes/api/fileOperations/schema.ts
+core_api,fileOperations,POST,/api/fileOperations.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/fileOperations/fileOperations.ts,18,server/routes/api/fileOperations/schema.ts
+core_api,fileOperations,POST,/api/fileOperations.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/fileOperations/fileOperations.ts,39,server/routes/api/fileOperations/schema.ts
+core_api,fileOperations,GET,/api/fileOperations.redirect,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/fileOperations/fileOperations.ts,116,server/routes/api/fileOperations/schema.ts
+core_api,fileOperations,POST,/api/fileOperations.redirect,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/fileOperations/fileOperations.ts,116,server/routes/api/fileOperations/schema.ts
+core_api,groupMemberships,POST,/api/groupMemberships.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groupMemberships/groupMemberships.ts,19,server/routes/api/groupMemberships/schema.ts
+core_api,groups,POST,/api/groups.add_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,465,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,229,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,320,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.deleteAll,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,348,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,191,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,47,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.memberships,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,396,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.remove_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,542,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,262,server/routes/api/groups/schema.ts
+core_api,groups,POST,/api/groups.update_user,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/groups/groups.ts,599,server/routes/api/groups/schema.ts
+core_api,imports,POST,/api/imports.cancel,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/imports/imports.ts,184,server/routes/api/imports/schema.ts
+core_api,imports,POST,/api/imports.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/imports/imports.ts,23,server/routes/api/imports/schema.ts
+core_api,imports,POST,/api/imports.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/imports/imports.ts,159,server/routes/api/imports/schema.ts
+core_api,imports,POST,/api/imports.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/imports/imports.ts,139,server/routes/api/imports/schema.ts
+core_api,imports,POST,/api/imports.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/imports/imports.ts,99,server/routes/api/imports/schema.ts
+core_api,installation,POST,/api/installation.create,仅非云托管环境挂载,server/routes/api/installation/installation.ts,17,server/routes/api/installation/schema.ts
+core_api,installation,POST,/api/installation.info,仅非云托管环境挂载,server/routes/api/installation/installation.ts,54,server/routes/api/installation/schema.ts
+core_api,integrations,POST,/api/integrations.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/integrations/integrations.ts,71,server/routes/api/integrations/schema.ts
+core_api,integrations,POST,/api/integrations.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/integrations/integrations.ts,151,server/routes/api/integrations/schema.ts
+core_api,integrations,POST,/api/integrations.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/integrations/integrations.ts,98,server/routes/api/integrations/schema.ts
+core_api,integrations,POST,/api/integrations.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/integrations/integrations.ts,19,server/routes/api/integrations/schema.ts
+core_api,integrations,POST,/api/integrations.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/integrations/integrations.ts,118,server/routes/api/integrations/schema.ts
+core_api,notifications,POST,/api/notifications.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,82,server/routes/api/notifications/schema.ts
+core_api,notifications,GET,/api/notifications.pixel,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,143,server/routes/api/notifications/schema.ts
+core_api,notifications,GET,/api/notifications.unsubscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,58,server/routes/api/notifications/schema.ts
+core_api,notifications,POST,/api/notifications.unsubscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,75,server/routes/api/notifications/schema.ts
+core_api,notifications,POST,/api/notifications.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,182,server/routes/api/notifications/schema.ts
+core_api,notifications,POST,/api/notifications.update_all,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/notifications/notifications.ts,217,server/routes/api/notifications/schema.ts
+core_api,oauthAuthentications,POST,/api/oauthAuthentications.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthAuthentications/oauthAuthentications.ts,61,server/routes/api/oauthAuthentications/schema.ts
+core_api,oauthAuthentications,POST,/api/oauthAuthentications.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthAuthentications/oauthAuthentications.ts,19,server/routes/api/oauthAuthentications/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,120,server/routes/api/oauthClients/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,199,server/routes/api/oauthClients/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,79,server/routes/api/oauthClients/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,41,server/routes/api/oauthClients/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.rotate_secret,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,171,server/routes/api/oauthClients/schema.ts
+core_api,oauthClients,POST,/api/oauthClients.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/oauthClients/oauthClients.ts,145,server/routes/api/oauthClients/schema.ts
+core_api,pins,POST,/api/pins.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/pins/pins.ts,22,server/routes/api/pins/schema.ts
+core_api,pins,POST,/api/pins.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/pins/pins.ts,194,server/routes/api/pins/schema.ts
+core_api,pins,POST,/api/pins.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/pins/pins.ts,64,server/routes/api/pins/schema.ts
+core_api,pins,POST,/api/pins.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/pins/pins.ts,100,server/routes/api/pins/schema.ts
+core_api,pins,POST,/api/pins.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/pins/pins.ts,159,server/routes/api/pins/schema.ts
+core_api,reactions,POST,/api/reactions.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/reactions/reactions.ts,14,server/routes/api/reactions/schema.ts
+core_api,relationships,POST,/api/relationships.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/relationships/relationships.ts,18,server/routes/api/relationships/schema.ts
+core_api,relationships,POST,/api/relationships.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/relationships/relationships.ts,56,server/routes/api/relationships/schema.ts
+core_api,revisions,POST,/api/revisions.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/revisions/revisions.ts,99,server/routes/api/revisions/schema.ts
+core_api,revisions,POST,/api/revisions.export,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/revisions/revisions.ts,133,server/routes/api/revisions/schema.ts
+core_api,revisions,POST,/api/revisions.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/revisions/revisions.ts,29,server/routes/api/revisions/schema.ts
+core_api,revisions,POST,/api/revisions.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/revisions/revisions.ts,278,server/routes/api/revisions/schema.ts
+core_api,revisions,POST,/api/revisions.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/revisions/revisions.ts,70,server/routes/api/revisions/schema.ts
+core_api,searches,POST,/api/searches.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/searches/searches.ts,69,server/routes/api/searches/schema.ts
+core_api,searches,POST,/api/searches.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/searches/searches.ts,13,server/routes/api/searches/schema.ts
+core_api,searches,POST,/api/searches.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/searches/searches.ts,40,server/routes/api/searches/schema.ts
+core_api,shares,GET,/api/shares.confirmSubscription,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,566,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,263,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,52,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,159,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.revoke,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,424,server/routes/api/shares/schema.ts
+core_api,shares,GET,/api/shares.sitemap,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,448,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.subscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,476,server/routes/api/shares/schema.ts
+core_api,shares,GET,/api/shares.unsubscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,628,server/routes/api/shares/schema.ts
+core_api,shares,POST,/api/shares.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/shares/shares.ts,350,server/routes/api/shares/schema.ts
+core_api,stars,POST,/api/stars.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/stars/stars.ts,23,server/routes/api/stars/schema.ts
+core_api,stars,POST,/api/stars.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/stars/stars.ts,147,server/routes/api/stars/schema.ts
+core_api,stars,POST,/api/stars.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/stars/stars.ts,65,server/routes/api/stars/schema.ts
+core_api,stars,POST,/api/stars.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/stars/stars.ts,122,server/routes/api/stars/schema.ts
+core_api,subscriptions,POST,/api/subscriptions.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/subscriptions/subscriptions.ts,118,server/routes/api/subscriptions/schema.ts
+core_api,subscriptions,GET,/api/subscriptions.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/subscriptions/subscriptions.ts,157,server/routes/api/subscriptions/schema.ts
+core_api,subscriptions,POST,/api/subscriptions.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/subscriptions/subscriptions.ts,244,server/routes/api/subscriptions/schema.ts
+core_api,subscriptions,POST,/api/subscriptions.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/subscriptions/subscriptions.ts,71,server/routes/api/subscriptions/schema.ts
+core_api,subscriptions,POST,/api/subscriptions.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/subscriptions/subscriptions.ts,24,server/routes/api/subscriptions/schema.ts
+core_api,suggestions,POST,/api/suggestions.mention,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/suggestions/suggestions.ts,25,server/routes/api/suggestions/schema.ts
+core_api,teams,POST,/api/team.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/teams/teams.ts,44,server/routes/api/teams/schema.ts
+core_api,teams,POST,/api/teams.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/teams/teams.ts,117,server/routes/api/teams/schema.ts
+core_api,teams,POST,/api/teams.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/teams/teams.ts,87,server/routes/api/teams/schema.ts
+core_api,teams,POST,/api/teams.requestDelete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/teams/teams.ts,62,server/routes/api/teams/schema.ts
+core_api,teams,POST,/api/teams.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/teams/teams.ts,53,server/routes/api/teams/schema.ts
+core_api,templates,POST,/api/templates.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,21,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,195,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.duplicate,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,247,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,174,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,77,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.restore,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,220,server/routes/api/templates/schema.ts
+core_api,templates,POST,/api/templates.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/templates/templates.ts,303,server/routes/api/templates/schema.ts
+core_api,urls,POST,/api/urls.checkEmbed,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/urls/urls.ts,240,server/routes/api/urls/schema.ts
+core_api,urls,POST,/api/urls.unfurl,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/urls/urls.ts,39,server/routes/api/urls/schema.ts
+core_api,urls,POST,/api/urls.validateCustomDomain,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/urls/urls.ts,260,server/routes/api/urls/schema.ts
+core_api,userMemberships,POST,/api/userMemberships.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/userMemberships/userMemberships.ts,19,server/routes/api/userMemberships/schema.ts
+core_api,userMemberships,POST,/api/userMemberships.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/userMemberships/userMemberships.ts,78,server/routes/api/userMemberships/schema.ts
+core_api,users,POST,/api/users.activate,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,453,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.delete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,595,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.demote,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,341,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.info,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,140,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.invite,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,490,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,40,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.notificationsSubscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,636,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.notificationsUnsubscribe,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,660,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.promote,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,317,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.requestDelete,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,569,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.resendInvite,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,521,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.suspend,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,416,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.update,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,255,server/routes/api/users/schema.ts
+core_api,users,GET,/api/users.updateEmail,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,202,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.updateEmail,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,160,server/routes/api/users/schema.ts
+core_api,users,POST,/api/users.update_role,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/users/users.ts,360,server/routes/api/users/schema.ts
+core_api,views,POST,/api/views.create,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/views/views.ts,43,server/routes/api/views/schema.ts
+core_api,views,POST,/api/views.list,核心路由；调用受端点鉴权与业务条件限制,server/routes/api/views/views.ts,17,server/routes/api/views/schema.ts
+plugin_api,figma,GET,/api/figma.callback,FIGMA_CLIENT_ID 与 FIGMA_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/figma/server/api/figma.ts,24,plugins/figma/server/api/schema.ts
+plugin_api,github,GET,/api/github.callback,GITHUB_CLIENT_ID、GITHUB_CLIENT_SECRET、GITHUB_APP_NAME、GITHUB_APP_ID、GITHUB_APP_PRIVATE_KEY 全部存在；调用仍受端点鉴权与业务条件限制,plugins/github/server/api/github.ts,22,plugins/github/server/api/schema.ts
+plugin_api,github,POST,/api/github.webhooks,GITHUB_CLIENT_ID、GITHUB_CLIENT_SECRET、GITHUB_APP_NAME、GITHUB_APP_ID、GITHUB_APP_PRIVATE_KEY 全部存在；调用仍受端点鉴权与业务条件限制,plugins/github/server/api/github.ts,111,plugins/github/server/api/schema.ts
+plugin_api,gitlab,GET,/api/gitlab.callback,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/gitlab/server/api/gitlab.ts,138,plugins/gitlab/server/api/schema.ts
+plugin_api,gitlab,POST,/api/gitlab.connect,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/gitlab/server/api/gitlab.ts,36,plugins/gitlab/server/api/schema.ts
+plugin_api,gitlab,POST,/api/gitlab.webhooks,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/gitlab/server/api/gitlab.ts,303,plugins/gitlab/server/api/schema.ts
+plugin_api,linear,GET,/api/linear.callback,LINEAR_CLIENT_ID 与 LINEAR_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/linear/server/api/linear.ts,24,plugins/linear/server/api/schema.ts
+plugin_api,notion,GET,/api/notion.callback,NOTION_CLIENT_ID 与 NOTION_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/notion/server/api/notion.ts,20,plugins/notion/server/api/schema.ts
+plugin_api,passkeys,POST,/api/passkeys.delete,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/api/passkeys.ts,62,plugins/passkeys/server/api/schema.ts
+plugin_api,passkeys,POST,/api/passkeys.list,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/api/passkeys.ts,15,plugins/passkeys/server/api/schema.ts
+plugin_api,passkeys,POST,/api/passkeys.update,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/api/passkeys.ts,38,plugins/passkeys/server/api/schema.ts
+plugin_api,slack,POST,/api/hooks.interactive,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/api/hooks.ts,136,plugins/slack/server/api/schema.ts
+plugin_api,slack,POST,/api/hooks.slack,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/api/hooks.ts,193,plugins/slack/server/api/schema.ts
+plugin_api,slack,POST,/api/hooks.unfurl,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/api/hooks.ts,41,plugins/slack/server/api/schema.ts
+plugin_api,storage,POST,/api/files.create,FILE_STORAGE=local；FILE_STORAGE_UPLOAD_MAX_SIZE 与 FILE_STORAGE_LOCAL_ROOT_DIR 为真值；调用仍受端点鉴权与业务条件限制,plugins/storage/server/api/files.ts,31,plugins/storage/server/api/schema.ts
+plugin_api,storage,GET,/api/files.get,FILE_STORAGE=local；FILE_STORAGE_UPLOAD_MAX_SIZE 与 FILE_STORAGE_LOCAL_ROOT_DIR 为真值；调用仍受端点鉴权与业务条件限制,plugins/storage/server/api/files.ts,102,plugins/storage/server/api/schema.ts
+plugin_api,webhooks,POST,/api/webhookSubscriptions.create,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/webhooks/server/api/webhookSubscriptions.ts,80,plugins/webhooks/server/api/schema.ts
+plugin_api,webhooks,POST,/api/webhookSubscriptions.delete,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/webhooks/server/api/webhookSubscriptions.ts,110,plugins/webhooks/server/api/schema.ts
+plugin_api,webhooks,POST,/api/webhookSubscriptions.list,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/webhooks/server/api/webhookSubscriptions.ts,21,plugins/webhooks/server/api/schema.ts
+plugin_api,webhooks,POST,/api/webhookSubscriptions.update,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/webhooks/server/api/webhookSubscriptions.ts,139,plugins/webhooks/server/api/schema.ts
+core_auth,auth,GET,/auth/redirect,web 服务挂载；调用受端点身份与业务校验限制,server/routes/auth/index.ts,37,
+plugin_auth,azure,GET,/auth/azure,AZURE_CLIENT_ID 与 AZURE_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/azure/server/auth/azure.ts,222,
+plugin_auth,azure,GET,/auth/azure.callback,AZURE_CLIENT_ID 与 AZURE_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/azure/server/auth/azure.ts,227,
+plugin_auth,discord,GET,/auth/discord,DISCORD_CLIENT_ID 与 DISCORD_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/discord/server/auth/discord.ts,235,
+plugin_auth,discord,GET,/auth/discord.callback,DISCORD_CLIENT_ID 与 DISCORD_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/discord/server/auth/discord.ts,242,
+plugin_auth,email,POST,/auth/email,SMTP_HOST、SMTP_SERVICE 任一存在，或开发环境；调用仍受端点鉴权与业务条件限制,plugins/email/server/auth/email.ts,26,plugins/email/server/auth/schema.ts
+plugin_auth,email,GET,/auth/email.callback,SMTP_HOST、SMTP_SERVICE 任一存在，或开发环境；调用仍受端点鉴权与业务条件限制,plugins/email/server/auth/email.ts,216,plugins/email/server/auth/schema.ts
+plugin_auth,email,POST,/auth/email.callback,SMTP_HOST、SMTP_SERVICE 任一存在，或开发环境；调用仍受端点鉴权与业务条件限制,plugins/email/server/auth/email.ts,216,plugins/email/server/auth/schema.ts
+plugin_auth,google,GET,/auth/google,GOOGLE_CLIENT_ID 与 GOOGLE_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/google/server/auth/google.ts,171,
+plugin_auth,google,GET,/auth/google.callback,GOOGLE_CLIENT_ID 与 GOOGLE_CLIENT_SECRET；调用仍受端点鉴权与业务条件限制,plugins/google/server/auth/google.ts,195,
+plugin_auth,oidc,GET,/auth/oidc,OIDC_CLIENT_ID 与 OIDC_CLIENT_SECRET；配置 OIDC_AUTH_URI、OIDC_TOKEN_URI、OIDC_USERINFO_URI，或配置 OIDC_ISSUER_URL 且发现流程成功；调用仍受端点鉴权与业务条件限制,plugins/oidc/server/auth/oidcRouter.ts,277,
+plugin_auth,oidc,GET,/auth/oidc.callback,OIDC_CLIENT_ID 与 OIDC_CLIENT_SECRET；配置 OIDC_AUTH_URI、OIDC_TOKEN_URI、OIDC_USERINFO_URI，或配置 OIDC_ISSUER_URL 且发现流程成功；调用仍受端点鉴权与业务条件限制,plugins/oidc/server/auth/oidcRouter.ts,278,
+plugin_auth,oidc,POST,/auth/oidc.callback,OIDC_CLIENT_ID 与 OIDC_CLIENT_SECRET；配置 OIDC_AUTH_URI、OIDC_TOKEN_URI、OIDC_USERINFO_URI，或配置 OIDC_ISSUER_URL 且发现流程成功；调用仍受端点鉴权与业务条件限制,plugins/oidc/server/auth/oidcRouter.ts,278,
+plugin_auth,oidc,GET,/auth/oidc.logout,OIDC_CLIENT_ID 与 OIDC_CLIENT_SECRET；配置 OIDC_AUTH_URI、OIDC_TOKEN_URI、OIDC_USERINFO_URI，或配置 OIDC_ISSUER_URL 且发现流程成功；调用仍受端点鉴权与业务条件限制,plugins/oidc/server/auth/oidcRouter.ts,289,
+plugin_auth,passkeys,GET,/auth/passkey,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/auth/passkeys.ts,253,plugins/passkeys/server/auth/schema.ts
+plugin_auth,passkeys,POST,/auth/passkeys.generateAuthenticationOptions,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/auth/passkeys.ts,257,plugins/passkeys/server/auth/schema.ts
+plugin_auth,passkeys,POST,/auth/passkeys.generateRegistrationOptions,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/auth/passkeys.ts,93,plugins/passkeys/server/auth/schema.ts
+plugin_auth,passkeys,POST,/auth/passkeys.verifyAuthentication,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/auth/passkeys.ts,279,plugins/passkeys/server/auth/schema.ts
+plugin_auth,passkeys,POST,/auth/passkeys.verifyRegistration,插件入口无额外环境开关；调用仍受端点鉴权与业务条件限制,plugins/passkeys/server/auth/passkeys.ts,132,plugins/passkeys/server/auth/schema.ts
+plugin_auth,slack,GET,/auth/slack,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/auth/slack.ts,143,plugins/slack/server/auth/schema.ts
+plugin_auth,slack,GET,/auth/slack.callback,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/auth/slack.ts,144,plugins/slack/server/auth/schema.ts
+plugin_auth,slack,GET,/auth/slack.post,SLACK_CLIENT_ID 与 SLACK_CLIENT_SECRET；兼容旧配置名称；调用仍受端点鉴权与业务条件限制,plugins/slack/server/auth/slack.ts,146,plugins/slack/server/auth/schema.ts
+oauth,oauth,POST,/oauth/authorize,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,45,server/routes/oauth/schema.ts
+oauth,oauth,POST,/oauth/register,OAUTH_DISABLE_DCR 未禁用注册；存在团队且团队启用 MCP,server/routes/oauth/index.ts,207,server/routes/oauth/schema.ts
+oauth,oauth,DELETE,/oauth/register/:clientId,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,335,server/routes/oauth/schema.ts
+oauth,oauth,GET,/oauth/register/:clientId,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,278,server/routes/oauth/schema.ts
+oauth,oauth,PUT,/oauth/register/:clientId,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,290,server/routes/oauth/schema.ts
+oauth,oauth,POST,/oauth/revoke,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,180,server/routes/oauth/schema.ts
+oauth,oauth,POST,/oauth/token,web 服务挂载；调用受端点身份与业务校验限制,server/routes/oauth/index.ts,111,server/routes/oauth/schema.ts
+mcp_transport,mcp,POST,/mcp,团队启用 MCP；有效凭据与 scope,server/routes/mcp/index.ts,53,
+protocol_discovery,discovery,GET,/.well-known/oauth-authorization-server,返回内容受团队 MCP 设置影响；OAUTH_DISABLE_DCR 控制是否公布注册端点,server/routes/discovery/mcp.ts,9,
+protocol_discovery,discovery,GET,/.well-known/oauth-authorization-server/mcp,返回内容受团队 MCP 设置影响；OAUTH_DISABLE_DCR 控制是否公布注册端点,server/routes/discovery/mcp.ts,9,
+protocol_discovery,discovery,GET,/.well-known/oauth-protected-resource,团队禁用 MCP 时返回 404；不受 OAUTH_DISABLE_DCR 控制,server/routes/discovery/mcp.ts,42,
+protocol_discovery,discovery,GET,/.well-known/oauth-protected-resource/mcp,团队禁用 MCP 时返回 404；不受 OAUTH_DISABLE_DCR 控制,server/routes/discovery/mcp.ts,42,
+health,health,GET,/_health,各服务进程共用定义；检查 PostgreSQL 与主 Redis,server/main.ts,78,

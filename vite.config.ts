@@ -10,9 +10,12 @@ import environment from "./server/utils/environment";
 
 let httpsConfig: ServerOptions["https"] | undefined;
 let host: string | undefined;
+let clientPort: number | undefined;
 
 if (environment.NODE_ENV === "development") {
-  host = host = new URL(environment.URL!).hostname;
+  const appURL = new URL(environment.URL!);
+  host = appURL.hostname;
+  clientPort = Number(appURL.port) || (appURL.protocol === "https:" ? 443 : 80);
 
   try {
     httpsConfig = {
@@ -38,13 +41,19 @@ export default ({ mode }: ConfigEnv) =>
     },
     root: "./",
     publicDir: "./server/static",
-    base: (environment.CDN_URL ?? "") + "/static/",
+    base:
+      mode === "development"
+        ? "/static/"
+        : (environment.CDN_URL ?? "") + "/static/",
+
     server: {
       port: 3001,
+      strictPort: true,
       host: true,
       https: httpsConfig,
       allowedHosts: host ? [host] : undefined,
       cors: true,
+      ws: mode === "development" ? { clientPort, path: "vite-hmr" } : undefined,
       fs:
         environment.NODE_ENV === "development"
           ? {

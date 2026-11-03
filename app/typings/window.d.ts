@@ -1,21 +1,13 @@
 /// <reference types="google.analytics" />
 import type RootStore from "~/stores/RootStore";
+import type { ImportGlobFunction } from "vite/types/importGlob";
 
 declare global {
   interface ImportMeta {
     /**
      * A special feature that allows you to get all matching modules starting from some base directory.
      */
-    glob: {
-      (
-        pattern: string | string[],
-        option: { eager: true }
-      ): Record<string, unknown>;
-      (
-        pattern: string | string[],
-        option?: { eager?: false }
-      ): Record<string, () => Promise<unknown>>;
-    };
+    glob: ImportGlobFunction;
   }
 
   interface Window {

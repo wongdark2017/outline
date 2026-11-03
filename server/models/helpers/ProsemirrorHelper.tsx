@@ -49,6 +49,7 @@ import { plugins, schema, parser } from "@server/editor";
 import env from "@server/env";
 import { ValidationError } from "@server/errors";
 import Logger from "@server/logging/Logger";
+import { getKatexStylesheet } from "@server/utils/katex";
 import { trace } from "@server/logging/tracing";
 import Attachment from "@server/models/Attachment";
 import User from "@server/models/User";
@@ -118,11 +119,6 @@ class NoopResizeObserver implements ResizeObserver {
     // noop
   }
 }
-
-// KaTeX renders math server-side during HTML export, but relies on this
-// stylesheet (loaded dynamically in the app) to position glyphs correctly.
-const katexStylesheetUrl =
-  "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css";
 
 function isDecorationSource(value: unknown): value is DecorationSource {
   if (typeof value !== "object" || value === null) {
@@ -798,6 +794,16 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
         // (e.g. Frame's iframe) commit before serialization, then rewriting.
         await this.flushReactEffects();
 
+        if (doc.querySelector(".katex")) {
+          const style = doc.createElement("style");
+          style.setAttribute("data-katex", "true");
+          if (options?.cspNonce) {
+            style.setAttribute("nonce", options.cspNonce);
+          }
+          style.textContent = await getKatexStylesheet();
+          doc.head.appendChild(style);
+        }
+
         // The heading prefix is a decoration in the editor, which the export
         // renders without, so the labels are added to the output directly.
         if (options?.headingPrefix) {
@@ -868,15 +874,6 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
           }
 
           dom.window.document.body.appendChild(element);
-        }
-
-        // Include the KaTeX stylesheet if the document contains rendered math, so
-        // that formulas display correctly in the exported HTML/PDF.
-        if (doc.querySelector(".katex")) {
-          const link = doc.createElement("link");
-          link.setAttribute("rel", "stylesheet");
-          link.setAttribute("href", katexStylesheetUrl);
-          doc.head.appendChild(link);
         }
 
         // Emit the styles collected while rendering node components, mirroring

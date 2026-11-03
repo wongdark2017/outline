@@ -2,7 +2,7 @@ import { observer } from "mobx-react";
 import * as React from "react";
 import { mergeRefs } from "react-merge-refs";
 import { useHistory } from "react-router-dom";
-import styled, { useTheme } from "styled-components";
+import styled, { css, useTheme } from "styled-components";
 import breakpoint from "styled-components-breakpoint";
 import { depths, s } from "@shared/styles";
 import { Avatar } from "~/components/Avatar";
@@ -348,15 +348,15 @@ type ContainerProps = {
   $isMobile: boolean;
 };
 
-const hoverStyles = (props: ContainerProps) => `
+const hoverStyles = css<ContainerProps>`
   transform: none !important;
-  box-shadow: ${
-    props.$collapsed
-      ? "rgba(0, 0, 0, 0.2) 1px 0 4px"
-      : props.$isSmallerThanMinimum
-        ? "rgba(0, 0, 0, 0.1) inset -1px 0 2px"
-        : "none"
-  };
+  box-shadow: inset 0 3px 0
+    ${s("accent")}${(props) =>
+      props.$collapsed
+        ? ", rgba(0, 0, 0, 0.2) 1px 0 4px"
+        : props.$isSmallerThanMinimum
+          ? ", rgba(0, 0, 0, 0.1) inset -1px 0 2px"
+          : ""};
 
   ${ToggleButton} {
     opacity: 1;
@@ -370,6 +370,8 @@ const Container = styled(Flex)<ContainerProps>`
   inset-inline-start: 0;
   width: 100%;
   background: ${s("sidebarBackground")};
+  border-inline-end: 1px solid ${s("divider")};
+  box-shadow: inset 0 3px 0 ${s("accent")};
   transition:
     box-shadow 150ms ease-in-out,
     transform 250ms cubic-bezier(0.34, 1.15, 0.64, 1)
@@ -430,7 +432,7 @@ const Container = styled(Flex)<ContainerProps>`
         props.$collapsed ? `calc(100% - 8px)` : 0});
     }
 
-    ${(props: ContainerProps) => props.$isHovering && hoverStyles(props)}
+    ${(props: ContainerProps) => props.$isHovering && hoverStyles}
 
     &:hover {
       ${ToggleButton} {

@@ -202,7 +202,7 @@ export const MenuContent = styled(Scrollable).attrs<MenuContentProps>(
 
   background: ${s("menuBackground")};
   box-shadow: ${s("menuShadow")};
-  ${borderRadius(8)}
+  ${borderRadius(4)}
   // Vertical spacing comes from spacers rather than padding so that the bottom
   // fade, which is confined to the content box, can reach the menu's edge.
   padding: 0 6px;

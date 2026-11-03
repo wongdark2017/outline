@@ -13,6 +13,7 @@ import Metrics from "@server/logging/Metrics";
 import Redis from "@server/storage/redis";
 import Logger from "./logging/Logger";
 import { defaultRateLimiter } from "@server/middlewares/rateLimiter";
+import { createViteMiddleware } from "@server/middlewares/vite";
 import onerror from "./onerror";
 import onupgrade, { rejectUnhandledUpgrades } from "./onupgrade";
 import services from "./services";
@@ -67,6 +68,10 @@ export async function start(id: number, disconnect: () => void) {
 
   // catch errors in one place, automatically set status and response headers
   onerror(app);
+
+  if (env.isDevelopment && env.SERVICES.includes("web")) {
+    app.use(createViteMiddleware());
+  }
 
   // Apply default rate limit to all routes
   app.use(defaultRateLimiter());

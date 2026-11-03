@@ -53,7 +53,12 @@ const processCount = isWorkerProcess
     : os.cpus().length;
 
 configureChildHeapLimit(processCount);
-
+/*
+在 JavaScript 中，void 是一个运算符，它的唯一作用是执行其后的表达式，然后强制返回 undefined。
+它的基本语法是 void expression，例如 void 0 或 void(0) 都会返回 undefined。
+它的主要用途之一是确保某个地方期望得到一个 undefined 值，或者在旧式超链接中防止页面跳转（如 javascript:void(0)）。
+在 TypeScript 中，void 还用作类型，表示一个函数不返回任何有意义的值得（其返回值应被忽略）。
+ */
 void throng({
   master,
   // The worker's heavy dependency graph is loaded lazily so it never enters the

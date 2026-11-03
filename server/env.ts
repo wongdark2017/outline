@@ -749,7 +749,7 @@ export class Environment {
     this.toOptionalNumber(environment.FILE_STORAGE_IMPORT_MAX_SIZE) ??
     this.toOptionalNumber(environment.MAXIMUM_IMPORT_SIZE) ??
     this.toOptionalNumber(environment.FILE_STORAGE_UPLOAD_MAX_SIZE) ??
-    1000000;
+    10000000;
 
   /**
    * Timeout in milliseconds for downloading files from remote locations to file storage.

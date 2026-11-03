@@ -1,0 +1,53 @@
+{
+  "id": "markdown-zip-import",
+  "name": "markdown-zip-import",
+  "title": "Markdown ZIP document import",
+  "description": "Implement and test the attached Markdown ZIP import development guide without changing its design.",
+  "status": "in_progress",
+  "dev_type": "fullstack",
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "chengqi.dev",
+  "assignee": "chengqi.dev",
+  "createdAt": "2026-11-02",
+  "completedAt": null,
+  "branch": "feat/markdown-zip-import",
+  "base_branch": "main",
+  "worktree_path": null,
+  "commit": "0f3a38a9205f2c05c5708c9fbff42e3693a67d64",
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "server/utils/ZipHelper.ts",
+    "server/converters/MarkdownZipConverter.ts",
+    "server/converters/MarkdownZipConverter.test.ts",
+    "server/queues/tasks/DocumentImportTask.ts",
+    "server/queues/tasks/DocumentImportTask.test.ts",
+    "app/stores/DocumentsStore.ts",
+    "app/components/ImportDocumentDialog.tsx",
+    "shared/i18n/locales/en_US/translation.json",
+    "server/commands/attachmentCreator.ts",
+    "server/commands/attachmentCreator.test.ts",
+    "server/commands/documentImporter.ts",
+    "server/models/helpers/ProsemirrorHelper.tsx",
+    ".trellis/spec/backend/database-guidelines.md"
+  ],
+  "notes": "Approved A1/B1 implemented and reviewed. Guide feature tests53/53; complete affected regression714/714 with command-scoped npm_config_no_proxy=* (existing proxy DNS preflight explained OAuth baseline failures). Full lint/tsc/format pass. B1-only snapshot33tests and tsc pass. Shared commit00b5eae74; separate B1 commit0f3a38a92, both Husky checked. User explicitly defers D1–D6; ZIP-specific integration and original user work remain uncommitted. Manual browser/source-export/timing checks remain open.",
+  "meta": {
+    "a1b1_commits": {
+      "shared": "00b5eae74f087a2e2c38430f8e42527cc93cde84",
+      "single_file": "0f3a38a9205f2c05c5708c9fbff42e3693a67d64"
+    },
+    "open_decisions": [
+      "D1",
+      "D2",
+      "D3",
+      "D4",
+      "D5",
+      "D6"
+    ]
+  }
+}

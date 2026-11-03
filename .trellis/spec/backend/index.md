@@ -14,11 +14,15 @@ This directory contains guidelines for backend development. Fill in each file wi
 
 | Guide | Description | Status |
 |-------|-------------|--------|
-| [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
+| [Directory Structure](./directory-structure.md) | API resource layout, policies, presenters, commands, plugin APIs | Populated (API) |
 | [Database Guidelines](./database-guidelines.md) | ORM patterns; explicit email preference persistence and rollback | Email sign-in populated |
 | [Error Handling](./error-handling.md) | Email sign-in proof, attempt lifecycle, permanent unlimited sending and safe errors | Email sign-in populated |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Logging Guidelines](./logging-guidelines.md) | Safe email lifecycle metrics and request metadata | Email sign-in populated |
+| [Quality Guidelines](./quality-guidelines.md) | API route anatomy, auth checks, errors, tests, single-port development previews | Populated |
+| [Logging Guidelines](./logging-guidelines.md) | Logger API, levels, structured extra, production-only redaction; email scenario | Populated |
+
+---
+
+> **Branch-only scenarios:** the "Email sign-in" / "Permanent unlimited email sending" scenario sections in this layer describe code on the paused `feat/email-code-signin-*` branches. That code is not on `main`; ignore those sections unless working on that feature.
 
 ---
 

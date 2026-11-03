@@ -44,6 +44,10 @@ export const ImportDocumentDialog = observer(function ImportDocumentDialog({
         extensions: ".md, .markdown",
       },
       {
+        name: t("Markdown and images"),
+        extensions: ".zip",
+      },
+      {
         name: t("Word"),
         extensions: ".docx",
       },

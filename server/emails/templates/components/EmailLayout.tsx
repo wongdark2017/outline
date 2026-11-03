@@ -1,6 +1,6 @@
 import { Table, TBody, TR, TD } from "oy-vey";
 import * as React from "react";
-import theme from "@shared/styles/theme";
+import { fontFamilies } from "@shared/styles/theme";
 
 const EmailLayout: React.FC<
   React.PropsWithChildren<{
@@ -75,7 +75,7 @@ export default EmailLayout;
 
 export const baseStyles = `
   #__bodyTable__ {
-    font-family: ${theme.fontFamily};
+    font-family: ${fontFamilies.ui};
     font-size: 16px;
     line-height: 1.5;
   }

@@ -23,6 +23,7 @@ import {
 import { RevisionSection } from "~/actions/sections";
 import env from "~/env";
 import history from "~/utils/history";
+import { printPage } from "~/utils/print";
 import {
   documentHistoryPath,
   matchDocumentHistory,
@@ -230,9 +231,7 @@ export const printRevisionActionFactory = (revisionId: string) =>
     // revision currently being viewed.
     visible: (context) =>
       !!window.print && isViewingRevision(context, revisionId),
-    perform: () => {
-      setTimeout(window.print, 0);
-    },
+    perform: printPage,
   });
 
 export const exportRevisionActionFactory = (revisionId: string) =>

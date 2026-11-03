@@ -13,6 +13,7 @@ import { ConnectionLimitExtension } from "@server/collaboration/ConnectionLimitE
 import { ViewsExtension } from "@server/collaboration/ViewsExtension";
 import env from "@server/env";
 import Logger from "@server/logging/Logger";
+import { isViteHmrRequest } from "@server/middlewares/vite";
 import { rejectUpgrade } from "@server/onupgrade";
 import RedisAdapter from "@server/storage/redis";
 import ShutdownHelper, { ShutdownOrder } from "@server/utils/ShutdownHelper";
@@ -76,6 +77,10 @@ export default function init(
   server.on(
     "upgrade",
     function (req: IncomingMessage, socket: Duplex, head: Buffer) {
+      if (isViteHmrRequest(req) && serviceNames.includes("web")) {
+        return;
+      }
+
       if (req.url?.startsWith(path)) {
         // parse document id and close connection if not present in request
         const documentId = url

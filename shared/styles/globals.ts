@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import styledNormalize from "styled-normalize";
 import { breakpoints, depths, s } from ".";
 import { EditorStyleHelper } from "../editor/styles/EditorStyleHelper";
+import { fontFamilies } from "./theme";
 
 type Props = {
   staticHTML?: boolean;
@@ -19,6 +20,9 @@ export default createGlobalStyle<Props>`
   }
 
   html {
+    --font-body: ${fontFamilies.body};
+    --font-ui: ${fontFamilies.ui};
+    --font-mono: ${fontFamilies.mono};
     --line-height-body: 1.5;
     --font-size-body: 16px;
   }
@@ -126,8 +130,8 @@ export default createGlobalStyle<Props>`
   }
 
   :focus-visible {
-    outline-color: ${s("accent")};
-    outline-offset: -1px;
+    outline-color: ${s("selected")};
+    outline-offset: ${(props) => (props.theme.isDark ? "2px" : "-1px")};
     outline-width: initial;
   }
 
