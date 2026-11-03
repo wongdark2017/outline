@@ -55,6 +55,7 @@ import { Week } from "@shared/utils/time";
 import type UserMembership from "~/models/UserMembership";
 import Document from "~/models/Document";
 import { client } from "~/utils/ApiClient";
+import { printPage } from "~/utils/print";
 import DocumentDelete from "~/scenes/DocumentDelete";
 import { ProsemirrorHelper } from "~/models/helpers/ProsemirrorHelper";
 import DocumentPermanentDelete from "~/scenes/DocumentPermanentDelete";
@@ -1168,9 +1169,7 @@ export const printDocument = createAction({
   icon: <PrintIcon />,
   iconInContextMenu: false,
   visible: ({ activeDocumentId }) => !!(activeDocumentId && window.print),
-  perform: () => {
-    setTimeout(window.print, 0);
-  },
+  perform: printPage,
 });
 
 export const exportDocument = createActionWithChildren({

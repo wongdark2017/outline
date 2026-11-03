@@ -15,11 +15,15 @@ This directory contains guidelines for frontend development. Fill in each file w
 | Guide | Description | Status |
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Component patterns, props, composition | To fill |
+| [Component Guidelines](./component-guidelines.md) | Form patterns and shared theme styling | Forms + theme populated |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
 | [State Management](./state-management.md) | Local state, global state, server state; recoverable email sign-in and immediate resend/local expiry | Email sign-in documented; other topics to fill |
-| [Quality Guidelines](./quality-guidelines.md) | Code standards; namespace-safe translation extraction and approved locale contracts | Translation contract populated |
+| [Quality Guidelines](./quality-guidelines.md) | Testing scope; translation and CSRF scenarios | Testing + translation populated |
 | [Type Safety](./type-safety.md) | Type patterns, validation | To fill |
+
+---
+
+> **Branch-only scenarios:** the "Email sign-in" / "Permanent unlimited email sending" scenario sections in this layer describe code on the paused `feat/email-code-signin-*` branches. That code is not on `main`; ignore those sections unless working on that feature.
 
 ---
 

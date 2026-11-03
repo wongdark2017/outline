@@ -80,6 +80,7 @@ export default class DocumentsStore extends Store<Document> {
     ".eml",
     ".textpack",
     ".pdf",
+    ".zip",
     "text/csv",
     "text/tab-separated-values",
     "text/markdown",
@@ -91,6 +92,8 @@ export default class DocumentsStore extends Store<Document> {
     "multipart/related",
     "application/x-mimearchive",
     "application/pdf",
+    "application/zip",
+    "application/x-zip-compressed",
   ];
 
   importFileTypesAccept: Accept = toDropzoneAccept(this.importFileTypes);

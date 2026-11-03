@@ -252,13 +252,14 @@ export default class ZipHelper {
    * files) can call `entry.readBuffer(maxSize)`; callers that only need the tree
    * structure can omit the callback entirely.
    *
-   * @param filePath Local filesystem path to the zip.
+   * @param source local filesystem path to the zip, or a Buffer holding the
+   *   zip contents already in memory.
    * @param onFile Optional per-file hook; not called for directory entries.
    * @returns A synthetic root node whose `children` are the zip's top-level
    *          entries.
    */
   public static async toFileTree(
-    filePath: string,
+    source: string | Buffer,
     onFile?: (node: ZipTreeNode, entry: ZipEntryHandle) => Promise<void> | void
   ): Promise<ZipTreeNode> {
     const root: ZipTreeNode = {
@@ -310,7 +311,7 @@ export default class ZipHelper {
       return current;
     };
 
-    await this.walk(filePath, async (entry) => {
+    await this.walk(source, async (entry) => {
       const node = resolveNode(entry.fileName);
       if (!node || entry.isDirectory) {
         return;

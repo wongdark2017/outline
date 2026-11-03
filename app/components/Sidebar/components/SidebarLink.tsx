@@ -145,11 +145,11 @@ function SidebarLink({
 
   const activeStyle = React.useMemo(
     () => ({
-      color: theme.text,
+      color: theme.link,
       background: theme.sidebarActiveBackground,
       ...style,
     }),
-    [theme.text, theme.sidebarActiveBackground, style]
+    [theme.link, theme.sidebarActiveBackground, style]
   );
 
   const handleClick = React.useCallback(
@@ -219,6 +219,7 @@ function SidebarLink({
         $isActiveDrop={isActiveDrop}
         $isDraft={isDraft}
         $disabled={disabled}
+        $active={active}
         style={active ? activeStyle : style}
         onClick={handleClick}
         onMouseEnter={handleMouseEnter}
@@ -242,6 +243,7 @@ function SidebarLink({
       $isActiveDrop={isActiveDrop}
       $isDraft={isDraft}
       $disabled={disabled}
+      $active={active}
       style={active ? activeStyle : style}
       activeStyle={isActiveDrop ? activeDropStyle : activeStyle}
       onClick={handleClick}
@@ -292,6 +294,7 @@ const Link = styled.a<{
   $isActiveDrop?: boolean;
   $isDraft?: boolean;
   $disabled?: boolean;
+  $active?: boolean;
 }>`
   ${hoveredOrMenuOpen} {
     --background: ${s("sidebarHoverBackground")};
@@ -308,7 +311,7 @@ const Link = styled.a<{
   text-overflow: ellipsis;
   font-weight: 475;
   padding: ${isMobile() ? 12 : 6}px 16px;
-  border-radius: 4px;
+  border-radius: 2px;
   min-height: 30px;
   user-select: none;
   white-space: nowrap;
@@ -321,6 +324,24 @@ const Link = styled.a<{
   border: 0;
   width: 100%;
   ${undraggableOnDesktop()}
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 5px;
+    bottom: 5px;
+    width: 3px;
+    border-radius: 2px;
+    pointer-events: none;
+    background: ${(props) =>
+      props.$active ? props.theme.link : "transparent"};
+  }
+
+  &.active::before,
+  &[aria-current="page"]::before {
+    background: ${s("link")};
+  }
 
   ${(props) =>
     props.$disabled &&

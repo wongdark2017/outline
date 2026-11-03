@@ -1,54 +1,34 @@
 # Directory Structure
 
-> How backend code is organized in this project.
+> Where backend API code lives. Only the layout used by API features is documented; other areas are not yet covered.
 
 ---
 
-## Overview
+## API resource layout
 
-<!--
-Document your project's backend directory structure here.
-
-Questions to answer:
-- How are modules/packages organized?
-- Where does business logic live?
-- Where are API endpoints defined?
-- How are utilities and helpers organized?
--->
-
-(To be filled by the team)
-
----
-
-## Directory Layout
+Each API resource has its own folder under `server/routes/api/`:
 
 ```
-<!-- Replace with your actual structure -->
-src/
-├── ...
-└── ...
+server/routes/api/stars/
+├── index.ts          # export { default } from "./stars";
+├── stars.ts          # Koa Router, one router.post("stars.<verb>") per action
+├── schema.ts         # zod request schemas + inferred *Req types
+├── stars.test.ts     # collocated API tests
+└── __snapshots__/    # only when the tests use toMatchSnapshot
 ```
 
----
+Routers are mounted in `server/routes/api/index.ts` with `router.use("/", <resource>.routes())`. Routes are RPC style: `POST /api/<resource>.<verb>` (202 `router.post` vs 8 `router.get` in `server/routes/api`).
 
-## Module Organization
+## Supporting layers
 
-<!-- How should new features/modules be organized? -->
+| Concern | Location | Example |
+|---|---|---|
+| Authorization rules | `server/policies/<model>.ts`, imported in `server/policies/index.ts` | `server/policies/star.ts` |
+| Response shaping | `server/presenters/<model>.ts`, re-exported from `@server/presenters` | `presentStar` in `server/presenters/star.ts` |
+| Logic spanning several models | `server/commands/<name>.ts` | `server/commands/starCreator.ts` |
+| HTTP error helpers | `server/errors.ts` | `ValidationError`, `NotFoundError` |
+| Request schema base | `server/routes/api/schema.ts` | `BaseSchema` |
 
-(To be filled by the team)
+## Plugin APIs
 
----
-
-## Naming Conventions
-
-<!-- File and folder naming rules -->
-
-(To be filled by the team)
-
----
-
-## Examples
-
-<!-- Link to well-organized modules as examples -->
-
-(To be filled by the team)
+A plugin keeps the same shape under `plugins/<id>/server/api/` (`<id>.ts`, `schema.ts`, `<id>.test.ts`) and registers the router with `Hook.API` in `plugins/<id>/server/index.ts` (see `plugins/passkeys/server/`). Plugin routers are mounted before core routes (`server/routes/api/index.ts:87`), so a plugin route name must not collide with a core one unless it intends to override it.

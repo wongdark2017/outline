@@ -1,55 +1,50 @@
 # Logging Guidelines
 
-> How logging is done in this project.
+> How backend code logs. Covers the shared `Logger`; feature-specific scenarios follow.
 
 ---
 
 ## Overview
 
-<!--
-Document your project's logging conventions here.
-
-Questions to answer:
-- What logging library do you use?
-- What are the log levels and when to use each?
-- What should be logged?
-- What should NOT be logged (PII, secrets)?
--->
-
-(To be filled by the team)
+All server logging goes through the winston-based singleton in `server/logging/Logger.ts` (`import Logger from "@server/logging/Logger"`). `console.*` is not used in server code outside `server/utils/environment.ts` and `server/onerror.ts`.
 
 ---
 
 ## Log Levels
 
-<!-- When to use each level: debug, info, warn, error -->
+| Method | Signature | Uses | When |
+|---|---|---|---|
+| `Logger.info` | `(category, message, extra?)` | 105 | Normal lifecycle events (`Logger.info("authentication", "Sign in without invitation", {...})`, `server/commands/userProvisioner.ts:277`) |
+| `Logger.debug` | `(category, message, extra?)` | 59 | Diagnostic detail, off by default |
+| `Logger.warn` | `(message, extra?)` | 94 | Recoverable problems; also increments the `logger.warning` metric |
+| `Logger.error` | `(message, error, extra?)` | 72 | Failures; the second argument must be an `Error`, so wrap unknown values with `toError(err)` from `@shared/utils/error` (`server/commands/documentCollaborativeUpdater.ts:167`) |
+| `Logger.fatal` | `(message, error, extra?)` | 20 | Unrecoverable; logs and then shuts the process down. Startup/config only |
 
-(To be filled by the team)
+`category` is the `LogCategory` union in `Logger.ts` (`lifecycle`, `authentication`, `commands`, `task`, `processor`, `plugins`, `utils`, …). Add a new category there instead of passing a free string.
 
 ---
 
 ## Structured Logging
 
-<!-- Log format, required fields -->
-
-(To be filled by the team)
+Put identifiers in `extra`, not in the message: `Logger.error("Authentication provider does not exist for team", err, { teamId, providerId })` (`server/commands/teamProvisioner.ts:102`). Messages stay constant so they can be searched and counted.
 
 ---
 
 ## What to Log
 
-<!-- Important events to log -->
-
-(To be filled by the team)
+- Ids (`userId`, `teamId`, `documentId`) and outcome, not whole models.
+- Caught errors that are swallowed or retried, with the operation name.
 
 ---
 
 ## What NOT to Log
 
-<!-- Sensitive data, PII, secrets -->
+`Logger` redacts only keys named `accessToken`, `refreshToken`, `token`, `password` and `content`, and **only in production** (`sanitize`, `Logger.ts:189`). Development logs everything as is. Therefore:
 
-(To be filled by the team)
+- Never put secrets, setup links, codes or hashes under other key names or inside the message string.
+- Never log request bodies or full user/document objects.
 
+---
 
 ## Scenario: Email authentication metrics and message metadata
 

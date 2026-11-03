@@ -49,6 +49,7 @@ import { plugins, schema, parser } from "@server/editor";
 import env from "@server/env";
 import { ValidationError } from "@server/errors";
 import Logger from "@server/logging/Logger";
+import { getKatexStylesheet } from "@server/utils/katex";
 import { trace } from "@server/logging/tracing";
 import Attachment from "@server/models/Attachment";
 import User from "@server/models/User";
@@ -94,6 +95,15 @@ export type MentionAttrs = {
   unfurl?: UnfurlResponse[keyof UnfurlResponse];
 };
 
+/** Options for attachments created while replacing document images and embedded files. */
+export interface ReplaceImagesOptions {
+  /** Expiry for each created attachment, so it is removed unless kept. */
+  expiresAt?: Date;
+
+  /** Called synchronously with each created attachment. */
+  onAttachment?: (attachment: Attachment) => void;
+}
+
 const pluginsWithSafeDecorations = new WeakSet<Plugin>();
 
 // jsdom does not implement ResizeObserver, and the exported document never
@@ -109,11 +119,6 @@ class NoopResizeObserver implements ResizeObserver {
     // noop
   }
 }
-
-// KaTeX renders math server-side during HTML export, but relies on this
-// stylesheet (loaded dynamically in the app) to position glyphs correctly.
-const katexStylesheetUrl =
-  "https://cdn.jsdelivr.net/npm/katex@0.16.45/dist/katex.min.css";
 
 function isDecorationSource(value: unknown): value is DecorationSource {
   if (typeof value !== "object" || value === null) {
@@ -789,6 +794,16 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
         // (e.g. Frame's iframe) commit before serialization, then rewriting.
         await this.flushReactEffects();
 
+        if (doc.querySelector(".katex")) {
+          const style = doc.createElement("style");
+          style.setAttribute("data-katex", "true");
+          if (options?.cspNonce) {
+            style.setAttribute("nonce", options.cspNonce);
+          }
+          style.textContent = await getKatexStylesheet();
+          doc.head.appendChild(style);
+        }
+
         // The heading prefix is a decoration in the editor, which the export
         // renders without, so the labels are added to the output directly.
         if (options?.headingPrefix) {
@@ -859,15 +874,6 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
           }
 
           dom.window.document.body.appendChild(element);
-        }
-
-        // Include the KaTeX stylesheet if the document contains rendered math, so
-        // that formulas display correctly in the exported HTML/PDF.
-        if (doc.querySelector(".katex")) {
-          const link = doc.createElement("link");
-          link.setAttribute("rel", "stylesheet");
-          link.setAttribute("href", katexStylesheetUrl);
-          doc.head.appendChild(link);
         }
 
         // Emit the styles collected while rendering node components, mirroring
@@ -1213,12 +1219,14 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
    * @param ctx The API context.
    * @param doc The Prosemirror node to process.
    * @param user The user context.
+   * @param options the attachment expiry and callback reporting created attachments.
    * @returns A new Prosemirror node with images and embedded files replaced.
    */
   static async replaceImagesWithAttachments(
     ctx: APIContext,
     doc: Node,
-    user: User
+    user: User,
+    options: ReplaceImagesOptions = {}
   ): Promise<Node> {
     const images = ProsemirrorHelper.getImages(doc);
     const videos = ProsemirrorHelper.getVideos(doc);
@@ -1286,11 +1294,13 @@ export class ProsemirrorHelper extends SharedProsemirrorHelper {
               fetchOptions: {
                 timeout: timeoutPerImage,
               },
+              expiresAt: options.expiresAt,
               ctx,
             });
 
             if (attachment) {
               urlToAttachment.set(src, attachment);
+              options.onAttachment?.(attachment);
             }
           } catch (err) {
             Logger.warn("Failed to download image for attachment", {

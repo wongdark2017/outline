@@ -23,8 +23,8 @@ const RealButton = styled(ActionButton)<RealProps>`
   border: 0;
   background: ${s("accent")};
   color: ${s("accentText")};
-  box-shadow: rgba(0, 0, 0, 0.2) 0px 1px 2px;
-  border-radius: 6px;
+  box-shadow: none;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   height: 32px;
@@ -66,7 +66,7 @@ const RealButton = styled(ActionButton)<RealProps>`
     box-shadow: ${
       props.$borderOnHover
         ? "none"
-        : `rgba(0, 0, 0, 0.07) 0px 1px 2px, ${props.theme.buttonNeutralBorder} 0 0 0 1px inset`
+        : `${props.theme.buttonNeutralBorder} 0 0 0 1px inset`
     };
 
     &:hover:not(:disabled),
@@ -76,14 +76,12 @@ const RealButton = styled(ActionButton)<RealProps>`
           ? props.theme.buttonNeutralBackground
           : props.theme.buttonNeutralHoverBackground
       };
-      box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px, ${
-        props.theme.buttonNeutralBorder
-      } 0 0 0 1px inset;
+      box-shadow: ${props.theme.buttonNeutralBorder} 0 0 0 1px inset;
       transition: background 0s;
     }
 
     &:focus-visible {
-      box-shadow: ${`rgba(0, 0, 0, 0.07) 0px 1px 2px, ${props.theme.inputBorderFocused} 0 0 0 1px inset`};
+      box-shadow: ${`${props.theme.inputBorderFocused} 0 0 0 1px inset`};
     }
 
     &:disabled {

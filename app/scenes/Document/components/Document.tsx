@@ -8,6 +8,7 @@ import { Prompt, matchPath, useHistory, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import styled from "styled-components";
 import breakpoint from "styled-components-breakpoint";
+import EditorStyles from "@shared/editor/components/Styles";
 import { EditorStyleHelper } from "@shared/editor/styles/EditorStyleHelper";
 import { s } from "@shared/styles";
 import type { NavigationNode } from "@shared/types";
@@ -593,6 +594,42 @@ type EditorContainerProps = {
 const EditorContainer = styled.div<EditorContainerProps>`
   // Adds space to the gutter to make room for icon & heading annotations
   padding: 0 32px;
+
+  ${EditorStyles} {
+    --line-height-p: 1.8;
+
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: var(--line-height-p);
+
+    ${breakpoint("tablet")`
+      font-size: 18px;
+    `};
+
+    > .ProseMirror > p {
+      margin-top: 0.8em;
+      margin-bottom: 0.8em;
+    }
+
+    b,
+    strong {
+      font-weight: 700;
+    }
+
+    .katex {
+      font-size: 1.12em;
+    }
+
+    math-block {
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+
+    math-block .katex-display,
+    math-block .katex-display > .katex {
+      text-align: start;
+    }
+  }
 
   // A notice above the editor already provides the space from the header
   &:has(> ${DocumentNotice}) {

@@ -166,7 +166,7 @@ export default function blockMenuItems(
       name: "math_block",
       title: t("Math block (LaTeX)"),
       icon: <MathIcon />,
-      keywords: "katex formula equation",
+      keywords: "katex latex formula equation",
     },
     {
       name: "hr",

@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend task and test conventions"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend i18n and focused verification"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Import data flow"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "Failure compensation logs keys and preserves original errors"}

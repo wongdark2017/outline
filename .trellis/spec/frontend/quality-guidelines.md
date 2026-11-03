@@ -38,9 +38,9 @@ Questions to answer:
 
 ## Testing Requirements
 
-<!-- What level of testing is expected -->
-
-(To be filled by the team)
+- Frontend tests run in the Vitest `app` project (jsdom). The 33 current `app/**/*.test.ts(x)` files cover hooks and utilities only (e.g. `app/hooks/useTextStats.test.ts`, `app/utils/urls.test.ts`); no test renders a component and `@testing-library/react` is not used.
+- Put form logic worth testing (parsing, validation helpers) in a hook or util next to the component and test that file. Verify UI behaviour manually or in the browser.
+- Run a single file: `yarn test app/utils/urls.test.ts`.
 
 ---
 

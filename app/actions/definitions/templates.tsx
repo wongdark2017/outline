@@ -29,6 +29,7 @@ import {
 } from "~/actions/definitions/common";
 import type { ActionContext } from "~/types";
 import history from "~/utils/history";
+import { printPage } from "~/utils/print";
 import {
   newDocumentPath,
   newTemplatePath,
@@ -323,9 +324,7 @@ export const printTemplate = createAction({
   section: ActiveTemplateSection,
   icon: <PrintIcon />,
   visible: (context) => !!singleActiveTemplate(context) && !!window.print,
-  perform: () => {
-    setTimeout(window.print, 0);
-  },
+  perform: printPage,
 });
 
 export const rootTemplateActions = [

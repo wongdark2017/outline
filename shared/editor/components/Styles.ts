@@ -96,7 +96,8 @@ const mathStyle = (props: Props) => css`
   }
 
   math-inline {
-    display: inline;
+    display: inline-flex;
+    max-width: 100%;
     white-space: nowrap;
   }
 
@@ -137,12 +138,25 @@ const mathStyle = (props: Props) => css`
     outline: none;
   }
 
-  math-block .katex-display {
-    margin: 0;
+  .math-node .math-render {
+    font-family: var(--font-body, ${props.theme.fontFamily});
   }
 
-  .katex-html *::selection {
-    background-color: none !important;
+  .math-node .katex {
+    font-size: 1.12em;
+  }
+
+  math-block .katex-display {
+    margin: 0;
+    text-align: start;
+  }
+
+  math-block .katex-display > .katex {
+    text-align: start;
+  }
+
+  .katex *::selection {
+    background-color: transparent;
   }
 
   .math-node.math-select .math-render {
@@ -151,6 +165,27 @@ const mathStyle = (props: Props) => css`
 
   math-inline.math-select .math-render {
     padding-top: 2px;
+  }
+
+  @media print {
+    .math-node.ProseMirror-selectednode {
+      border: 0;
+      background: none;
+      padding: 0;
+      font-size: inherit;
+
+      .math-render {
+        display: inline-block;
+      }
+
+      .math-src {
+        display: none;
+      }
+    }
+
+    math-block.ProseMirror-selectednode .math-render {
+      display: block;
+    }
   }
 `;
 
@@ -542,12 +577,12 @@ const textStyle = () => css`
 
 const style = (props: Props) => css`
 --font-size-p: var(--font-size-body);
---font-size-h1: 28px;
---font-size-h2: 22px;
---font-size-h3: 18px;
---font-size-h4: 16px;
---font-size-h5: 15px;
---font-size-h6: 15px;
+--font-size-h1: 1.6em;
+--font-size-h2: 1.5em;
+--font-size-h3: 1.4em;
+--font-size-h4: 1.3em;
+--font-size-h5: 1.2em;
+--font-size-h6: 1.1em;
 
 flex-grow: ${props.grow ? 1 : 0};
 justify-content: start;
@@ -691,8 +726,9 @@ width: 100%;
   h5,
   h6 {
     margin-top: 1em;
-    margin-bottom: 0.25em;
-    line-height: inherit;
+    margin-bottom: 0.35em;
+    color: ${props.theme.textSecondary};
+    line-height: 1.4;
     font-weight: 600;
     cursor: text;
     clear: both;
@@ -730,14 +766,12 @@ width: 100%;
     }
   }
 
-  // all of heading sizes are stepped down one from global styles, except h1
-  // which is between h1 and h2
-  h1 { font-size: var(--font-size-h1); }
-  h2 { font-size: var(--font-size-h2); }
-  h3 { font-size: var(--font-size-h3); }
-  h4 { font-size: var(--font-size-h4); }
-  h5 { font-size: var(--font-size-h5); }
-  h6 { font-size: var(--font-size-h6); }
+  h1 { font-size: var(--font-size-h1); margin-top: 36px; }
+  h2 { font-size: var(--font-size-h2); margin-top: 30px; }
+  h3 { font-size: var(--font-size-h3); margin-top: 24px; }
+  h4 { font-size: var(--font-size-h4); margin-top: 18px; }
+  h5 { font-size: var(--font-size-h5); margin-top: 12px; }
+  h6 { font-size: var(--font-size-h6); margin-top: 6px; }
 
   [data-heading-prefix]::before {
     content: attr(data-heading-prefix);
@@ -1406,18 +1440,19 @@ ${
 }
 
 blockquote {
-  margin: 0;
-  padding: 8px 10px 8px 1.5em;
+  margin: 0.8em 0;
+  padding: 0.25em 0.85em;
+  color: ${props.theme.textSecondary};
   overflow: hidden;
   position: relative;
 
   &::before {
     content: "";
     display: inline-block;
-    width: 2px;
+    width: 4px;
     border-radius: 1px;
     position: absolute;
-    margin-left: -1.5em;
+    margin-left: -0.85em;
     top: 0;
     bottom: 0;
     background: ${props.theme.quote};
@@ -1425,7 +1460,11 @@ blockquote {
 
   &:dir(rtl)::before {
     margin-left: 0;
-    margin-right: -1.5em;
+    margin-right: -0.85em;
+  }
+
+  > p + p {
+    margin-top: 0.6em;
   }
 }
 
@@ -1472,22 +1511,37 @@ p {
 
 .heading-content a,
 p a {
-  color: ${props.theme.text};
+  color: ${props.theme.link};
   text-decoration: underline;
-  text-decoration-color: ${lighten(0.5, props.theme.text)};
+  text-decoration-color: ${transparentize(0.5, props.theme.link)};
   text-decoration-thickness: 1px;
   text-underline-offset: .15em;
   font-weight: 500;
 
   &:hover {
     text-decoration: underline;
-    text-decoration-color: ${props.theme.text};
+    text-decoration-color: ${props.theme.link};
     text-decoration-thickness: 1px;
   }
 }
 
 .heading-content a {
   font-weight: inherit;
+}
+
+p a[href^="http"]:not(.mention) {
+  padding: 0.1em 0.5em;
+  border-radius: 1em;
+  background: ${props.theme.backgroundSecondary};
+  font-size: 90%;
+  text-decoration: none;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+
+  &:hover {
+    background: ${props.theme.listItemHoverBackground};
+    text-decoration: underline;
+  }
 }
 
 a {
@@ -1772,6 +1826,19 @@ code {
   }
 }
 
+code {
+  border-radius: 2px;
+  border: 0;
+  background: ${transparentize(props.theme.isDark ? 0.94 : 0.9, props.theme.link)};
+  padding: 2px 4px;
+  color: ${props.theme.link};
+  font-size: 80%;
+
+  &.inline {
+    color: ${props.theme.link};
+  }
+}
+
 mark {
   border-radius: 1px;
   padding: 2px 0;
@@ -1779,6 +1846,19 @@ mark {
 
   a {
     color: ${props.theme.text};
+  }
+
+  &:not([data-color]) {
+    background-color: ${props.theme.textHighlight} !important;
+    color: ${props.theme.textHighlightForeground};
+
+    a {
+      color: ${props.theme.textHighlightForeground};
+    }
+
+    a[href^="http"]:not(.mention) {
+      background: none;
+    }
   }
 }
 
@@ -2022,12 +2102,12 @@ pre {
   display: block;
   overflow-x: auto;
   padding: 0.75em 1em;
-  line-height: 1.4em;
+  line-height: 1.6em;
   position: relative;
   background: ${props.theme.codeBackground};
-  border-radius: 4px;
+  border-radius: 2px;
   border: 1px solid ${props.theme.codeBorder};
-  margin: .5em 0;
+  margin: .8em 0;
 
   -webkit-font-smoothing: initial;
   font-family: ${props.theme.fontFamilyMono};
@@ -2047,6 +2127,7 @@ pre {
 
   code {
     font-size: inherit;
+    color: inherit;
     background: none;
     padding: 0;
     border: 0;
@@ -2056,7 +2137,8 @@ pre {
 table {
   width: 100%;
   border-collapse: separate;
-  border-radius: ${EditorStyleHelper.blockRadius};
+  border-radius: 2px;
+  font-size: 90%;
   margin-top: 1em;
   box-sizing: border-box;
   border: 1px solid ${props.theme.divider};
@@ -2081,18 +2163,16 @@ table {
     padding: 4px 8px;
     text-align: start;
     font-weight: normal;
+    background: ${props.theme.background};
     border-left: 1px solid ${props.theme.divider};
     border-top: 1px solid ${props.theme.divider};
   }
 
   th {
-    background: ${props.theme.background};
-    background-image: linear-gradient(
-      ${transparentize(0.75, props.theme.divider)},
-      ${transparentize(0.75, props.theme.divider)}
-    );
-    color: ${props.theme.textSecondary};
-    font-weight: 500;
+    background: ${props.theme.backgroundSecondary};
+    color: ${props.theme.text};
+    font-weight: 600;
+    text-align: center;
   }
 
   tr:first-child th,
@@ -2101,19 +2181,19 @@ table {
   }
   tr:first-child th[data-first-column],
   tr:first-child td[data-first-column] {
-    border-top-left-radius: ${EditorStyleHelper.blockRadius};
+    border-top-left-radius: 2px;
   }
   th[data-first-column][data-last-row],
   td[data-first-column][data-last-row] {
-    border-bottom-left-radius: ${EditorStyleHelper.blockRadius};
+    border-bottom-left-radius: 2px;
   }
   tr:first-child th[data-last-column],
   tr:first-child td[data-last-column] {
-    border-top-right-radius: ${EditorStyleHelper.blockRadius};
+    border-top-right-radius: 2px;
   }
   th[data-last-column][data-last-row],
   td[data-last-column][data-last-row] {
-    border-bottom-right-radius: ${EditorStyleHelper.blockRadius};
+    border-bottom-right-radius: 2px;
   }
 
   td .component-embed {

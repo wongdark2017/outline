@@ -15,6 +15,7 @@ import Logger from "@server/logging/Logger";
 import Metrics from "@server/logging/Metrics";
 import csp from "@server/middlewares/csp";
 import { attachCSRFToken } from "@server/middlewares/csrf";
+import { attachViteHmrProxy } from "@server/middlewares/vite";
 import ShutdownHelper, { ShutdownOrder } from "@server/utils/ShutdownHelper";
 import { initI18n } from "@server/utils/i18n";
 import routes from "../routes";
@@ -25,8 +26,16 @@ import oauth from "../routes/oauth";
 import type { UserAgentContext } from "koa-useragent";
 import userAgent from "koa-useragent";
 
-export default function init(app: Koa = new Koa(), server?: Server) {
+export default function init(
+  app: Koa = new Koa(),
+  server?: Server,
+  serviceNames: string[] = []
+) {
   void initI18n();
+
+  if (env.isDevelopment && server) {
+    attachViteHmrProxy(server, serviceNames);
+  }
 
   if (env.isProduction) {
     // Trust the X-Forwarded-* headers set by an upstream proxy, eg

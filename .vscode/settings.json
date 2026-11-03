@@ -4,4 +4,12 @@
   "typescript.validate.enable": true,
   "typescript.format.enable": true,
   "editor.formatOnSave": true,
+  "workbench.browser.enableRemoteProxy": false,
+  "remote.portsAttributes": {
+    "3000": {
+      "protocol": "https",
+      "label": "Outline",
+      "onAutoForward": "openBrowserOnce"
+    }
+  }
 }

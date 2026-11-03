@@ -214,21 +214,56 @@ describe("DocumentHelper", () => {
       expect(result).not.toMatch(/<script[^>]*nonce="/);
     });
 
-    it("should render math and include the KaTeX stylesheet", async () => {
+    it("should render KaTeX with embedded fonts for offline exports", async () => {
       const document = await buildDocument({
         text: "Inline $E=mc^2$ and block:\n\n$$\n\\frac{1}{2}\n$$\n",
       });
       const result = await DocumentHelper.toHTML(document);
       expect(result).toContain('class="katex"');
-      expect(result).toContain("katex.min.css");
+      expect(result).toContain('class="katex-display"');
+      expect(result).toContain('class="katex-mathml"');
+      expect(result).toContain('class="katex-html"');
+      expect(result).toContain('data-katex="true"');
+      expect(result).toContain("data:font/woff2;base64,");
+      expect(result).not.toMatch(/mathjax|<mjx-/i);
+      expect(result).not.toMatch(/url\(["']?fonts\//);
+      expect(result).not.toMatch(/<link[^>]*href="https?:[^"]*(?:katex|font)/);
+      expect(result).not.toContain("katex.min.css");
     });
 
-    it("should not include the KaTeX stylesheet without math", async () => {
+    it("should apply the cspNonce to the embedded KaTeX stylesheet", async () => {
+      const document = await buildDocument({ text: "$E=mc^2$" });
+      const result = await DocumentHelper.toHTML(document, {
+        cspNonce: "test-nonce-123",
+        includeStyles: false,
+      });
+
+      expect(result).toContain(
+        '<style data-katex="true" nonce="test-nonce-123">'
+      );
+      expect(result).not.toContain("data-styled");
+    });
+
+    it("should return only the rendered math body when the head is excluded", async () => {
+      const document = await buildDocument({ text: "$E=mc^2$" });
+      const result = await DocumentHelper.toHTML(document, {
+        includeHead: false,
+      });
+
+      expect(result).toContain('class="katex"');
+      expect(result).not.toContain('data-katex="true"');
+      expect(result).not.toContain("data:font/woff2;base64,");
+      expect(result).not.toContain("<head>");
+    });
+
+    it("should not include math styles or fonts without math", async () => {
       const document = await buildDocument({
         text: "This is a test paragraph",
       });
       const result = await DocumentHelper.toHTML(document);
-      expect(result).not.toContain("katex.min.css");
+      expect(result).not.toContain('data-katex="true"');
+      expect(result).not.toContain("data:font/woff2;base64,");
+      expect(result).not.toMatch(/mathjax|<mjx-/i);
     });
 
     it("should number headings according to the document preference", async () => {

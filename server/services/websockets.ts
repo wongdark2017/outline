@@ -12,6 +12,7 @@ import Logger from "@server/logging/Logger";
 import Metrics from "@server/logging/Metrics";
 import * as Tracing from "@server/logging/tracer";
 import { traceFunction } from "@server/logging/tracing";
+import { isViteHmrRequest } from "@server/middlewares/vite";
 import type { User } from "@server/models";
 import { rejectUpgrade } from "@server/onupgrade";
 import Redis from "@server/storage/redis";
@@ -63,6 +64,10 @@ export default function init(
   server.on(
     "upgrade",
     function (req: IncomingMessage, socket: Duplex, head: Buffer) {
+      if (isViteHmrRequest(req) && serviceNames.includes("web")) {
+        return;
+      }
+
       if (req.url?.startsWith(path) && ioHandleUpgrade) {
         // For on-premise deployments, ensure the websocket origin matches the deployed URL.
         // In cloud-hosted we support any origin for custom domains.

@@ -2,7 +2,6 @@ import { useDirection } from "@radix-ui/react-direction";
 import { throttle } from "es-toolkit/compat";
 import { observer } from "mobx-react";
 import { CloseIcon, MenuIcon, SidebarIcon } from "outline-icons";
-import { transparentize } from "polished";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { mergeRefs } from "react-merge-refs";
@@ -217,8 +216,6 @@ const Wrapper = styled(Flex)<WrapperProps>`
   top: 0;
   z-index: ${depths.header};
   position: sticky;
-  background: ${s("background")};
-
   ${(props) =>
     props.$passThrough
       ? `
@@ -226,8 +223,8 @@ const Wrapper = styled(Flex)<WrapperProps>`
       pointer-events: none;
       `
       : `
-      background: ${transparentize(0.2, props.theme.background)};
-      backdrop-filter: blur(20px);
+      background: ${props.theme.backgroundSecondary};
+      box-shadow: inset 0 3px 0 ${props.theme.accent}, 0 1px 0 ${props.theme.divider};
       `};
 
   padding: 12px 16px;
@@ -240,15 +237,6 @@ const Wrapper = styled(Flex)<WrapperProps>`
   button,
   [role="button"] {
     ${fadeOnDesktopBackgrounded()}
-  }
-
-  @supports (backdrop-filter: blur(20px)) {
-    ${(props) =>
-      !props.$passThrough &&
-      `
-      backdrop-filter: blur(20px);
-      background: ${transparentize(0.2, props.theme.background)};
-      `}
   }
 
   @media print {
