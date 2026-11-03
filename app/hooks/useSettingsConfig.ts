@@ -17,6 +17,7 @@ import {
   InternetIcon,
   SmileyIcon,
   BrowserIcon,
+  PaletteIcon,
 } from "outline-icons";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -48,6 +49,7 @@ const Security = lazy(() => import("~/scenes/Settings/Security"));
 const Shares = lazy(() => import("~/scenes/Settings/Shares"));
 const Templates = lazy(() => import("~/scenes/Settings/Templates"));
 const CustomEmojis = lazy(() => import("~/scenes/Settings/CustomEmojis"));
+const Themes = lazy(() => import("~/scenes/Settings/Themes"));
 const Embeds = lazy(() => import("~/scenes/Settings/Embeds"));
 
 export type ConfigItem = {
@@ -190,6 +192,15 @@ const useSettingsConfig = () => {
         icon: SmileyIcon,
       },
       {
+        name: t("Themes"),
+        path: settingsPath("themes"),
+        component: Themes.Component,
+        preload: Themes.preload,
+        enabled: can.createTheme || can.update,
+        group: t("Workspace"),
+        icon: PaletteIcon,
+      },
+      {
         name: t("API Keys"),
         path: settingsPath("api-keys"),
         component: ApiKeys.Component,
@@ -283,7 +294,14 @@ const useSettingsConfig = () => {
     });
 
     return items;
-  }, [t, can.createApiKey, can.update, can.createImport, can.createExport]);
+  }, [
+    t,
+    can.createApiKey,
+    can.update,
+    can.createImport,
+    can.createExport,
+    can.createTheme,
+  ]);
 
   return config.filter((item) => item.enabled);
 };

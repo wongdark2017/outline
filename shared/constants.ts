@@ -12,6 +12,7 @@ import {
   EmailDisplay,
   CommentingAccess,
   NotificationBadgeType,
+  ThemeChoice,
 } from "./types";
 
 export const MAX_AVATAR_DISPLAY = 6;
@@ -104,6 +105,8 @@ export const TeamPreferenceDefaults: TeamPreferences = {
   [TeamPreference.MCP]: true,
   [TeamPreference.DisabledEmbeds]: [],
   [TeamPreference.PersonalDocs]: true,
+  [TeamPreference.DefaultLightTheme]: ThemeChoice.Builtin,
+  [TeamPreference.DefaultDarkTheme]: ThemeChoice.Builtin,
 };
 
 export const DocumentPreferenceDefaults: DocumentPreferences = {
@@ -118,4 +121,6 @@ export const UserPreferenceDefaults: UserPreferences = {
   [UserPreference.SortCommentsByOrderInDocument]: true,
   [UserPreference.EnableSmartText]: true,
   [UserPreference.NotificationBadge]: NotificationBadgeType.Count,
+  [UserPreference.LightTheme]: ThemeChoice.WorkspaceDefault,
+  [UserPreference.DarkTheme]: ThemeChoice.WorkspaceDefault,
 };

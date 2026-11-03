@@ -10,5 +10,6 @@ export * from "./permissions";
 export * from "./plans";
 export * from "./prosemirror";
 export * from "./team";
+export * from "./theme";
 export * from "./unfurl";
 export * from "./user";

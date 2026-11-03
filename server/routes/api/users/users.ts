@@ -1,7 +1,7 @@
 import Router from "@koa/router";
 import type { WhereOptions } from "sequelize";
 import { Op, Sequelize } from "sequelize";
-import { NotificationEventType, UserRole } from "@shared/types";
+import { NotificationEventType, UserPreference, UserRole } from "@shared/types";
 import { UserRoleHelper } from "@shared/utils/UserRoleHelper";
 import { settingsPath } from "@shared/utils/routeHelpers";
 import { UserValidation } from "@shared/validations";
@@ -30,6 +30,7 @@ import type { APIContext } from "@server/types";
 import { AuthenticationType } from "@server/types";
 import { RateLimiterStrategy } from "@server/utils/RateLimiter";
 import { safeEqual } from "@server/utils/crypto";
+import { assertThemesInTeam } from "@server/utils/themes";
 import { QueryHelper } from "@server/storage/QueryHelper";
 import { getDetailsForEmailUpdateToken } from "@server/utils/jwt";
 import pagination from "../middlewares/pagination";
@@ -288,6 +289,14 @@ router.post(
       user.language = language;
     }
     if (preferences) {
+      await assertThemesInTeam(
+        [
+          preferences[UserPreference.LightTheme],
+          preferences[UserPreference.DarkTheme],
+        ],
+        user.teamId,
+        transaction
+      );
       user.preferences = {
         ...user.preferences,
         ...preferences,

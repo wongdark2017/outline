@@ -7,8 +7,10 @@ import { languageOptions as availableLanguages } from "@shared/i18n";
 import {
   NotificationBadgeType,
   TeamPreference,
+  ThemeChoice,
   UserPreference,
 } from "@shared/types";
+import { errToString } from "@shared/utils/error";
 import { Theme } from "~/stores/UiStore";
 import Button from "~/components/Button";
 import Heading from "~/components/Heading";
@@ -27,7 +29,7 @@ import SettingRow from "./components/SettingRow";
 
 function Preferences() {
   const { t } = useTranslation();
-  const { ui, dialogs } = useStores();
+  const { ui, dialogs, themes } = useStores();
   const user = useCurrentUser();
   const team = useCurrentTeam();
   const can = usePolicy(user.id);
@@ -53,6 +55,64 @@ function Preferences() {
         { type: "item", label: t("System"), value: Theme.System },
       ] satisfies Option[],
     [t]
+  );
+
+  React.useEffect(() => {
+    themes.fetchPage({ limit: 100 }).catch(() => {
+      toast.error(t("Could not load themes"));
+    });
+  }, [themes, t]);
+
+  const customThemeOptions: Option[] = React.useMemo(
+    () => [
+      {
+        type: "item",
+        label: t("Workspace default"),
+        value: ThemeChoice.WorkspaceDefault,
+      },
+      { type: "item", label: t("Outline"), value: ThemeChoice.Builtin },
+      ...themes.orderedData.map(
+        (theme) =>
+          ({
+            type: "item",
+            label: theme.name,
+            value: theme.id,
+          }) satisfies Option
+      ),
+    ],
+    [t, themes.orderedData]
+  );
+
+  const customThemeValue = (
+    key: UserPreference.LightTheme | UserPreference.DarkTheme
+  ) => {
+    const value = user.getPreference(key);
+
+    // A theme that no longer exists is not listed, so show the choice it
+    // falls back to instead of an empty selection.
+    const isListed = customThemeOptions.some(
+      (option) => option.type === "item" && option.value === value
+    );
+    return isListed || !themes.isLoaded ? value : ThemeChoice.WorkspaceDefault;
+  };
+
+  const handleCustomThemeChange = React.useCallback(
+    async (
+      key: UserPreference.LightTheme | UserPreference.DarkTheme,
+      value: string
+    ) => {
+      const previous = user.getPreference(key);
+
+      try {
+        user.setPreference(key, value);
+        await user.save();
+        toast.success(t("Preferences saved"));
+      } catch (err) {
+        user.setPreference(key, previous);
+        toast.error(errToString(err));
+      }
+    },
+    [user, t]
   );
 
   const handleUseCursorPointerChange = React.useCallback(
@@ -220,6 +280,36 @@ function Preferences() {
           value={ui.theme}
           onChange={handleThemeChange}
           label={t("Appearance")}
+          labelHidden
+        />
+      </SettingRow>
+      <SettingRow
+        name={UserPreference.LightTheme}
+        label={t("Light theme")}
+        description={t("Colors used when the interface is light.")}
+      >
+        <InputSelect
+          options={customThemeOptions}
+          value={customThemeValue(UserPreference.LightTheme)}
+          onChange={(value) =>
+            handleCustomThemeChange(UserPreference.LightTheme, value)
+          }
+          label={t("Light theme")}
+          labelHidden
+        />
+      </SettingRow>
+      <SettingRow
+        name={UserPreference.DarkTheme}
+        label={t("Dark theme")}
+        description={t("Colors used when the interface is dark.")}
+      >
+        <InputSelect
+          options={customThemeOptions}
+          value={customThemeValue(UserPreference.DarkTheme)}
+          onChange={(value) =>
+            handleCustomThemeChange(UserPreference.DarkTheme, value)
+          }
+          label={t("Dark theme")}
           labelHidden
         />
       </SettingRow>

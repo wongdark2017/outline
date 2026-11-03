@@ -30,4 +30,5 @@ import "./webhookSubscription";
 import "./userMembership";
 import "./userPasskey";
 import "./emoji";
+import "./theme";
 import "./accessRequest";

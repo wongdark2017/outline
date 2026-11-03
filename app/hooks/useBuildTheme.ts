@@ -6,6 +6,11 @@ import {
   buildLightTheme,
   buildPitchBlackTheme,
 } from "@shared/styles/theme";
+import type { ThemeTokens } from "@shared/styles/themeTokens";
+import {
+  applyThemeTokens,
+  sanitizeThemeTokens,
+} from "@shared/styles/themeTokens";
 import type { CustomTheme } from "@shared/types";
 import { validateColorHex } from "@shared/utils/color";
 import { Theme } from "~/stores/UiStore";
@@ -19,11 +24,13 @@ import useQuery from "./useQuery";
  *
  * @param customTheme Custom theme to merge with the default theme
  * @param overrideTheme Optional override the theme to use
+ * @param themeTokens Optional color overrides from a user-selected theme
  * @returns The theme to use
  */
 export default function useBuildTheme(
   customTheme: Partial<CustomTheme> = {},
-  overrideTheme?: Theme
+  overrideTheme?: Theme,
+  themeTokens?: ThemeTokens
 ) {
   const { ui } = useStores();
   const params = useQuery();
@@ -54,19 +61,36 @@ export default function useBuildTheme(
     [customTheme]
   );
 
-  const theme = useMemo(
-    () =>
-      isPrinting
-        ? buildLightTheme(safeTheme)
-        : isMobile
-          ? resolvedTheme === "dark"
-            ? buildPitchBlackTheme(safeTheme)
-            : buildLightTheme(safeTheme)
-          : resolvedTheme === "dark"
-            ? buildDarkTheme(safeTheme)
-            : buildLightTheme(safeTheme),
-    [safeTheme, isMobile, isPrinting, resolvedTheme]
+  const safeTokens = useMemo(
+    () => sanitizeThemeTokens(themeTokens),
+    [themeTokens]
   );
+
+  const theme = useMemo(() => {
+    // Printed pages always use the built-in light colors so documents stay
+    // readable whatever theme the user has chosen.
+    if (isPrinting) {
+      return buildLightTheme(safeTheme);
+    }
+
+    // The accent is an input to the builders, which derive selection colors
+    // from it, so pass it in rather than only overriding it afterwards. It is
+    // only included when set, as spreading an undefined accent would erase the
+    // default.
+    const input = safeTokens.accent
+      ? { ...safeTheme, accent: safeTokens.accent }
+      : safeTheme;
+
+    const base = isMobile
+      ? resolvedTheme === "dark"
+        ? buildPitchBlackTheme(input)
+        : buildLightTheme(input)
+      : resolvedTheme === "dark"
+        ? buildDarkTheme(input)
+        : buildLightTheme(input);
+
+    return applyThemeTokens(base, safeTokens);
+  }, [safeTheme, safeTokens, isMobile, isPrinting, resolvedTheme]);
 
   return theme;
 }

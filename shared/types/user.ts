@@ -34,6 +34,10 @@ export enum UserPreference {
   NotificationBadge = "notificationBadge",
   /** The display order of the reorderable sections in the sidebar. */
   SidebarSectionOrder = "sidebarSectionOrder",
+  /** The theme used in light mode: a theme ID or a ThemeChoice value. */
+  LightTheme = "lightTheme",
+  /** The theme used in dark mode: a theme ID or a ThemeChoice value. */
+  DarkTheme = "darkTheme",
 }
 
 /** Styles of prefix that can be shown before headings. */
@@ -82,4 +86,6 @@ export type UserPreferences = {
   [UserPreference.ShowDocumentStats]?: boolean;
   [UserPreference.NotificationBadge]?: NotificationBadgeType;
   [UserPreference.SidebarSectionOrder]?: SidebarSection[];
+  [UserPreference.LightTheme]?: string;
+  [UserPreference.DarkTheme]?: string;
 };

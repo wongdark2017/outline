@@ -60,6 +60,8 @@ export const GroupSection = ({ t }: ActionContext) => t("Groups");
 
 export const EmojiSecion = ({ t }: ActionContext) => t("Emoji");
 
+export const ThemeSection = ({ t }: ActionContext) => t("Theme");
+
 export const UserSection = ({ t }: ActionContext) => t("People");
 
 UserSection.priority = 0.5;
