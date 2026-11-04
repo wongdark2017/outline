@@ -30,6 +30,7 @@ import presentStar from "./star";
 import presentSubscription from "./subscription";
 import presentTeam from "./team";
 import presentTemplate from "./template";
+import presentTheme from "./theme";
 import presentUser from "./user";
 import presentView from "./view";
 import presentEmoji from "./emoji";
@@ -70,6 +71,7 @@ export {
   presentSubscription,
   presentTeam,
   presentTemplate,
+  presentTheme,
   presentUser,
   presentView,
   presentEmoji,

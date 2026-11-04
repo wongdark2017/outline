@@ -9,6 +9,7 @@ import {
 import { validateColorHex } from "@shared/utils/color";
 import { TeamValidation } from "@shared/validations";
 import { BaseSchema } from "@server/routes/api/schema";
+import { zodTeamThemeChoice } from "@server/utils/zod";
 
 export const TeamsUpdateSchema = BaseSchema.extend({
   body: z.object({
@@ -80,6 +81,10 @@ export const TeamsUpdateSchema = BaseSchema.extend({
         [TeamPreference.DisabledEmbeds]: z.array(z.string()),
         /** Whether users can create documents in a personal collection. */
         [TeamPreference.PersonalDocs]: z.boolean(),
+        /** The default theme in light mode. */
+        [TeamPreference.DefaultLightTheme]: zodTeamThemeChoice(),
+        /** The default theme in dark mode. */
+        [TeamPreference.DefaultDarkTheme]: zodTeamThemeChoice(),
       })
       .partial()
       .optional(),

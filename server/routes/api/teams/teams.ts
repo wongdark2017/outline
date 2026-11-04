@@ -1,5 +1,5 @@
 import Router from "@koa/router";
-import { UserRole } from "@shared/types";
+import { TeamPreference, UserRole } from "@shared/types";
 import teamCreator from "@server/commands/teamCreator";
 import teamUpdater from "@server/commands/teamUpdater";
 import ConfirmTeamDeleteEmail from "@server/emails/templates/ConfirmTeamDeleteEmail";
@@ -15,6 +15,7 @@ import { presentTeam, presentPolicies } from "@server/presenters";
 import type { APIContext } from "@server/types";
 import { RateLimiterStrategy } from "@server/utils/RateLimiter";
 import { safeEqual } from "@server/utils/crypto";
+import { assertThemesInTeam } from "@server/utils/themes";
 import * as T from "./schema";
 
 const router = new Router();
@@ -28,6 +29,16 @@ const handleTeamUpdate = async (ctx: APIContext<T.TeamsUpdateSchemaReq>) => {
     transaction,
   });
   authorize(user, "update", team);
+
+  const { preferences } = ctx.input.body;
+  await assertThemesInTeam(
+    [
+      preferences?.[TeamPreference.DefaultLightTheme],
+      preferences?.[TeamPreference.DefaultDarkTheme],
+    ],
+    user.teamId,
+    transaction
+  );
 
   const updatedTeam = await teamUpdater(ctx, {
     params: ctx.input.body,

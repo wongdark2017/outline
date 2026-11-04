@@ -1,5 +1,6 @@
 import emojiRegex from "emoji-regex";
 import { z } from "zod";
+import { ThemeChoice } from "@shared/types";
 import { iconNames } from "@shared/utils/IconNames";
 import { UrlHelper } from "@shared/utils/UrlHelper";
 
@@ -76,3 +77,21 @@ export const zodTimezone = () =>
       error: "invalid timezone",
     }
   );
+
+/**
+ * Returns a zod schema that validates a user's theme choice, either a theme ID
+ * or a ThemeChoice value.
+ *
+ * @returns a zod schema for a user's theme choice.
+ */
+export const zodUserThemeChoice = () =>
+  z.union([z.uuid(), z.enum(ThemeChoice)]);
+
+/**
+ * Returns a zod schema that validates a workspace default theme, either a theme
+ * ID or the built-in colors.
+ *
+ * @returns a zod schema for a workspace default theme.
+ */
+export const zodTeamThemeChoice = () =>
+  z.union([z.uuid(), z.literal(ThemeChoice.Builtin)]);

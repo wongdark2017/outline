@@ -12,7 +12,11 @@ import {
   UserStatusFilters,
 } from "@server/models/helpers/Filters";
 import User from "@server/models/User";
-import { zodEnumFromObjectKeys, zodTimezone } from "@server/utils/zod";
+import {
+  zodEnumFromObjectKeys,
+  zodTimezone,
+  zodUserThemeChoice,
+} from "@server/utils/zod";
 import { BaseSchema } from "../schema";
 
 const BaseIdSchema = z.object({
@@ -129,6 +133,8 @@ export const UsersUpdateSchema = BaseSchema.extend({
         [UserPreference.ShowDocumentStats]: z.boolean(),
         [UserPreference.NotificationBadge]: z.enum(NotificationBadgeType),
         [UserPreference.SidebarSectionOrder]: z.array(z.enum(SidebarSection)),
+        [UserPreference.LightTheme]: zodUserThemeChoice(),
+        [UserPreference.DarkTheme]: zodUserThemeChoice(),
       })
       .partial()
       .optional(),

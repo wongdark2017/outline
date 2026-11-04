@@ -67,6 +67,10 @@ export enum TeamPreference {
   DisabledEmbeds = "disabledEmbeds",
   /** Whether users can create documents in a personal collection. */
   PersonalDocs = "personalDocs",
+  /** The default theme in light mode: a theme ID or ThemeChoice.Builtin. */
+  DefaultLightTheme = "defaultLightTheme",
+  /** The default theme in dark mode: a theme ID or ThemeChoice.Builtin. */
+  DefaultDarkTheme = "defaultDarkTheme",
 }
 
 /** Workspace preference values, keyed by preference. */
@@ -86,4 +90,6 @@ export type TeamPreferences = {
   [TeamPreference.MCP]?: boolean;
   [TeamPreference.DisabledEmbeds]?: string[];
   [TeamPreference.PersonalDocs]?: boolean;
+  [TeamPreference.DefaultLightTheme]?: string;
+  [TeamPreference.DefaultDarkTheme]?: string;
 };

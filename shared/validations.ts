@@ -223,3 +223,10 @@ export const EmojiValidation = {
   /* the characters allowed in the name */
   allowedNameCharacters: /^[a-z0-9_]*$/,
 };
+
+export const ThemeValidation = {
+  /** The maximum length of a theme name. */
+  maxNameLength: 50,
+  /** The maximum number of themes in a workspace. */
+  maxThemesPerTeam: 100,
+};

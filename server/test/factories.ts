@@ -51,6 +51,7 @@ import {
   OAuthAuthentication,
   Relationship,
   Template,
+  Theme,
 } from "@server/models";
 import { RelationshipType } from "@server/models/Relationship";
 import { SearchQuerySource } from "@server/models/SearchQuery";
@@ -732,6 +733,29 @@ export async function buildEmoji(
       .adjective()
       .toLowerCase()
       .replace(/[^a-z0-9_]/g, "_"),
+    ...overrides,
+  });
+}
+
+export async function buildTheme(
+  overrides: Partial<Theme> = {}
+): Promise<Theme> {
+  if (!overrides.teamId) {
+    const team = await buildTeam();
+    overrides.teamId = team.id;
+  }
+
+  if (!overrides.createdById) {
+    const user = await buildUser({
+      teamId: overrides.teamId,
+    });
+    overrides.createdById = user.id;
+  }
+
+  return Theme.create({
+    name: faker.lorem.words(2),
+    light: { accent: "#d23f31" },
+    dark: { accent: "#ff7a6b" },
     ...overrides,
   });
 }
