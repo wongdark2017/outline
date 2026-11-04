@@ -3,7 +3,7 @@
   "name": "appearance-and-scripts",
   "title": "独立外观设置与受信任脚本",
   "description": "独立背景设置与简体中文界面。保留工作区默认和个人覆盖。CSS 与 JavaScript 的编辑、接口和执行全面暂停，已有数据保留。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": "customizations",
   "package": null,
@@ -11,17 +11,17 @@
   "creator": "chengqi.dev",
   "assignee": "chengqi.dev",
   "createdAt": "2026-11-03",
-  "completedAt": null,
+  "completedAt": "2026-11-04",
   "branch": "feat/custom-themes",
   "base_branch": "main",
   "worktree_path": null,
-  "commit": null,
+  "commit": "8fa983344608608b5e474dec19b458debe8cc140",
   "pr_url": null,
   "subtasks": [],
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "用户已授权提交当前代码并推送至 origin/feat/custom-themes。131个任务文件已核对，用户.env.development排除。功能、暂停范围和背景验收均通过；代码提交后归档并记录会话。",
+  "notes": "功能代码提交完成，提交钩子通过。用户授权推送至origin/feat/custom-themes。中文背景设置、CSS/JS全面暂停和全部背景修复验收通过；用户.env.development未纳入提交。正在按流程归档并记录会话。",
   "meta": {
     "planning_review": "approved",
     "baseline_commit": "552ac5e18",
@@ -35,6 +35,7 @@
     "article_background_fix": "verified",
     "title_background_fix": "verified",
     "background_only_and_chinese": "verified",
-    "home_background_fix": "verified"
+    "home_background_fix": "verified",
+    "work_commit": "8fa983344608608b5e474dec19b458debe8cc140"
   }
 }

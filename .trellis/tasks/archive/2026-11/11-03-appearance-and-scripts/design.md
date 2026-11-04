@@ -2,7 +2,7 @@
 
 本文件供实现和检查使用。
 用户批准当前设计。
-任务字段为 `in_progress`。
+任务在代码提交后归档为 `completed`。
 首版实现通过定向验收。
 用户已授权提交当前方案并推送至 origin/feat/custom-themes。
 实际页面和验收记录见 `verification.json`。

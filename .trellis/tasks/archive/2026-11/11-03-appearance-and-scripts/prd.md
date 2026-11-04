@@ -464,7 +464,8 @@ CSS 和 JavaScript 功能全面暂停，已有数据保留。
 本轮仅修改展示样式与翻译，没有重复运行单元测试。
 明细见 `home-background-verification.json`。
 
-用户已授权提交当前代码并推送至 `origin/feat/custom-themes`。
+功能代码提交为 `8fa983344`。
+用户已授权推送至 `origin/feat/custom-themes`。
 提交范围为已核对的 131 个任务文件。
 用户 `.env.development` 保留在本地，不纳入提交。
 代码提交后，按流程归档本任务并记录会话。
