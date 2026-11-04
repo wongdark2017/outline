@@ -1,0 +1,1026 @@
+{
+  "date": "2026-11-04T08:55:22.130Z",
+  "environment": "production Chromium; disposable PostgreSQL and reserved Redis; generic checkerboard",
+  "baseline": {
+    "geometry": {
+      "nav": {
+        "left": 354,
+        "top": 220.59375,
+        "right": 1186,
+        "bottom": 254.59375,
+        "width": 832,
+        "height": 34,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "tabs": {
+        "left": 346,
+        "top": 220.59375,
+        "right": 1194,
+        "bottom": 254.59375,
+        "width": 848,
+        "height": 34,
+        "background": "rgb(255, 255, 255)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "content": {
+        "left": 354,
+        "top": 220.59375,
+        "right": 1186,
+        "bottom": 1950.015625,
+        "width": 832,
+        "height": 1729.421875,
+        "background": "rgb(255, 255, 255)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "main": {
+        "left": 260,
+        "top": 0,
+        "right": 1280,
+        "bottom": 2034.015625,
+        "width": 1020,
+        "height": 2034.015625,
+        "background": "color(srgb 1 1 1 / 0.92)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "pageWidth": 1280,
+      "viewport": 1280,
+      "navScrollWidth": 832,
+      "navClientWidth": 832,
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=366a5793-87ff-426c-9888-332d48f95138\")"
+    },
+    "pixels": {
+      "samples": [
+        {
+          "x": 1178,
+          "y": 271,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 295,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 319,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 343,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 367,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 391,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 415,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 439,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 463,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 487,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 511,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 535,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 559,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 583,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 607,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 631,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 655,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 679,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 703,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 727,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 751,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 775,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 799,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 823,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 847,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 871,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 895,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 919,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "minimum": 255,
+      "maximum": 255
+    }
+  },
+  "after": {
+    "geometry": {
+      "nav": {
+        "left": 354,
+        "top": 220.59375,
+        "right": 1186,
+        "bottom": 254.59375,
+        "width": 832,
+        "height": 34,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "tabs": {
+        "left": 346,
+        "top": 220.59375,
+        "right": 1194,
+        "bottom": 254.59375,
+        "width": 848,
+        "height": 34,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "blur(12px)",
+        "mask": "none"
+      },
+      "content": {
+        "left": 354,
+        "top": 220.59375,
+        "right": 1186,
+        "bottom": 1950.015625,
+        "width": 832,
+        "height": 1729.421875,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "main": {
+        "left": 260,
+        "top": 0,
+        "right": 1280,
+        "bottom": 2034.015625,
+        "width": 1020,
+        "height": 2034.015625,
+        "background": "color(srgb 1 1 1 / 0.92)",
+        "blur": "none",
+        "mask": "none"
+      },
+      "pageWidth": 1280,
+      "viewport": 1280,
+      "navScrollWidth": 832,
+      "navClientWidth": 832,
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=366a5793-87ff-426c-9888-332d48f95138\")"
+    },
+    "pixels": {
+      "samples": [
+        {
+          "x": 1178,
+          "y": 271,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 295,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 319,
+          "rgb": [
+            250,
+            250,
+            250
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 343,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 367,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 391,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 415,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 439,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 463,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 487,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 511,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 535,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 559,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 583,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 607,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 631,
+          "rgb": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 655,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 679,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 703,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 727,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 751,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 775,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 799,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 823,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 847,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 871,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 895,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 919,
+          "rgb": [
+            255,
+            255,
+            255
+          ]
+        }
+      ],
+      "minimum": 235,
+      "maximum": 255
+    }
+  },
+  "checks": [
+    {
+      "name": "collection list and tab strip release the opaque slab; actual saved-image pixels paint through",
+      "status": "passed",
+      "geometry": {
+        "nav": {
+          "left": 354,
+          "top": 220.59375,
+          "right": 1186,
+          "bottom": 254.59375,
+          "width": 832,
+          "height": 34,
+          "background": "rgba(0, 0, 0, 0)",
+          "blur": "none",
+          "mask": "none"
+        },
+        "tabs": {
+          "left": 346,
+          "top": 220.59375,
+          "right": 1194,
+          "bottom": 254.59375,
+          "width": 848,
+          "height": 34,
+          "background": "rgba(0, 0, 0, 0)",
+          "blur": "blur(12px)",
+          "mask": "none"
+        },
+        "content": {
+          "left": 354,
+          "top": 220.59375,
+          "right": 1186,
+          "bottom": 1950.015625,
+          "width": 832,
+          "height": 1729.421875,
+          "background": "rgba(0, 0, 0, 0)",
+          "blur": "none",
+          "mask": "none"
+        },
+        "main": {
+          "left": 260,
+          "top": 0,
+          "right": 1280,
+          "bottom": 2034.015625,
+          "width": 1020,
+          "height": 2034.015625,
+          "background": "color(srgb 1 1 1 / 0.92)",
+          "blur": "none",
+          "mask": "none"
+        },
+        "pageWidth": 1280,
+        "viewport": 1280,
+        "navScrollWidth": 832,
+        "navClientWidth": 832,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=366a5793-87ff-426c-9888-332d48f95138\")"
+      },
+      "pixels": {
+        "samples": [
+          {
+            "x": 1178,
+            "y": 271,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 295,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 319,
+            "rgb": [
+              250,
+              250,
+              250
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 343,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 367,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 391,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 415,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 439,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 463,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 487,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 511,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 535,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 559,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 583,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 607,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 631,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 655,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 679,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 703,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 727,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 751,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 775,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 799,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 823,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 847,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 871,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 895,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 919,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          }
+        ],
+        "minimum": 235,
+        "maximum": 255
+      }
+    },
+    {
+      "name": "sticky tabs remain at the header, blur rows beneath and remain clickable after scrolling",
+      "status": "passed"
+    },
+    {
+      "name": "dark mode uses the same transparent collection surfaces",
+      "status": "passed"
+    },
+    {
+      "name": "320/390px tabs scroll horizontally, show overflow without a white fade and support keyboard navigation",
+      "status": "passed",
+      "widths": [
+        {
+          "width": 320,
+          "pageWidth": 320,
+          "overflowMask": "linear-gradient(90deg, rgb(0, 0, 0) calc(100% - 50px), rgba(0, 0, 0, 0))",
+          "lastTabFocus": {
+            "text": "A–Z",
+            "visible": true
+          },
+          "maskAtEnd": "none"
+        },
+        {
+          "width": 390,
+          "pageWidth": 390,
+          "overflowMask": "linear-gradient(90deg, rgb(0, 0, 0) calc(100% - 50px), rgba(0, 0, 0, 0))",
+          "lastTabFocus": {
+            "text": "A–Z",
+            "visible": true
+          },
+          "maskAtEnd": "none"
+        }
+      ]
+    },
+    {
+      "name": "recovery retains ordinary opaque surfaces and omits active-image blur/mask",
+      "status": "passed"
+    },
+    {
+      "name": "a member without an image retains the original tab and list appearance",
+      "status": "passed"
+    },
+    {
+      "name": "print media does not enable the active-image blur or overflow mask",
+      "status": "passed"
+    },
+    {
+      "name": "no uncaught runtime or HTTP errors in the collection acceptance",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0
+  },
+  "userDatabaseChanged": false,
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Disposable collection visual acceptance environment only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "staticChecks": {
+    "lint": "passed; repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "clientBuild": "NODE_ENV=production yarn vite:build",
+    "independentReview": "passed; no findings"
+  },
+  "unitTestsThisIteration": {
+    "status": "skipped",
+    "reason": "Two reversible presentation-style changes; actual collection browser behavior and pixels verified."
+  },
+  "exploratoryCheckNotes": [
+    "Initial hand-constructed collection route omitted its required slug; canonical sidebar route was used thereafter.",
+    "The first after-build browser run found stale preload chunks in the still-running isolated server. Restarting that server after the build removed all HTTP errors; final run passed."
+  ]
+}

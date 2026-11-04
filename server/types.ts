@@ -1,3 +1,4 @@
+import type { CustomizationInvalidation } from "@shared/types";
 import type { ParameterizedContext, DefaultContext } from "koa";
 import type { RouterContext } from "@koa/router";
 import type { InferAttributes, Model, Transaction } from "sequelize";
@@ -505,7 +506,16 @@ export type ImportEvent = BaseEvent<Import<any>> & {
   modelId: string;
 };
 
+/** A source-free invalidation of workspace or personal customization state. */
+export interface CustomizationEvent extends BaseEvent<User> {
+  name: "customizations.update";
+  modelId: string;
+  userId: string | null;
+  data: CustomizationInvalidation;
+}
+
 export type Event =
+  | CustomizationEvent
   | ApiKeyEvent
   | AttachmentEvent
   | AuthenticationProviderEvent

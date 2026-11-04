@@ -40,6 +40,19 @@ const Nav = styled.nav<{ $shadowVisible?: boolean }>`
     )`
         : `transparent`};
   }
+
+  @media screen {
+    :where(body[data-outline-customization-background]) & {
+      mask-image: ${(props) =>
+        props.$shadowVisible
+          ? "linear-gradient(90deg, #000 calc(100% - 50px), transparent)"
+          : "none"};
+
+      &:after {
+        background: none;
+      }
+    }
+  }
 `;
 
 // When sticky we need extra background coverage around the sides otherwise
@@ -49,8 +62,17 @@ const Sticky = styled.div`
   top: 54px;
   margin: 0 -8px;
   padding: 0 8px;
-  background: ${s("background")};
+  background: var(
+    --outline-customization-layout-background,
+    ${s("background")}
+  );
   z-index: 1;
+
+  @media screen {
+    :where(body[data-outline-customization-background]) & {
+      backdrop-filter: blur(12px);
+    }
+  }
 `;
 
 export const Separator = styled.span`

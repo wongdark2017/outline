@@ -361,3 +361,39 @@ User explicitly paused further email code sign-in development and rollout. Clean
 ### Next Steps
 
 - Further development and rollout remain paused; resume only after an explicit user request, using the retained source branches and archived task records.
+
+
+## Session 11: 中文背景设置、背景遮挡修复与脚本暂停
+<!-- trellis-session: v=2 fp=667f1db24f925597 -->
+
+**Date**: 2026-11-04
+**Task**: 中文背景设置、背景遮挡修复与脚本暂停
+**Branch**: `feat/custom-themes`
+
+### Summary
+
+用户授权提交并推送当前分支。完成功能提交与任务归档，交付中文背景单页、背景绘制修复，以及保留数据的 CSS/JS 全面暂停。
+
+### Main Changes
+
+- 增加独立工作区默认背景与个人上传、覆盖、恢复继承，保留私有图片权限与字段版本。
+- 停用旧主题页面与全部 themes.* 接口；CSS/JS 编辑、五个写接口、模块读取与客户端执行全面暂停，原数据保留。
+- 补充 50 项简体中文；修复启动根容器、集合列表、文章、标题与首页列表的额外底色。
+- 更新适用规范，保留规划、原型、实际截图和各阶段验收记录；用户 .env.development 未纳入提交。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8fa983344608608b5e474dec19b458debe8cc140` | feat: add Chinese background settings and retire legacy theme management |
+
+### Testing
+
+- [OK] 最近跨层定向测试为 21 项服务端 API 与 30 项前端测试，共 51 项通过；当前完整测试清单为 155 项。
+- [OK] 背景单页与全面暂停的 14 项生产浏览器检查通过，数据库重载确认源码、草稿、发布和授权原值保留。
+- [OK] 最新首页 8 项生产浏览器检查通过，覆盖四个页签、浅深色、窄屏、恢复与打印事件，CSS/JS 继续暂停。
+- [OK] 生产构建、全仓 lint、类型、格式与差异检查通过；提交钩子通过，提交内容与已验收快照一致。
+
+### Status
+
+[OK] **Completed**

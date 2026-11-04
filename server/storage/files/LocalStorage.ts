@@ -94,8 +94,11 @@ export default class LocalStorage extends BaseStorage {
     try {
       await unlink(filePath);
     } catch (err) {
+      if (err instanceof Error && "code" in err && err.code === "ENOENT") {
+        return;
+      }
       Logger.warn(`Couldn't delete ${filePath}`, { error: err });
-      return;
+      throw err;
     }
 
     const directory = path.dirname(filePath);

@@ -159,7 +159,10 @@ function Home() {
 
 const Documents = styled.div`
   position: relative;
-  background: ${s("background")};
+  background: var(
+    --outline-customization-layout-background,
+    ${s("background")}
+  );
 `;
 
 export default observer(Home);

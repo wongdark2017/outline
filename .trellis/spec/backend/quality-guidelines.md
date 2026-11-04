@@ -161,6 +161,10 @@ Wrong: emit `https://localhost:3001/static/app/index.tsx` and assume the develop
 - Stop verification services when handing startup back to the developer. If a
   service must remain running, report that explicitly. Clean up only identified
   project process trees; never kill all Node processes or arbitrary port owners.
+- Verify production with `NODE_ENV=production yarn build`. A development
+  `.env` can otherwise leave Vite's `isProduction=false` while `define` selects
+  production React, producing `jsxDEV is not a function` at runtime. Successful
+  compilation alone does not verify that the production application renders.
 
 ## Forbidden patterns
 
@@ -168,3 +172,239 @@ Wrong: emit `https://localhost:3001/static/app/index.tsx` and assume the develop
 - Mutating or returning a model without `authorize(...)` on it.
 - Credential or authenticator routes without `type: AuthenticationType.APP`.
 - `vi.mock` in a server test without the isolate marker.
+
+## Historical contract: Independent appearance and trusted browser scripts
+
+CSS and script editing/execution are currently paused. The background-only
+contract below takes precedence over the original enabled-feature rules in this
+section. Keep the historical models/source for a future explicit restoration.
+
+### 1. Scope / Trigger
+
+`server/routes/api/customizations/`, `server/commands/customizations.ts` and
+`shared/types/customizations.ts` define a cross-layer contract. Backgrounds,
+CSS and script consent remain separate from `Theme` and theme JSON imports.
+
+### 2. Signatures
+
+- `customizations.info {}` returns current-user settings without admin drafts.
+- `customizations.workspaceInfo {}` adds `draft` for administrators.
+- `customizations.updateBackground { scope, expectedVersion, assetId, source?, fit }`.
+- `customizations.updateCss { scope, expectedVersion, css }`.
+- `customizations.saveScriptDraft { expectedVersion, source, modules }`.
+- `customizations.publishScript { expectedVersion }` publishes the saved draft.
+- `customizations.enableScript { revisionId, digest }` and `disableScript {}`.
+- `customizations.uploadBackground` accepts multipart `scope` and `file`.
+- `GET /api/customizations.background?id=<uuid>` streams authorized image bytes.
+- `GET /api/customizations.module/<revisionId>/<modulePath>` serves immutable ESM.
+
+### 3. Contracts
+
+`scope` is `workspace | personal`. Background, CSS and draft have independent
+integer versions. `source` is `inherit | personal`; `fit` is
+`cover | contain | repeat`. A personal inherited background has no asset reference.
+An administrator changes workspace defaults; personal writes always use the
+authenticated user, never a client-supplied owner ID.
+
+Responses include `workspace`, `personal`, `scriptEnabled`, `scriptsAllowed`
+and `canManage`. A publication has immutable `id`, `revision`, `digest`,
+`source`, `modules`, `url` and `createdAt`. The SHA-256 digest includes entry
+source and sorted managed module paths and bytes. Draft saves and background/CSS
+changes do not change the publication or consent. Publishing the same digest
+is idempotent. A changed publication makes an old consent ineffective.
+
+Writes lock the team in one transaction. Migrations
+`20261104040535-create-customizations.js` and
+`20261104042639-enforce-customization-ownership.js` enforce scoped references,
+including personal image scope/owner, user/team ownership and revision/team
+ownership. Keep these constraints when adding new writers; application policies
+alone do not protect direct model writes. The deferred composite foreign keys
+work with existing single-column `SET NULL` deletion behavior.
+
+`CUSTOMIZATION_SCRIPTS_ENABLED` defaults to true. False denies new consent
+and module reads while retaining editable source, publication and background/CSS settings. Publication,
+consent and module reads require browser APP authentication. Modules require
+current publication AND exact current-user ID/digest consent on every read.
+Responses for private images/modules use `private, no-store`.
+
+Images accept only validated JPG/PNG/WebP bytes up to 10 MiB. Store them in the
+separate customization namespace with `acl: "private"`. Verify the actual
+adapter forwards this ACL to object storage even when `AWS_S3_ACL` defaults
+to public access. Ordinary file redirects must not expose this namespace.
+Persist deletion work and enqueue optional cleanup only after commit; queue
+failure cannot reverse an already committed setting. Local missing-file
+deletion is idempotent; other storage failures must remain retryable.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+| --- | --- |
+| Stale field version or superseded revision/digest | 400; retain saved settings and current publication. |
+| Malformed CSS/ESM or invalid managed module path | 400; no partial save. |
+| CSS over 100,000 chars, source over 200,000, over 20 modules or total over 1,000,000 | 400. |
+| Invalid image type/bytes or size | Reject before making the asset ready. |
+| Non-admin workspace mutation; API-key publish/consent | 403. |
+| Cross-team/personal image or unauthorized module read | 403 or 404; no bytes. |
+| Raw ordinary file redirect to customization key | Denied independently of this settings API. |
+
+### 5. Good / Base / Bad Cases
+
+Good: user A enables revision 1, then an administrator saves a draft; revision 1
+keeps running. Publishing changed dependency bytes pauses A until confirmation
+of the new ID/digest. Base: no saved rows means inherited defaults, empty CSS
+and no enabled script. Bad: treat uploaded JavaScript as a theme color field,
+serve it from a public bucket, or accept consent for a superseded revision.
+
+### 6. Tests Required
+
+- `server/routes/api/customizations/customizations.test.ts`: independent saves,
+  durable reload, authorization, concurrent/stale consent, uploads and private reads.
+- `server/models/WorkspaceCustomization.test.ts`: direct cross-team/owner/scope
+  assignments fail at the database; nullable references and deletion succeed.
+- `server/utils/customizations.test.ts`: digest changes on dependency bytes,
+  managed path restrictions and syntax failures.
+- `server/storage/files/{LocalStorage,S3Storage}.test.ts`: missing-file deletion,
+  retryable errors and explicit private ACL reaching the actual adapter request.
+- `server/middlewares/csp.test.ts`: nonce and narrow module path for custom
+  domains, without `unsafe-eval` or global script permission expansion.
+
+Browser verification must run native imports with restrictive CSP and separate
+admin/member/member/other-team contexts. Mocked S3 requests do not prove a real
+S3 upload or download. Mark that environment unverified when unavailable.
+
+### 7. Wrong vs Correct
+
+Wrong: `ACL: env.AWS_S3_ACL` discards a private resource's explicit ACL.
+Correct: default the input with `acl = env.AWS_S3_ACL` and pass the resulting
+`acl` to `Upload`. This retains defaults and honors private callers. Assert
+the ACL in the S3 request, not just a mock of `FileStorage.store()`.
+
+## Scenario: Paused legacy theme management
+
+### 1. Scope / Trigger
+
+The old settings manager and all legacy theme RPC methods are paused in favor of
+the independent customization settings. This changes the mounted HTTP contract;
+hiding navigation alone is insufficient.
+
+### 2. Signatures
+
+`themes.info`, `themes.list`, `themes.create`, `themes.update` and `themes.delete`
+are not mounted by `server/routes/api/index.ts`. The remaining
+`customizations.*` routes provide background settings and inactive read projections.
+CSS/script writes and module reads are also paused under the current contract.
+
+### 3. Contracts
+
+All five legacy endpoints return the standard unknown-endpoint 404 response.
+Remove their root router registration rather than forwarding color JSON to the
+different customization payload schema. Do not delete `Theme` rows, migrations,
+user/team selections or stored cache as part of pausing access. Built-in modes
+and existing brand accent inputs still work; the application and preview stop
+reading saved theme IDs or fetching theme tokens. Both singular and plural old
+settings addresses redirect by update permission and preserve recovery queries.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+| --- | --- |
+| Any of the five legacy RPC methods, including valid admin input | Standard 404, with no theme data or writes. |
+| Anonymous/member/admin/API key or alternate GET | Same unavailable surface; no alternate mount or batch bypass. |
+| Existing legacy record or user/team selection | Retain it unchanged; do not materialize a new choice. |
+| Preferences, application startup or preview | Zero automatic `themes.*` requests; ignore the legacy palette cache. |
+| Background customization edit | Existing authorization and background behavior remain available. |
+
+### 5. Good / Base / Bad Cases
+
+Good: a saved legacy palette remains stored while the new appearance page uses
+independent image settings while retaining dormant CSS. Base: built-in light/dark/system modes still
+render. Bad: remove a menu but leave a mutating legacy endpoint mounted, or keep
+background token requests running against the removed methods.
+
+### 6. Tests Required
+
+`server/routes/api/themes/themes.test.ts` now tests disabled routes through the
+real root web service, not a manually mounted legacy router. Cover all methods,
+authentication types, GET, and unchanged reloaded theme/user/team records. Retain
+the independent customization API regressions. Browser checks cover role-based
+old-address redirects, history replacement, recovery query/hash preservation,
+pre-existing legacy IDs/cache, zero automatic theme requests, and continued
+image functionality across built-in mode changes. CSS/script positive results
+from the original shutdown acceptance are historical; the current pause must
+verify no author effects while retaining their stored data.
+
+### 7. Wrong vs Correct
+
+Wrong: hide `/settings/themes` while Preferences or the preview still fetches
+`themes.list/info` and the old root router still accepts writes.
+
+Correct: remove the old manager and request consumers, unregister its root
+router, retain its data, and verify the replacement interfaces through HTTP and
+the browser.
+
+## Scenario: Background-only settings with CSS and JavaScript paused
+
+### 1. Scope / Trigger
+
+The user requested a complete pause of CSS/JavaScript editing, API access and
+execution, while retaining all existing data. Background settings remain active.
+This contract overrides the historical enabled-script contract above.
+
+### 2. Signatures
+
+Keep `customizations.info`, `customizations.workspaceInfo`,
+`customizations.updateBackground`, `customizations.uploadBackground` and
+`GET /api/customizations.background?id=<uuid>`. Do not mount `updateCss`,
+`saveScriptDraft`, `publishScript`, `enableScript`, `disableScript` or any
+`GET /api/customizations.module/<revisionId>/<modulePath>` handler.
+
+### 3. Contracts
+
+Disabled routes return the ordinary unknown-endpoint 404, including valid entry
+and dependency module paths. Do not implement the pause as hidden UI or a flag.
+`CUSTOMIZATION_SCRIPTS_ENABLED=true` cannot resume the paused surface.
+
+Preserve the existing info response shape and actual field versions, but return
+empty workspace/personal CSS sources, `workspace.script=null`, personal consent
+IDs/digest `null`, and `scriptsAllowed=false` / `scriptEnabled=false`. Admin draft
+source is empty and draft modules are `{}`. Do not read/serve published module
+contents merely to build these inactive responses.
+
+Retain stored CSS, draft source/modules, publication, immutable revisions and
+exact consent unchanged. In particular, background writes must not clear paused
+fields or increment their versions. No migration or destructive cleanup is part
+of pausing. Background APP authentication, role checks, private/no-store images,
+ownership constraints, upload limits and transaction behavior remain in force.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required result |
+| --- | --- |
+| Any paused write or module read | Standard 404; no source and no mutation. |
+| Saved nonempty CSS / published script / valid consent | Neutral info response; retained database values. |
+| Old true script environment flag | Still paused. |
+| Workspace or personal background save | Update only background fields; retain paused fields and versions. |
+| Unauthorized background operation or private image | Existing authorization still rejects it. |
+
+### 5. Good / Base / Bad Cases
+
+Good: seed active-looking CSS and exact script consent, then observe inert reads
+and unchanged reloaded data after background changes. Base: an empty account
+still inherits the workspace image. Bad: hide editors while leaving mutations
+or modules reachable, or erase stored CSS/consent to make the pause appear to work.
+
+### 6. Tests Required
+
+`server/routes/api/customizations/customizations.test.ts` covers the real root
+router, all five writes, entry/dependency paths, neutral responses with the old
+flag enabled, and reloaded persisted data after background changes. Retain image,
+ownership, stale-version and APP-auth tests. Frontend/store and production browser
+checks must also reject an injected old response with nonempty CSS and consent.
+
+### 7. Wrong vs Correct
+
+Wrong: `CUSTOMIZATION_SCRIPTS_ENABLED=false` while CSS writes, drafts, module
+handlers or saved CSS still remain effective.
+
+Correct: unregister the paused HTTP surface, return inert read projections,
+disable client CSS/runtime consumers and preserve the underlying records.

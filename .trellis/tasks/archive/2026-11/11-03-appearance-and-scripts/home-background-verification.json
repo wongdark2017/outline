@@ -1,0 +1,1265 @@
+{
+  "date": "2026-11-04T10:20:54.435Z",
+  "environment": "production Chromium; disposable PostgreSQL/Redis; 33 viewed/owned documents; generic checkerboard; retained CSS/JS paused",
+  "baseline": {
+    "geometry": {
+      "documents": {
+        "left": 354,
+        "right": 1186,
+        "top": 183.59375,
+        "bottom": 1913.015625,
+        "width": 832,
+        "height": 1729.421875,
+        "background": "rgb(36, 36, 40)",
+        "blur": "none"
+      },
+      "tabs": {
+        "left": 346,
+        "right": 1194,
+        "top": 183.59375,
+        "bottom": 217.59375,
+        "width": 848,
+        "height": 34,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "blur(12px)"
+      },
+      "main": {
+        "left": 260,
+        "right": 1280,
+        "top": 0,
+        "bottom": 1973.015625,
+        "width": 1020,
+        "height": 1973.015625,
+        "background": "color(srgb 0.141176 0.141176 0.156863 / 0.92)",
+        "blur": "none"
+      },
+      "image": "url(\"https://localhost:3002/api/customizations.background?id=7251b03e-b2dc-40ba-8d24-0418b3067a1d\")",
+      "viewport": 1280,
+      "pageWidth": 1280
+    },
+    "pixels": {
+      "samples": [
+        {
+          "x": 1178,
+          "y": 234,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 258,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 282,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 306,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 330,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 354,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 378,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 402,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 426,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 450,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 474,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 498,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 522,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 546,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 570,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 594,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 618,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 642,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 666,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 690,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 714,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 738,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 762,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 786,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 810,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 834,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 858,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 882,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 906,
+          "rgb": [
+            36,
+            36,
+            40
+          ]
+        }
+      ],
+      "min": 36,
+      "max": 36
+    }
+  },
+  "after": {
+    "geometry": {
+      "documents": {
+        "left": 354,
+        "right": 1186,
+        "top": 183.59375,
+        "bottom": 1913.015625,
+        "width": 832,
+        "height": 1729.421875,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "none"
+      },
+      "tabs": {
+        "left": 346,
+        "right": 1194,
+        "top": 183.59375,
+        "bottom": 217.59375,
+        "width": 848,
+        "height": 34,
+        "background": "rgba(0, 0, 0, 0)",
+        "blur": "blur(12px)"
+      },
+      "main": {
+        "left": 260,
+        "right": 1280,
+        "top": 0,
+        "bottom": 1973.015625,
+        "width": 1020,
+        "height": 1973.015625,
+        "background": "color(srgb 0.141176 0.141176 0.156863 / 0.92)",
+        "blur": "none"
+      },
+      "image": "url(\"https://localhost:3002/api/customizations.background?id=7251b03e-b2dc-40ba-8d24-0418b3067a1d\")",
+      "viewport": 1280,
+      "pageWidth": 1280
+    },
+    "pixels": {
+      "samples": [
+        {
+          "x": 1178,
+          "y": 234,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 258,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 282,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 306,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 330,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 354,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 378,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 402,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 426,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 450,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 474,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 498,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 522,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 546,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 570,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 594,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 618,
+          "rgb": [
+            33,
+            33,
+            37
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 642,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 666,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 690,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 714,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 738,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 762,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 786,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 810,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 834,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 858,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 882,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        },
+        {
+          "x": 1178,
+          "y": 906,
+          "rgb": [
+            53,
+            53,
+            57
+          ]
+        }
+      ],
+      "min": 33,
+      "max": 53
+    }
+  },
+  "checks": [
+    {
+      "name": "dark Home list releases the opaque slab and actual background pixels paint through",
+      "status": "passed",
+      "geometry": {
+        "documents": {
+          "left": 354,
+          "right": 1186,
+          "top": 183.59375,
+          "bottom": 1913.015625,
+          "width": 832,
+          "height": 1729.421875,
+          "background": "rgba(0, 0, 0, 0)",
+          "blur": "none"
+        },
+        "tabs": {
+          "left": 346,
+          "right": 1194,
+          "top": 183.59375,
+          "bottom": 217.59375,
+          "width": 848,
+          "height": 34,
+          "background": "rgba(0, 0, 0, 0)",
+          "blur": "blur(12px)"
+        },
+        "main": {
+          "left": 260,
+          "right": 1280,
+          "top": 0,
+          "bottom": 1973.015625,
+          "width": 1020,
+          "height": 1973.015625,
+          "background": "color(srgb 0.141176 0.141176 0.156863 / 0.92)",
+          "blur": "none"
+        },
+        "image": "url(\"https://localhost:3002/api/customizations.background?id=7251b03e-b2dc-40ba-8d24-0418b3067a1d\")",
+        "viewport": 1280,
+        "pageWidth": 1280
+      },
+      "pixels": {
+        "samples": [
+          {
+            "x": 1178,
+            "y": 234,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 258,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 282,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 306,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 330,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 354,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 378,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 402,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 426,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 450,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 474,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 498,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 522,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 546,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 570,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 594,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 618,
+            "rgb": [
+              33,
+              33,
+              37
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 642,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 666,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 690,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 714,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 738,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 762,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 786,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 810,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 834,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 858,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 882,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 906,
+            "rgb": [
+              53,
+              53,
+              57
+            ]
+          }
+        ],
+        "min": 33,
+        "max": 53
+      }
+    },
+    {
+      "name": "Chinese Home sidebar displays 个人 instead of Personal",
+      "status": "passed"
+    },
+    {
+      "name": "all four Home tabs navigate and keep one unified background",
+      "status": "passed"
+    },
+    {
+      "name": "Home sticky tabs retain the existing readable blur while scrolling",
+      "status": "passed"
+    },
+    {
+      "name": "light Home list also paints the saved image without a solid white slab",
+      "status": "passed",
+      "pixels": {
+        "samples": [
+          {
+            "x": 1178,
+            "y": 234,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 258,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 282,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 306,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 330,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 354,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 378,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 402,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 426,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 450,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 474,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 498,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 522,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 546,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 570,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 594,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 618,
+            "rgb": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 642,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 666,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 690,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 714,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 738,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 762,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 786,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 810,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 834,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 858,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 882,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "x": 1178,
+            "y": 906,
+            "rgb": [
+              255,
+              255,
+              255
+            ]
+          }
+        ],
+        "min": 235,
+        "max": 255
+      }
+    },
+    {
+      "name": "320/390px Home tabs and lists remain usable with no horizontal page overflow",
+      "status": "passed"
+    },
+    {
+      "name": "print lifecycle events, recovery and a user without an image retain the original theme fallback",
+      "status": "passed"
+    },
+    {
+      "name": "CSS/JS remain paused and no runtime or HTTP errors occur",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0
+  },
+  "printScope": "Browser lifecycle events; native document PDF was verified in the preceding unchanged background-only acceptance.",
+  "userDatabaseChanged": false,
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Disposable Home visual acceptance environment only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "staticChecks": {
+    "lint": "passed; existing repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "independentReview": "passed; no findings",
+    "clientBuild": "NODE_ENV=production yarn vite:build"
+  },
+  "translation": {
+    "onlyAddedKey": "Personal",
+    "value": "个人",
+    "changedExistingChineseValues": 0,
+    "englishExtractionUnchanged": true,
+    "otherLocalesChanged": 0,
+    "totalTaskChineseAdditions": 50
+  },
+  "audit": {
+    "otherWholeListSlabs": "No additional match in Search/Drafts/Archive/Trash and shared list wrappers.",
+    "intentionalSurfacesRetained": [
+      "Subheading sticky narrow mask",
+      "inputs",
+      "icons",
+      "drag-over mask",
+      "fixed filter/action bars"
+    ]
+  },
+  "unitTestsThisIteration": {
+    "status": "skipped",
+    "reason": "Reversible Home background declaration and one locale value; all four routes verified in the production browser."
+  }
+}

@@ -1,9 +1,54 @@
 import JWT from "jsonwebtoken";
+import { mkdtemp, mkdir, rm, stat } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { Hour } from "@shared/utils/time";
 import env from "@server/env";
 import LocalStorage from "./LocalStorage";
 
 describe("LocalStorage", () => {
+  describe("deleteFile", () => {
+    let rootDirectory: string;
+    const previousRoot = env.FILE_STORAGE_LOCAL_ROOT_DIR;
+
+    beforeEach(async () => {
+      rootDirectory = await mkdtemp(
+        path.join(os.tmpdir(), "outline-storage-delete-")
+      );
+      env.FILE_STORAGE_LOCAL_ROOT_DIR = rootDirectory;
+    });
+
+    afterEach(async () => {
+      env.FILE_STORAGE_LOCAL_ROOT_DIR = previousRoot;
+      await rm(rootDirectory, { recursive: true, force: true });
+    });
+
+    it("deletes a stored object and tolerates an already missing object", async () => {
+      const storage = new LocalStorage();
+      await storage.store({
+        key: "uploads/test.txt",
+        body: Buffer.from("example"),
+      });
+      await storage.deleteFile("uploads/test.txt");
+      await expect(
+        stat(path.join(rootDirectory, "uploads/test.txt"))
+      ).rejects.toMatchObject({ code: "ENOENT" });
+      await expect(
+        storage.deleteFile("uploads/test.txt")
+      ).resolves.toBeUndefined();
+    });
+
+    it("propagates deletion failures so callers can retain retry metadata", async () => {
+      const storage = new LocalStorage();
+      const target = path.join(rootDirectory, "uploads/preserved-directory");
+      await mkdir(target, { recursive: true });
+      await expect(
+        storage.deleteFile("uploads/preserved-directory")
+      ).rejects.toThrow();
+      expect((await stat(target)).isDirectory()).toBe(true);
+    });
+  });
+
   describe("getSignedUrl", () => {
     // A time deliberately offset from a window boundary, so that rounding is
     // exercised and two calls cannot straddle a boundary.

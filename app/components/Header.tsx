@@ -31,6 +31,8 @@ import { TooltipProvider } from "./TooltipContext";
 export { HEADER_HEIGHT };
 
 type Props = {
+  /** An optional stable customization target for the document toolbar. */
+  "data-outline-part"?: string;
   left?: React.ReactNode;
   title: React.ReactNode;
   actions?:
@@ -41,7 +43,15 @@ type Props = {
   ref?: React.Ref<HTMLDivElement>;
 };
 
-function Header({ left, title, actions, hasSidebar, className, ref }: Props) {
+function Header({
+  left,
+  title,
+  actions,
+  hasSidebar,
+  className,
+  ref,
+  "data-outline-part": customizationPart,
+}: Props) {
   const { ui } = useStores();
   const { t } = useTranslation();
   const { pane, isSplitView } = useSplitView();
@@ -100,6 +110,7 @@ function Header({ left, title, actions, hasSidebar, className, ref }: Props) {
   return (
     <TooltipProvider>
       <Wrapper
+        data-outline-part={customizationPart}
         ref={mergeRefs([ref, internalMeasureRef])}
         align="center"
         shrink={false}

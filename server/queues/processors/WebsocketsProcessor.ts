@@ -41,6 +41,17 @@ import type { Event } from "../../types";
 export default class WebsocketsProcessor {
   public async perform(event: Event, socketio: Server) {
     switch (event.name) {
+      case "customizations.update": {
+        const room =
+          event.data.scope === "workspace"
+            ? `team-${event.teamId}`
+            : `user-${event.userId}`;
+        return socketio.to(room).emit(event.name, {
+          scope: event.data.scope,
+          revisionId: event.data.revisionId,
+        });
+      }
+
       case "templates.create":
       case "templates.update":
       case "templates.restore": {

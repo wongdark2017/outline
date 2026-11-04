@@ -45,3 +45,38 @@ describe("CSP font sources", () => {
     expect(policy).not.toContain("localhost:3001");
   });
 });
+
+describe("CSP customization modules", () => {
+  it("allows only the module path on a custom host and preserves the nonce policy", async () => {
+    vi.spyOn(env, "isProduction", "get").mockReturnValue(true);
+    const previousInlinePolicy = env.DEVELOPMENT_UNSAFE_INLINE_CSP;
+    env.DEVELOPMENT_UNSAFE_INLINE_CSP = false;
+
+    try {
+      const request = new IncomingMessage(new Socket());
+      request.headers.host = "knowledge.example.com:8443";
+      const context = new Koa().createContext(
+        request,
+        new ServerResponse(request)
+      );
+
+      await createCSPMiddleware()(context, async () => undefined);
+
+      const sources = context.response
+        .get("Content-Security-Policy")
+        .split(";")
+        .find((directive) => directive.startsWith("script-src"))
+        ?.split(" ");
+      expect(sources).toContain(
+        "knowledge.example.com:8443/api/customizations.module/"
+      );
+      expect(sources).toContain(`'nonce-${context.state.cspNonce}'`);
+      expect(sources).not.toContain("knowledge.example.com:8443");
+      expect(sources).not.toContain("'self'");
+      expect(sources).not.toContain("'unsafe-inline'");
+      expect(sources).not.toContain("'unsafe-eval'");
+    } finally {
+      env.DEVELOPMENT_UNSAFE_INLINE_CSP = previousInlinePolicy;
+    }
+  });
+});

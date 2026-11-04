@@ -23,7 +23,7 @@ export default function PageTheme() {
     const applyTheme = (background: string, isDark: boolean) => {
       // wider page background beyond the React root
       if (document.body) {
-        document.body.style.background = background;
+        document.body.style.backgroundColor = background;
       }
       themeElements.forEach((element) => {
         element.setAttribute("content", background);

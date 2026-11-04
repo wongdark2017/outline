@@ -273,6 +273,7 @@ function Sidebar({
     <TooltipProvider>
       <Container
         id="sidebar"
+        data-outline-part="sidebar"
         ref={mergedRef}
         style={style}
         $hidden={hidden}

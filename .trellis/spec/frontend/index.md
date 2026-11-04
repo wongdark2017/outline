@@ -15,7 +15,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 | Guide | Description | Status |
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
-| [Component Guidelines](./component-guidelines.md) | Form patterns and shared theme styling | Forms + theme populated |
+| [Component Guidelines](./component-guidelines.md) | Forms, theme styling; independent appearance and trusted script lifecycle | Forms + theme + customizations populated |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
 | [State Management](./state-management.md) | Local state, global state, server state; recoverable email sign-in and immediate resend/local expiry | Email sign-in documented; other topics to fill |
 | [Quality Guidelines](./quality-guidelines.md) | Testing scope; translation and CSRF scenarios | Testing + translation populated |

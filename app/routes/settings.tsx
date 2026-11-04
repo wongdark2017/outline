@@ -2,6 +2,8 @@ import { Redirect, Switch } from "react-router-dom";
 import Error404 from "~/scenes/Errors/Error404";
 import { createLazyComponent as lazy } from "~/components/LazyLoad";
 import Route from "~/components/ProfiledRoute";
+import useCurrentTeam from "~/hooks/useCurrentTeam";
+import usePolicy from "~/hooks/usePolicy";
 import useSettingsConfig from "~/hooks/useSettingsConfig";
 import { settingsPath } from "~/utils/routeHelpers";
 import { observer } from "mobx-react";
@@ -15,6 +17,8 @@ const TemplateNew = lazy(() => import("~/scenes/Settings/TemplateNew"));
 
 function SettingsRoutes() {
   const configs = useSettingsConfig();
+  const team = useCurrentTeam();
+  const can = usePolicy(team);
 
   return (
     <Switch>
@@ -26,6 +30,22 @@ function SettingsRoutes() {
           component={config.component}
         />
       ))}
+      <Route
+        exact
+        path={[settingsPath("theme"), settingsPath("themes")]}
+        render={({ location }) => (
+          <Redirect
+            push={false}
+            to={{
+              pathname: settingsPath(
+                can.update ? "workspace-appearance" : "appearance"
+              ),
+              search: location.search,
+              hash: location.hash,
+            }}
+          />
+        )}
+      />
       {/* Members was renamed to Users, redirect for backwards compatibility */}
       <Redirect
         exact

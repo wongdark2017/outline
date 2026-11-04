@@ -372,7 +372,10 @@ const KeyedCollection = () => {
 
 const Content = styled.div`
   position: relative;
-  background: ${s("background")};
+  background: var(
+    --outline-customization-layout-background,
+    ${s("background")}
+  );
 `;
 
 const RecentDocuments = observer(

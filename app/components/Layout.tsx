@@ -43,12 +43,12 @@ function Layout({
   return (
     <FallbackPageTitle title={title ? title : env.APP_NAME}>
       <SidebarCollapsedProvider value={showSidebar && sidebarCollapsed}>
-        <Container column auto ref={ref}>
+        <Container column auto ref={ref} data-outline-part="app">
           <SkipNavLink />
 
           {ui.progressBarVisible && <LoadingIndicatorBar />}
 
-          <Container auto>
+          <Container auto data-outline-part="layout-container">
             {showSidebar && sidebar}
 
             <SkipNavContent />
@@ -56,6 +56,7 @@ function Layout({
               auto
               justify="center"
               role="main"
+              data-outline-part="content"
               $isResizing={ui.sidebarIsResizing}
               $sidebarCollapsed={sidebarCollapsed}
               $hasSidebar={showSidebar}
@@ -79,7 +80,10 @@ function Layout({
 }
 
 const Container = styled(Flex)`
-  background: ${s("background")};
+  background: var(
+    --outline-customization-layout-background,
+    ${s("background")}
+  );
   position: relative;
   width: 100%;
   min-height: 100%;

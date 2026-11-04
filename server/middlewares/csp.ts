@@ -154,6 +154,9 @@ export default function createCSPMiddleware(options?: CSPOptions) {
             // the /static path so only immutable build assets are permitted,
             // not ugc served elsewhere on the same origin.
             `${ctx.host}/static/`,
+
+            // Only current, explicitly consented immutable modules are served here.
+            `${ctx.host}/api/customizations.module/`,
             ...(options?.extraScriptSrc ?? []),
             ...(ctx.state.cspScriptSrc as string[]),
             env.DEVELOPMENT_UNSAFE_INLINE_CSP

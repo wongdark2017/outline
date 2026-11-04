@@ -221,7 +221,7 @@ function DocumentEditor(props: Props) {
   const direction = titleRef.current?.getComputedDirection();
 
   return (
-    <Flex auto column>
+    <Flex auto column data-outline-part="editor">
       <DocumentTitle
         ref={titleRef}
         readOnly={readOnly}

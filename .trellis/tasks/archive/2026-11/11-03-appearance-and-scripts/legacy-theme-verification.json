@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-04T07:10:17.685Z",
+  "environment": "production Chromium with isolated PostgreSQL/Redis; old palettes and preferences preseeded",
+  "checks": [
+    {
+      "name": "old plural and singular addresses redirect by role and preserve query/hash",
+      "status": "passed"
+    },
+    {
+      "name": "legacy theme menu is absent; new administrator entry remains permission-bound",
+      "status": "passed"
+    },
+    {
+      "name": "existing personal/workspace theme preferences and local cache do not activate old palettes",
+      "status": "passed"
+    },
+    {
+      "name": "new workspace background upload and inheritance work after the old API is disabled",
+      "status": "passed"
+    },
+    {
+      "name": "new personal CSS and explicit native script consent remain available",
+      "status": "passed"
+    },
+    {
+      "name": "Preferences has only built-in appearance modes; mode and SPA navigation retain image/CSS/consent and one script instance",
+      "status": "passed"
+    },
+    {
+      "name": "old-address redirects replace the history entry",
+      "status": "passed"
+    },
+    {
+      "name": "both legacy aliases reach the appropriate replacement settings page",
+      "status": "passed"
+    },
+    {
+      "name": "old-address recovery links retain the disabling flag and load no custom appearance or scripts",
+      "status": "passed"
+    },
+    {
+      "name": "no mounted page/preview requests themes.*; no unexpected runtime or HTTP errors",
+      "status": "passed"
+    },
+    {
+      "name": "all five disabled APIs return 404 for administrators, members and other workspaces",
+      "status": "passed",
+      "requests": 15
+    },
+    {
+      "name": "stored theme and personal/workspace selections remain unchanged",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 0
+  },
+  "frontEndLegacyApiRequests": 0,
+  "explicitDisabledApiRequests": [
+    {
+      "method": "themes.info",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.list",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.create",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.update",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.delete",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.info",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.list",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.create",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.update",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.delete",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.info",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.list",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.create",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.update",
+      "status": 404,
+      "error": "not_found"
+    },
+    {
+      "method": "themes.delete",
+      "status": 404,
+      "error": "not_found"
+    }
+  ],
+  "errors": [],
+  "legacyShutdownCleanup": {
+    "status": "passed",
+    "scope": "isolated production-browser legacy shutdown acceptance",
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "reviewPortReleased": true
+  }
+}

@@ -1,0 +1,236 @@
+{
+  "date": "2026-11-04T09:18:25.061Z",
+  "environment": "production Chromium; disposable PostgreSQL/Redis; inverse checkerboard beneath populated/Untitled titles",
+  "baseline": {
+    "geometry": {
+      "text": "文章背景验收",
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(51, 51, 51)",
+      "textFill": "rgb(51, 51, 51)",
+      "empty": "false",
+      "editable": false,
+      "placeholder": "none",
+      "placeholderColor": "rgb(51, 51, 51)",
+      "placeholderFill": "rgb(51, 51, 51)",
+      "left": 402,
+      "right": 618,
+      "top": 122.59375,
+      "bottom": 163.59375,
+      "height": 41,
+      "viewport": 1280,
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+    },
+    "blankPixelSamples": 94
+  },
+  "after": {
+    "geometry": {
+      "text": "文章背景验收",
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(51, 51, 51)",
+      "textFill": "rgb(51, 51, 51)",
+      "empty": "false",
+      "editable": false,
+      "placeholder": "none",
+      "placeholderColor": "rgb(51, 51, 51)",
+      "placeholderFill": "rgb(51, 51, 51)",
+      "left": 402,
+      "right": 618,
+      "top": 122.59375,
+      "bottom": 163.59375,
+      "height": 41,
+      "viewport": 1280,
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+    },
+    "blankPixelSamples": 94,
+    "matchingPageBackground": 94
+  },
+  "checks": [
+    {
+      "name": "populated title releases its white text rectangle; unchanged glyphs now paint over the page image",
+      "status": "passed",
+      "title": {
+        "text": "文章背景验收",
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(51, 51, 51)",
+        "textFill": "rgb(51, 51, 51)",
+        "empty": "false",
+        "editable": false,
+        "placeholder": "none",
+        "placeholderColor": "rgb(51, 51, 51)",
+        "placeholderFill": "rgb(51, 51, 51)",
+        "left": 402,
+        "right": 618,
+        "top": 122.59375,
+        "bottom": 163.59375,
+        "height": 41,
+        "viewport": 1280,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+      },
+      "pixelSamples": 94,
+      "matchingPageBackground": 94,
+      "before": [
+        255,
+        255,
+        255
+      ],
+      "after": [
+        235,
+        235,
+        235
+      ]
+    },
+    {
+      "name": "read-only Untitled fallback has no opaque text background",
+      "status": "passed",
+      "title": {
+        "text": "Untitled",
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(51, 51, 51)",
+        "textFill": "rgb(51, 51, 51)",
+        "empty": "false",
+        "editable": false,
+        "placeholder": "none",
+        "placeholderColor": "rgb(51, 51, 51)",
+        "placeholderFill": "rgb(51, 51, 51)",
+        "left": 402,
+        "right": 535.984375,
+        "top": 122.59375,
+        "bottom": 163.59375,
+        "height": 41,
+        "viewport": 1280,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+      }
+    },
+    {
+      "name": "empty editable title retains its placeholder, matching text fill and focused caret without a white rectangle",
+      "status": "passed",
+      "title": {
+        "text": "",
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(51, 51, 51)",
+        "textFill": "rgb(51, 51, 51)",
+        "empty": "true",
+        "editable": true,
+        "placeholder": "\"Untitled\"",
+        "placeholderColor": "rgb(118, 118, 124)",
+        "placeholderFill": "rgb(118, 118, 124)",
+        "left": 402,
+        "right": 535.984375,
+        "top": 120.59375,
+        "bottom": 165.59375,
+        "height": 45,
+        "viewport": 1280,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+      },
+      "caret": {
+        "focused": true,
+        "collapsed": true,
+        "inside": true
+      }
+    },
+    {
+      "name": "dark empty title keeps the existing placeholder color with a transparent surface",
+      "status": "passed",
+      "title": {
+        "text": "",
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(238, 238, 240)",
+        "textFill": "rgb(238, 238, 240)",
+        "empty": "true",
+        "editable": true,
+        "placeholder": "\"Untitled\"",
+        "placeholderColor": "rgb(160, 160, 168)",
+        "placeholderFill": "rgb(160, 160, 168)",
+        "left": 402,
+        "right": 535.984375,
+        "top": 120.59375,
+        "bottom": 165.59375,
+        "height": 45,
+        "viewport": 1280,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+      }
+    },
+    {
+      "name": "390px Untitled text stays within the viewport without a white block",
+      "status": "passed",
+      "title": {
+        "text": "Untitled",
+        "background": "rgba(0, 0, 0, 0)",
+        "color": "rgb(51, 51, 51)",
+        "textFill": "rgb(51, 51, 51)",
+        "empty": "false",
+        "editable": false,
+        "placeholder": "none",
+        "placeholderColor": "rgb(51, 51, 51)",
+        "placeholderFill": "rgb(51, 51, 51)",
+        "left": 32,
+        "right": 165.984375,
+        "top": 138.796875,
+        "bottom": 179.796875,
+        "height": 41,
+        "viewport": 390,
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=cdb3c91a-77cd-4ac2-8192-08582f7dec2e\")"
+      }
+    },
+    {
+      "name": "personal CSS can still intentionally set a title background",
+      "status": "passed"
+    },
+    {
+      "name": "native printing uses the ordinary title background and restores transparency afterward",
+      "status": "passed",
+      "image": "",
+      "background": "rgb(255, 255, 255)"
+    },
+    {
+      "name": "recovery and an account without an image keep the original theme background",
+      "status": "passed"
+    },
+    {
+      "name": "no uncaught runtime or HTTP errors in the title acceptance",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0
+  },
+  "userDatabaseChanged": false,
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Disposable title visual acceptance environment only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "staticChecks": {
+    "lint": "passed; existing repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "independentReview": "passed; no findings",
+    "clientBuild": "NODE_ENV=production yarn vite:build"
+  },
+  "unitTestsThisIteration": {
+    "status": "skipped",
+    "reason": "A reversible shared-component CSS declaration; real browser title states, caret and pixels verified."
+  },
+  "scope": {
+    "source": "app/components/ContentEditable.tsx",
+    "unchanged": [
+      "text fill",
+      "placeholder rules",
+      "caret and editing handlers",
+      "main 92% surface",
+      "author CSS overrides"
+    ],
+    "editPersistence": "not exercised"
+  }
+}
