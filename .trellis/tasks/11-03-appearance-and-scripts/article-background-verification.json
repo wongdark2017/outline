@@ -1,0 +1,571 @@
+{
+  "date": "2026-11-04T09:08:54.880Z",
+  "environment": "production Chromium; disposable PostgreSQL/Redis; generic checkerboard with formula and child document",
+  "baseline": {
+    "geometry": {
+      "editor": {
+        "left": 402,
+        "top": 63,
+        "right": 1138,
+        "bottom": 455.65625,
+        "width": 736,
+        "height": 392.65625,
+        "background": "color(srgb 1 1 1 / 0.94)",
+        "radius": "8px"
+      },
+      "main": {
+        "left": 260,
+        "top": 0,
+        "right": 1280,
+        "bottom": 960,
+        "width": 1020,
+        "height": 960,
+        "background": "color(srgb 1 1 1 / 0.92)",
+        "radius": "0px"
+      },
+      "rootBackground": "",
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=2182899b-6a23-4106-b8d8-10f22ff7cd47\")",
+      "editable": false,
+      "formula": true,
+      "childList": true,
+      "pageWidth": 1280,
+      "viewport": 1280
+    },
+    "pixels": {
+      "pairs": [
+        {
+          "y": 143,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 167,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 191,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 215,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 239,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 263,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 383,
+          "inside": [
+            254,
+            254,
+            254
+          ],
+          "outside": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "y": 407,
+          "inside": [
+            254,
+            254,
+            254
+          ],
+          "outside": [
+            235,
+            235,
+            235
+          ]
+        }
+      ],
+      "maximumEdgeDelta": 19,
+      "insideMinimum": 254,
+      "insideMaximum": 255
+    }
+  },
+  "after": {
+    "geometry": {
+      "editor": {
+        "left": 402,
+        "top": 63,
+        "right": 1138,
+        "bottom": 455.65625,
+        "width": 736,
+        "height": 392.65625,
+        "background": "rgba(0, 0, 0, 0)",
+        "radius": "0px"
+      },
+      "main": {
+        "left": 260,
+        "top": 0,
+        "right": 1280,
+        "bottom": 960,
+        "width": 1020,
+        "height": 960,
+        "background": "color(srgb 1 1 1 / 0.92)",
+        "radius": "0px"
+      },
+      "rootBackground": "",
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=2182899b-6a23-4106-b8d8-10f22ff7cd47\")",
+      "editable": false,
+      "formula": true,
+      "childList": true,
+      "pageWidth": 1280,
+      "viewport": 1280
+    },
+    "pixels": {
+      "pairs": [
+        {
+          "y": 143,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 167,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 191,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 215,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 239,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 263,
+          "inside": [
+            255,
+            255,
+            255
+          ],
+          "outside": [
+            255,
+            255,
+            255
+          ]
+        },
+        {
+          "y": 383,
+          "inside": [
+            235,
+            235,
+            235
+          ],
+          "outside": [
+            235,
+            235,
+            235
+          ]
+        },
+        {
+          "y": 407,
+          "inside": [
+            235,
+            235,
+            235
+          ],
+          "outside": [
+            235,
+            235,
+            235
+          ]
+        }
+      ],
+      "maximumEdgeDelta": 0,
+      "insideMinimum": 235,
+      "insideMaximum": 255
+    }
+  },
+  "checks": [
+    {
+      "name": "read-only article, formula and child-list share the surrounding image surface without the extra white rounded card",
+      "status": "passed",
+      "geometry": {
+        "editor": {
+          "left": 402,
+          "top": 63,
+          "right": 1138,
+          "bottom": 455.65625,
+          "width": 736,
+          "height": 392.65625,
+          "background": "rgba(0, 0, 0, 0)",
+          "radius": "0px"
+        },
+        "main": {
+          "left": 260,
+          "top": 0,
+          "right": 1280,
+          "bottom": 960,
+          "width": 1020,
+          "height": 960,
+          "background": "color(srgb 1 1 1 / 0.92)",
+          "radius": "0px"
+        },
+        "rootBackground": "",
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=2182899b-6a23-4106-b8d8-10f22ff7cd47\")",
+        "editable": false,
+        "formula": true,
+        "childList": true,
+        "pageWidth": 1280,
+        "viewport": 1280
+      },
+      "pixels": {
+        "pairs": [
+          {
+            "y": 143,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 167,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 191,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 215,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 239,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 263,
+            "inside": [
+              255,
+              255,
+              255
+            ],
+            "outside": [
+              255,
+              255,
+              255
+            ]
+          },
+          {
+            "y": 383,
+            "inside": [
+              235,
+              235,
+              235
+            ],
+            "outside": [
+              235,
+              235,
+              235
+            ]
+          },
+          {
+            "y": 407,
+            "inside": [
+              235,
+              235,
+              235
+            ],
+            "outside": [
+              235,
+              235,
+              235
+            ]
+          }
+        ],
+        "maximumEdgeDelta": 0,
+        "insideMinimum": 235,
+        "insideMaximum": 255
+      }
+    },
+    {
+      "name": "light title, body and formula contrast remains above 4.5:1 over a black image",
+      "status": "passed",
+      "text": [
+        {
+          "selector": "[aria-label=\"Document title\"]",
+          "contrast": 10.6
+        },
+        {
+          "selector": ".ProseMirror p",
+          "contrast": 10.6
+        },
+        {
+          "selector": ".katex",
+          "contrast": 10.6
+        }
+      ]
+    },
+    {
+      "name": "edit mode retains the transparent editor, rendered formula and editable document",
+      "status": "passed"
+    },
+    {
+      "name": "dark article has no second surface and retains readable title, body and formula",
+      "status": "passed",
+      "text": [
+        {
+          "selector": "[aria-label=\"Document title\"]",
+          "contrast": 10.54
+        },
+        {
+          "selector": ".ProseMirror p",
+          "contrast": 10.54
+        },
+        {
+          "selector": ".katex",
+          "contrast": 10.54
+        }
+      ]
+    },
+    {
+      "name": "390px article keeps formula and child-list within the editor bounds without an inner card",
+      "status": "passed",
+      "geometry": {
+        "editor": {
+          "left": 32,
+          "top": 60,
+          "right": 358,
+          "bottom": 545.765625,
+          "width": 326,
+          "height": 485.765625,
+          "background": "rgba(0, 0, 0, 0)",
+          "radius": "0px"
+        },
+        "main": {
+          "left": 0,
+          "top": 0,
+          "right": 390,
+          "bottom": 960,
+          "width": 390,
+          "height": 960,
+          "background": "color(srgb 1 1 1 / 0.92)",
+          "radius": "0px"
+        },
+        "rootBackground": "",
+        "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=2182899b-6a23-4106-b8d8-10f22ff7cd47\")",
+        "editable": false,
+        "formula": true,
+        "childList": true,
+        "pageWidth": 390,
+        "viewport": 390
+      }
+    },
+    {
+      "name": "author CSS can still intentionally set editor background and radius; clearing it restores the unified surface",
+      "status": "passed"
+    },
+    {
+      "name": "native document printing removes appearance and resumes the same unified surface afterward",
+      "status": "passed",
+      "image": "",
+      "styles": 0,
+      "formula": true,
+      "editorBackground": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "name": "recovery and a member with no image keep ordinary document backgrounds",
+      "status": "passed"
+    },
+    {
+      "name": "no uncaught runtime or HTTP errors in article acceptance",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0
+  },
+  "userDatabaseChanged": false,
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Disposable article visual acceptance environment only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "styleTests": {
+    "file": "app/utils/customizations.test.ts",
+    "tests": 14,
+    "newTestsThisIteration": 0,
+    "status": "passed"
+  },
+  "staticChecks": {
+    "lint": "passed; existing repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "independentReview": "passed; no findings",
+    "clientBuild": "NODE_ENV=production yarn vite:build"
+  },
+  "editModeScope": "Layout, editable state and rendered formula only; collaborative persistence was not exercised. Review server did not start collaboration services.",
+  "surfacePolicy": {
+    "main": "92% theme surface",
+    "editor": "no additional base background or rounded card",
+    "authorOverrides": "preserved"
+  },
+  "exploratoryCheckNotes": [
+    "First after-build browser navigation preceded isolated server readiness and encountered connection refused; final run followed a successful health check.",
+    "Contrast target uses the actual Document title aria-label; the title is not an h1 element.",
+    "Pixel sampling avoids checkerboard boundaries softened by the existing sticky-tabs blur."
+  ]
+}

@@ -5,6 +5,7 @@ import { Switch, Redirect, matchPath, useHistory } from "react-router-dom";
 import DocumentNew from "~/scenes/DocumentNew";
 import Error404 from "~/scenes/Errors/Error404";
 import AuthenticatedLayout from "~/components/AuthenticatedLayout";
+import { CustomizationProvider } from "~/components/CustomizationProvider";
 import CenteredContent from "~/components/CenteredContent";
 import PlaceholderDocument from "~/components/PlaceholderDocument";
 import Route from "~/components/ProfiledRoute";
@@ -71,107 +72,109 @@ function AuthenticatedRoutes() {
 
   return (
     <WebsocketProvider>
-      <AuthenticatedLayout>
-        <Suspense
-          fallback={
-            <CenteredContent>
-              <PlaceholderDocument />
-            </CenteredContent>
-          }
-        >
-          <SplitView>
-            <Switch>
-              {can.createDocument && (
+      <CustomizationProvider>
+        <AuthenticatedLayout>
+          <Suspense
+            fallback={
+              <CenteredContent>
+                <PlaceholderDocument />
+              </CenteredContent>
+            }
+          >
+            <SplitView>
+              <Switch>
+                {can.createDocument && (
+                  <Route
+                    exact
+                    path={draftsPath()}
+                    component={Scenes.Drafts.Component}
+                  />
+                )}
+                {can.createDocument && (
+                  <Route
+                    exact
+                    path={archivePath()}
+                    component={Scenes.Archive.Component}
+                  />
+                )}
+                {can.createDocument && (
+                  <Route
+                    exact
+                    path={trashPath()}
+                    component={Scenes.Trash.Component}
+                  />
+                )}
+                <Route
+                  path={`${homePath()}/:tab?`}
+                  component={Scenes.Home.Component}
+                />
+                <Redirect from="/dashboard" to={homePath()} />
+                <Redirect exact from="/starred" to={homePath()} />
+                <Redirect
+                  exact
+                  from="/templates"
+                  to={settingsPath("templates")}
+                />
+                <Redirect exact from="/collections/*" to="/collection/*" />
                 <Route
                   exact
-                  path={draftsPath()}
-                  component={Scenes.Drafts.Component}
+                  path={`/collection/${collectionSlug}/new`}
+                  component={DocumentNew}
                 />
-              )}
-              {can.createDocument && (
                 <Route
                   exact
-                  path={archivePath()}
-                  component={Scenes.Archive.Component}
+                  path={`/collection/${collectionSlug}/overview/edit`}
+                  component={Scenes.Collection.Component}
                 />
-              )}
-              {can.createDocument && (
                 <Route
                   exact
-                  path={trashPath()}
-                  component={Scenes.Trash.Component}
+                  path={`/collection/${collectionSlug}/:tab?`}
+                  component={Scenes.Collection.Component}
                 />
-              )}
-              <Route
-                path={`${homePath()}/:tab?`}
-                component={Scenes.Home.Component}
-              />
-              <Redirect from="/dashboard" to={homePath()} />
-              <Redirect exact from="/starred" to={homePath()} />
-              <Redirect
-                exact
-                from="/templates"
-                to={settingsPath("templates")}
-              />
-              <Redirect exact from="/collections/*" to="/collection/*" />
-              <Route
-                exact
-                path={`/collection/${collectionSlug}/new`}
-                component={DocumentNew}
-              />
-              <Route
-                exact
-                path={`/collection/${collectionSlug}/overview/edit`}
-                component={Scenes.Collection.Component}
-              />
-              <Route
-                exact
-                path={`/collection/${collectionSlug}/:tab?`}
-                component={Scenes.Collection.Component}
-              />
-              <Route exact path="/doc/new" component={DocumentNew} />
-              <Route
-                exact
-                path={`/d/${documentSlug}`}
-                component={RedirectDocument}
-              />
-              <Route
-                exact
-                path={`/doc/${documentSlug}/history/:revisionId?`}
-                component={Scenes.Document.Component}
-              />
+                <Route exact path="/doc/new" component={DocumentNew} />
+                <Route
+                  exact
+                  path={`/d/${documentSlug}`}
+                  component={RedirectDocument}
+                />
+                <Route
+                  exact
+                  path={`/doc/${documentSlug}/history/:revisionId?`}
+                  component={Scenes.Document.Component}
+                />
 
-              <Route
-                exact
-                path={`/doc/${documentSlug}/edit`}
-                component={Scenes.Document.Component}
-              />
-              <Route
-                path={`/doc/${documentSlug}`}
-                component={Scenes.Document.Component}
-              />
-              <Route
-                exact
-                path={`${searchPath()}/:query?`}
-                component={Scenes.Search.Component}
-              />
-              {env.isDevelopment && (
-                <Route exact path={debugPath()} component={Debug} />
-              )}
-              {env.isDevelopment && (
                 <Route
                   exact
-                  path={`${debugPath()}/changesets`}
-                  component={Changesets}
+                  path={`/doc/${documentSlug}/edit`}
+                  component={Scenes.Document.Component}
                 />
-              )}
-              <Route exact path="/404" component={Error404} />
-              <SettingsRoutes />
-              <Route component={Error404} />
-            </Switch>
-          </SplitView>
-        </Suspense>
-      </AuthenticatedLayout>
+                <Route
+                  path={`/doc/${documentSlug}`}
+                  component={Scenes.Document.Component}
+                />
+                <Route
+                  exact
+                  path={`${searchPath()}/:query?`}
+                  component={Scenes.Search.Component}
+                />
+                {env.isDevelopment && (
+                  <Route exact path={debugPath()} component={Debug} />
+                )}
+                {env.isDevelopment && (
+                  <Route
+                    exact
+                    path={`${debugPath()}/changesets`}
+                    component={Changesets}
+                  />
+                )}
+                <Route exact path="/404" component={Error404} />
+                <SettingsRoutes />
+                <Route component={Error404} />
+              </Switch>
+            </SplitView>
+          </Suspense>
+        </AuthenticatedLayout>
+      </CustomizationProvider>
     </WebsocketProvider>
   );
 }

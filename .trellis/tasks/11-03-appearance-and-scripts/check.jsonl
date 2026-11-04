@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查设置组件与主题集成。检查表单行为。检查打印和文字可读性。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查有效的前端测试。保留翻译内容并按协议读取 CSRF。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"检查服务端接口约定。检查隔离测试和定向验证。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"检查配置与脚本的完整数据流。"}
+{"file":".trellis/tasks/11-03-appearance-and-scripts/research/codebase.md","reason":"按当前源码核对结论。区分原型验证与产品验收。"}

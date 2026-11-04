@@ -1,0 +1,416 @@
+<div id="outline-appearance-proposal" aria-label="Outline 外观与脚本设置交互草图">
+  <style>
+    #outline-appearance-proposal {
+      --op-page: light-dark(#ffffff, #191c20);
+      --op-side: light-dark(#f6f7f9, #14171b);
+      --op-text: light-dark(#24272d, #e8eaed);
+      --op-muted: light-dark(#656c77, #a1a8b3);
+      --op-line: light-dark(#e8eaee, #34383f);
+      --op-soft: light-dark(#f5f6f8, #252a31);
+      --op-accent: light-dark(#2463c9, #8ab9ff);
+      --op-accent-bg: light-dark(#edf3fe, #202f46);
+      --op-button: light-dark(#2c6bd0, #3c75cc);
+      --op-button-text: #ffffff;
+      --op-warning: light-dark(#835b12, #f0ce83);
+      --op-warning-bg: light-dark(#fff8e9, #332b1c);
+      --op-error: light-dark(#b93636, #ffaaaa);
+      --op-good: light-dark(#26774a, #92d4ad);
+      font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--op-text);
+    }
+    #outline-appearance-proposal * { box-sizing: border-box; }
+    #outline-appearance-proposal [hidden] { display: none !important; }
+    #outline-appearance-proposal button, #outline-appearance-proposal input, #outline-appearance-proposal select, #outline-appearance-proposal textarea { font: inherit; }
+    #outline-appearance-proposal button, #outline-appearance-proposal input, #outline-appearance-proposal select, #outline-appearance-proposal textarea { color: var(--op-text); }
+    #outline-appearance-proposal button { cursor: var(--cursor-interaction, pointer); }
+    #outline-appearance-proposal h1, #outline-appearance-proposal h2, #outline-appearance-proposal p { margin: 0; }
+    #outline-appearance-proposal h1 { font-size: 25px; line-height: 1.3; font-weight: 600; letter-spacing: -.5px; }
+    #outline-appearance-proposal h2 { font-size: 15px; font-weight: 600; }
+    #outline-appearance-proposal .op-window { display: grid; grid-template-columns: 174px minmax(0, 1fr); background: var(--op-page); border: 1px solid var(--op-line); border-radius: 10px; overflow: hidden; }
+    #outline-appearance-proposal .op-sidebar { background: var(--op-side); padding: 22px 12px; border-right: 1px solid var(--op-line); display: flex; flex-direction: column; gap: 24px; }
+    #outline-appearance-proposal .op-brand { font-size: 16px; font-weight: 600; padding: 0 10px; }
+    #outline-appearance-proposal .op-nav-group { display: grid; gap: 5px; }
+    #outline-appearance-proposal .op-nav-label { color: var(--op-muted); font-size: 12px; margin: 0 10px 4px; }
+    #outline-appearance-proposal .op-nav-link { display: flex; gap: 9px; align-items: center; padding: 8px 10px; border: 0; border-radius: 5px; background: transparent; text-align: left; width: 100%; }
+    #outline-appearance-proposal .op-nav-link[aria-current="page"] { background: var(--op-accent-bg); color: var(--op-accent); font-weight: 500; }
+    #outline-appearance-proposal .op-nav-muted { padding: 8px 10px; color: var(--op-muted); }
+    #outline-appearance-proposal .op-nav-foot { margin-top: auto; padding: 40px 10px 0; color: var(--op-muted); font-size: 12px; }
+    #outline-appearance-proposal .op-main { min-width: 0; padding: 22px 28px 24px; }
+    #outline-appearance-proposal .op-top { display: flex; align-items: center; gap: 10px; padding-right: 90px; margin-bottom: 24px; color: var(--op-muted); font-size: 12px; }
+    #outline-appearance-proposal .op-prototype { padding: 2px 7px; border: 1px solid var(--op-line); border-radius: 4px; white-space: nowrap; }
+    #outline-appearance-proposal .op-heading { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 20px; }
+    #outline-appearance-proposal .op-description { margin-top: 8px; color: var(--op-muted); }
+    #outline-appearance-proposal .op-tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--op-line); margin-bottom: 24px; }
+    #outline-appearance-proposal .op-tab { padding: 10px 0 12px; background: none; border: 0; border-bottom: 2px solid transparent; color: var(--op-muted); white-space: nowrap; }
+    #outline-appearance-proposal .op-tab[aria-selected="true"] { color: var(--op-text); border-bottom-color: var(--op-text); font-weight: 500; }
+    #outline-appearance-proposal .op-content { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, 1fr); gap: 28px; align-items: start; }
+    #outline-appearance-proposal[data-layout="stacked"] .op-content { grid-template-columns: minmax(0, 1fr); }
+    #outline-appearance-proposal .op-form { min-width: 0; }
+    #outline-appearance-proposal .op-section-head { display: flex; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    #outline-appearance-proposal .op-status { font-size: 12px; color: var(--op-muted); padding: 2px 8px; background: var(--op-soft); border-radius: 4px; }
+    #outline-appearance-proposal .op-status[data-state="running"] { color: var(--op-good); }
+    #outline-appearance-proposal .op-status[data-state="pending"] { color: var(--op-warning); background: var(--op-warning-bg); }
+    #outline-appearance-proposal .op-field { display: grid; gap: 7px; margin: 16px 0; }
+    #outline-appearance-proposal .op-label { display: block; font-weight: 500; }
+    #outline-appearance-proposal .op-help { color: var(--op-muted); font-size: 12px; overflow-wrap: anywhere; }
+    #outline-appearance-proposal .op-select { padding: 8px 10px; border: 1px solid var(--op-line); border-radius: 5px; background: var(--op-page); width: 100%; min-width: 0; }
+    #outline-appearance-proposal .op-upload { display: grid; gap: 12px; padding: 20px 14px; border: 1px dashed var(--op-line); border-radius: 7px; background: var(--op-side); text-align: center; }
+    #outline-appearance-proposal .op-upload-icon { margin: 0 auto; color: var(--op-muted); }
+    #outline-appearance-proposal .op-upload input { max-width: 100%; font-size: 12px; }
+    #outline-appearance-proposal .op-upload-picker { display: flex; justify-content: center; }
+    #outline-appearance-proposal .op-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+    #outline-appearance-proposal .op-file-input:focus-visible + label { outline: 2px solid var(--op-accent); outline-offset: 3px; }
+    #outline-appearance-proposal .op-file { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; }
+    #outline-appearance-proposal .op-thumb { width: 52px; height: 44px; object-fit: cover; border-radius: 4px; }
+    #outline-appearance-proposal .op-file-name { overflow-wrap: anywhere; }
+    #outline-appearance-proposal .op-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+    #outline-appearance-proposal .op-button { display: inline-flex; gap: 6px; justify-content: center; align-items: center; padding: 7px 11px; background: var(--op-page); border: 1px solid var(--op-line); border-radius: 5px; font-weight: 500; }
+    #outline-appearance-proposal .op-button:hover { background: var(--op-soft); }
+    #outline-appearance-proposal .op-button:disabled { opacity: .5; cursor: default; }
+    #outline-appearance-proposal .op-button-primary { background: var(--op-button); border-color: var(--op-button); color: var(--op-button-text); }
+    #outline-appearance-proposal .op-button-primary:hover { background: var(--op-button); filter: brightness(1.06); }
+    #outline-appearance-proposal .op-button-quiet { background: transparent; border-color: transparent; color: var(--op-muted); }
+    #outline-appearance-proposal .op-code { display: block; width: 100%; min-height: 196px; resize: vertical; padding: 12px; font: 12px/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; border: 1px solid var(--op-line); border-radius: 6px; background: var(--op-side); white-space: pre-wrap; overflow-wrap: anywhere; }
+    #outline-appearance-proposal .op-code-small { min-height: 76px; }
+    #outline-appearance-proposal .op-notice { padding: 12px; background: var(--op-warning-bg); color: var(--op-warning); border-radius: 5px; font-size: 12px; margin: 12px 0; }
+    #outline-appearance-proposal .op-check { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+    #outline-appearance-proposal .op-preview { min-width: 0; }
+    #outline-appearance-proposal .op-preview-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    #outline-appearance-proposal .op-preview-top strong { font-size: 13px; font-weight: 500; }
+    #outline-appearance-proposal .op-preview-top select { width: auto; max-width: 100%; font-size: 12px; padding: 5px 7px; }
+    #outline-appearance-proposal .op-preview-host { display: block; border: 1px solid var(--op-line); border-radius: 7px; overflow: hidden; min-height: 312px; }
+    #outline-appearance-proposal .op-preview-foot { margin-top: 10px; display: grid; gap: 5px; color: var(--op-muted); font-size: 12px; }
+    #outline-appearance-proposal .op-preview-settings { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 12px; flex-wrap: wrap; }
+    #outline-appearance-proposal .op-result { min-height: 22px; margin-top: 20px; color: var(--op-good); font-size: 12px; overflow-wrap: anywhere; }
+    #outline-appearance-proposal .op-result[data-error="true"] { color: var(--op-error); }
+    #outline-appearance-proposal .op-dialog { max-width: min(420px, calc(100% - 32px)); padding: 24px; border: 1px solid var(--op-line); border-radius: 9px; background: var(--op-page); color: var(--op-text); }
+    #outline-appearance-proposal .op-dialog::backdrop { background: rgb(0 0 0 / .35); }
+    #outline-appearance-proposal .op-dialog p { margin-top: 12px; }
+    #outline-appearance-proposal .op-dialog .op-actions { justify-content: end; }
+    @media (max-width: 900px) { #outline-appearance-proposal .op-content { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 600px) {
+      #outline-appearance-proposal .op-window { grid-template-columns: minmax(0, 1fr); }
+      #outline-appearance-proposal .op-sidebar { padding: 12px; border-right: 0; border-bottom: 1px solid var(--op-line); gap: 10px; }
+      #outline-appearance-proposal .op-brand, #outline-appearance-proposal .op-nav-label, #outline-appearance-proposal .op-nav-muted, #outline-appearance-proposal .op-nav-foot { display: none; }
+      #outline-appearance-proposal .op-sidebar nav { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+      #outline-appearance-proposal .op-nav-link { padding: 9px 6px; font-size: 12px; }
+      #outline-appearance-proposal .op-main { padding: 16px; }
+      #outline-appearance-proposal .op-heading { flex-wrap: wrap; }
+      #outline-appearance-proposal .op-tabs { gap: 22px; }
+      #outline-appearance-proposal .op-top { margin-bottom: 18px; }
+      #outline-appearance-proposal h1 { font-size: 22px; }
+    }
+    @media (pointer: coarse) { #outline-appearance-proposal button, #outline-appearance-proposal select { min-height: 44px; } #outline-appearance-proposal textarea, #outline-appearance-proposal input { font-size: 16px; } }
+  </style>
+  <div class="op-window">
+    <aside class="op-sidebar" aria-label="设置导航">
+      <div class="op-brand">Outline</div>
+      <nav>
+        <div class="op-nav-group">
+          <span class="op-nav-label">个人设置</span>
+          <span class="op-nav-muted">偏好设置</span>
+          <button type="button" class="op-nav-link" data-scope="personal" aria-current="page"><i data-lucide="sliders-horizontal" aria-hidden="true"></i>外观与脚本</button>
+          <span class="op-nav-muted">通知</span>
+        </div>
+        <div class="op-nav-group">
+          <span class="op-nav-label">工作区 · 管理员</span>
+          <span class="op-nav-muted">主题</span>
+          <button type="button" class="op-nav-link" data-scope="workspace"><i data-lucide="settings-2" aria-hidden="true"></i>工作区外观与脚本</button>
+        </div>
+      </nav>
+      <div class="op-nav-foot">各项独立配置<br>配色主题仍在偏好设置中管理</div>
+    </aside>
+    <main class="op-main">
+      <div class="op-top"><span>设置 / 外观与脚本</span><span class="op-prototype">交互草图</span></div>
+      <header class="op-heading">
+        <div><h1 data-ui="title">外观与脚本</h1><p class="op-description" data-ui="description">管理个人背景和样式，选择是否启用工作区脚本。</p></div>
+      </header>
+      <div class="op-tabs" role="tablist" aria-label="独立配置项目">
+        <button class="op-tab" type="button" id="op-tab-background" role="tab" aria-controls="op-background" aria-selected="true" data-tab="background">背景图片</button>
+        <button class="op-tab" type="button" id="op-tab-css" role="tab" aria-controls="op-css" aria-selected="false" data-tab="css">CSS 样式</button>
+        <button class="op-tab" type="button" id="op-tab-js" role="tab" aria-controls="op-js" aria-selected="false" data-tab="js">JavaScript</button>
+      </div>
+      <div class="op-content">
+        <div class="op-form">
+          <section id="op-background" role="tabpanel" aria-labelledby="op-tab-background">
+            <div class="op-section-head"><h2>背景图片</h2><span class="op-status" data-ui="background-status">跟随工作区</span></div>
+            <p class="op-help" data-ui="background-help">个人图片只影响你自己的界面，配色主题切换时保持不变。</p>
+            <label class="op-field" data-ui="source-field"><span class="op-label">图片来源</span><select class="op-select" data-ui="source"><option value="inherit">跟随工作区</option><option value="custom">使用个人图片</option></select></label>
+            <div class="op-upload">
+              <i class="op-upload-icon" data-lucide="image-plus" aria-hidden="true"></i>
+              <span data-ui="upload-label">上传个人背景图片</span>
+              <span class="op-help">JPG、PNG、WebP</span>
+              <div class="op-upload-picker"><input id="op-background-file" class="op-file-input" data-ui="file" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择要上传的背景图片"><label class="op-button" for="op-background-file">选择图片</label></div>
+              <div class="op-file" data-ui="file-summary" hidden><img class="op-thumb" data-ui="thumbnail" alt="所选背景缩略图"><div><div class="op-file-name" data-ui="filename"></div><div class="op-help">当前所选图片</div></div></div>
+            </div>
+            <label class="op-field"><span class="op-label">显示方式</span><select class="op-select" data-ui="fit"><option value="cover">铺满</option><option value="contain">完整显示</option><option value="repeat">平铺</option></select></label>
+            <div class="op-actions"><button type="button" class="op-button op-button-primary" data-action="save-background">保存背景</button><button type="button" class="op-button" data-action="reset-background">恢复工作区默认</button></div>
+          </section>
+          <section id="op-css" role="tabpanel" aria-labelledby="op-tab-css" hidden>
+            <div class="op-section-head"><h2 data-ui="css-title">个人 CSS</h2><span class="op-status">叠加生效</span></div>
+            <p class="op-help" data-ui="css-help">先加载工作区样式，再加载你的样式。保存后只对你生效。</p>
+            <label class="op-field" data-ui="workspace-css-field"><span class="op-label">工作区样式 · 只读</span><textarea class="op-code op-code-small" data-ui="workspace-css" readonly spellcheck="false" aria-label="已发布的工作区 CSS"></textarea></label>
+            <label class="op-field"><span class="op-label" data-ui="css-label">我的样式</span><textarea class="op-code" data-ui="css" spellcheck="false" aria-label="自定义 CSS 编辑器"></textarea></label>
+            <div class="op-actions"><button type="button" class="op-button op-button-primary" data-action="save-css">保存 CSS</button><button type="button" class="op-button" data-action="reset-css">清空个人 CSS</button></div>
+          </section>
+          <section id="op-js" role="tabpanel" aria-labelledby="op-tab-js" hidden>
+            <div class="op-section-head"><h2>工作区脚本</h2><span class="op-status" data-ui="script-status">未启用</span></div>
+            <p class="op-help" data-ui="script-meta">管理员发布 · v1</p>
+            <div class="op-notice" data-ui="script-notice">脚本可读取页面内容，并以你的身份操作。仅在你主动启用后运行。</div>
+            <label class="op-field"><span class="op-label" data-ui="script-label">已发布代码 · 只读</span><textarea class="op-code" data-ui="script" readonly spellcheck="false" aria-label="工作区 JavaScript"></textarea></label>
+            <div class="op-actions" data-ui="personal-js-actions"><button type="button" class="op-button op-button-primary" data-action="enable-script">启用本版本</button><button type="button" class="op-button" data-action="disable-script" disabled>停用脚本</button></div>
+            <div class="op-actions" data-ui="workspace-js-actions" hidden><button type="button" class="op-button" data-action="save-script-draft">保存草稿</button><button type="button" class="op-button op-button-primary" data-action="publish-script">发布新版本</button></div>
+            <p class="op-help" style="margin-top: 14px">代码或依赖更新后暂停执行，等待你重新启用。仅修改背景或 CSS 不影响脚本启用状态。</p>
+          </section>
+          <p class="op-result" data-ui="result" role="status" aria-live="polite"></p>
+        </div>
+        <aside class="op-preview" aria-label="配置效果预览">
+          <div class="op-preview-top"><strong>效果预览</strong><select class="op-select" data-ui="appearance" aria-label="预览浅色或深色"><option value="light">浅色</option><option value="dark">深色</option></select></div>
+          <div class="op-preview-host" data-ui="preview"></div>
+          <div class="op-preview-settings"><label class="op-help" for="op-color-theme">配色主题</label><select id="op-color-theme" class="op-select" style="width:auto" data-ui="color-theme"><option value="outline">Outline</option><option value="blue">清爽蓝</option></select></div>
+          <div class="op-preview-foot"><span data-ui="preview-caption">背景：未设置 · CSS：工作区 + 个人</span><span data-ui="preview-script">脚本：未启用</span></div>
+          <div class="op-actions"><button type="button" class="op-button op-button-quiet" data-action="recovery"><i data-lucide="shield-check" aria-hidden="true"></i><span data-ui="recovery-label">暂停所有自定义</span></button></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+  <dialog class="op-dialog" data-ui="enable-dialog" aria-labelledby="op-enable-title">
+    <h2 id="op-enable-title">启用工作区脚本</h2>
+    <p>脚本可以读取页面内容、修改界面，并以你的身份执行操作。</p>
+    <p class="op-help" data-ui="consent-version">本次启用仅适用于 v1。代码或依赖变化后需要重新启用。</p>
+    <div class="op-actions"><button type="button" class="op-button" data-action="cancel-enable">取消</button><button type="button" class="op-button op-button-primary" data-action="confirm-enable">确认启用</button></div>
+  </dialog>
+  <script>
+    (() => {
+      const root = document.getElementById('outline-appearance-proposal');
+      const ui = name => root.querySelector('[data-ui="' + name + '"]');
+      const action = name => root.querySelector('[data-action="' + name + '"]');
+      const defaultScript = `export function activate(ctx) {
+  const button = document.createElement("button");
+  button.textContent = "快捷工具";
+  ctx.toolbar.appendChild(button);
+
+  return () => button.remove();
+}`;
+      const defaultWorkspaceCss = '[data-outline-part="editor"] p {\n  line-height: 1.9;\n}';
+      const defaultPersonalCss = '[data-outline-part="editor"] h2 {\n  letter-spacing: 0.04em;\n}\n\n[data-outline-part="editor"] p {\n  font-size: 13px;\n}';
+      const state = {
+        scope: 'personal', tab: 'background', appearance: 'light', colorTheme: 'outline', safe: false,
+        workspaceImage: null, personalImage: null, workspaceImageDraft: null, personalImageDraft: null,
+        imageSource: 'inherit', sourceDraft: 'inherit', personalFit: 'cover', workspaceFit: 'cover', fitDraft: 'cover',
+        workspaceCss: defaultWorkspaceCss, personalCss: '', cssDrafts: { personal: defaultPersonalCss, workspace: defaultWorkspaceCss },
+        publishedSource: defaultScript, scriptDraft: defaultScript, revision: 1, consent: null, previouslyEnabled: false
+      };
+      const shadow = ui('preview').attachShadow({ mode: 'open' });
+      shadow.innerHTML = `<style>
+        :host { display:block; }
+        * { box-sizing:border-box; }
+        .screen { --bg:#fff; --text:#303640; --muted:#69717e; --side:#f6f7fa; --line:#e7e9ee; --accent:#53616e; color-scheme:light; color:var(--text); background:var(--bg); font:12px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif; min-height:312px; }
+        .screen[data-appearance="dark"] { --bg:#1c2026; --text:#e8ecf1; --muted:#a0a9b5; --side:#181b20; --line:#343a43; --accent:#b0bac7; color-scheme:dark; }
+        .screen[data-color-theme="blue"] { --accent:#2d70ca; --side:#edf4fd; }
+        .screen[data-color-theme="blue"][data-appearance="dark"] { --accent:#90bcff; --side:#202c3d; }
+        .toolbar { display:flex; align-items:center; justify-content:space-between; gap:5px; flex-wrap:wrap; min-height:39px; padding:8px 10px; background:var(--bg); border-bottom:1px solid var(--line); color:var(--muted); }
+        .script-tool { border:1px solid var(--line); background:var(--side); color:var(--accent); border-radius:4px; font:inherit; padding:2px 6px; }
+        .body { display:grid; grid-template-columns:68px minmax(0,1fr); min-height:272px; background-position:center; }
+        .side { padding:16px 8px; background:color-mix(in srgb,var(--side) 92%,transparent); color:var(--muted); }
+        .side div { margin-bottom:10px; }
+        .side .selected { color:var(--accent); font-weight:500; }
+        .editor { margin:16px 10px; padding:14px 12px; border-radius:5px; background:color-mix(in srgb,var(--bg) 92%,transparent); overflow-wrap:anywhere; min-width:0; }
+        h2 { margin:0 0 12px; font-size:17px; line-height:1.5; }
+        p { margin:0 0 10px; color:var(--muted); }
+        .line { height:1px; background:var(--line); margin:14px 0; }
+        .link { color:var(--accent); }
+        ul { padding-left:16px; margin:0; color:var(--muted); }
+      </style><style data-layer="workspace"></style><style data-layer="personal"></style>
+      <div class="screen"><div class="toolbar"><span>团队知识库 / 开始使用</span><button type="button" class="script-tool" hidden>快捷工具</button></div><div class="body"><div class="side" data-outline-part="sidebar"><div>首页</div><div class="selected">知识库</div><div>收藏</div></div><article class="editor" data-outline-part="editor"><h2>让知识触手可及</h2><p>在这里记录团队的想法，让每一次协作都有迹可循。</p><div class="line"></div><p class="link">开始编写你的第一篇文档</p><ul><li>整理项目文档</li><li>分享团队经验</li></ul></article></div></div>`;
+      const screen = shadow.querySelector('.screen');
+      const body = shadow.querySelector('.body');
+      const saved = window.openai?.widgetState?.privateContent;
+      function restore(value) {
+        if (!value || typeof value !== 'object') return;
+        if (['personal', 'workspace'].includes(value.scope)) state.scope = value.scope;
+        if (['background', 'css', 'js'].includes(value.tab)) state.tab = value.tab;
+        if (['light', 'dark'].includes(value.appearance)) state.appearance = value.appearance;
+        if (['outline', 'blue'].includes(value.colorTheme)) state.colorTheme = value.colorTheme;
+        if (typeof value.safe === 'boolean') state.safe = value.safe;
+      }
+      restore(saved);
+      function persist() {
+        const snapshot = { scope: state.scope, tab: state.tab, appearance: state.appearance, colorTheme: state.colorTheme, safe: state.safe };
+        const result = window.openai?.setWidgetState?.({ modelContent: { view: state.scope, section: state.tab }, privateContent: snapshot });
+        result?.catch(() => {});
+      }
+      function report(message, error = false) {
+        ui('result').textContent = message;
+        ui('result').dataset.error = String(error);
+      }
+      function scriptRunning() { return !state.safe && state.scope === 'personal' && state.consent === state.revision; }
+      function preview() {
+        const workspace = state.scope === 'workspace';
+        const showDraft = state.tab === 'background';
+        const source = workspace ? 'workspace' : showDraft ? state.sourceDraft : state.imageSource;
+        const personal = showDraft ? state.personalImageDraft : state.personalImage;
+        const work = showDraft && workspace ? state.workspaceImageDraft : state.workspaceImage;
+        const image = workspace || source === 'inherit' ? work : personal;
+        const fit = showDraft ? state.fitDraft : workspace || source === 'inherit' ? state.workspaceFit : state.personalFit;
+        screen.dataset.appearance = state.appearance;
+        screen.dataset.colorTheme = state.colorTheme;
+        body.style.backgroundImage = image && !state.safe ? 'url("' + image.data + '")' : 'none';
+        body.style.backgroundSize = fit === 'repeat' ? '96px auto' : fit;
+        body.style.backgroundRepeat = fit === 'repeat' ? 'repeat' : 'no-repeat';
+        const workCss = state.tab === 'css' && workspace ? state.cssDrafts.workspace : state.workspaceCss;
+        const personalCss = state.tab === 'css' && !workspace ? state.cssDrafts.personal : state.personalCss;
+        shadow.querySelector('[data-layer="workspace"]').textContent = state.safe ? '' : workCss;
+        shadow.querySelector('[data-layer="personal"]').textContent = state.safe || workspace ? '' : personalCss;
+        shadow.querySelector('.script-tool').hidden = !scriptRunning();
+        const background = image ? workspace || source === 'inherit' ? '工作区图片' : '个人图片' : '未设置';
+        ui('preview-caption').textContent = state.safe ? '恢复模式：全部自定义已暂停' : '背景：' + background + ' · CSS：' + (workspace ? '工作区' : '工作区 + 个人');
+        ui('preview-script').textContent = workspace ? '脚本：管理页不自动执行' : scriptRunning() ? '脚本：v' + state.revision + ' 已启用（示例效果）' : '脚本：' + (state.previouslyEnabled ? '待重新启用' : '未启用');
+        ui('recovery-label').textContent = state.safe ? '恢复自定义' : '暂停所有自定义';
+      }
+      function render() {
+        const workspace = state.scope === 'workspace';
+        root.querySelectorAll('[data-scope]').forEach(button => {
+          if (button.dataset.scope === state.scope) button.setAttribute('aria-current', 'page');
+          else button.removeAttribute('aria-current');
+        });
+        root.querySelectorAll('[data-tab]').forEach(button => button.setAttribute('aria-selected', String(button.dataset.tab === state.tab)));
+        for (const tab of ['background', 'css', 'js']) root.querySelector('#op-' + tab).hidden = tab !== state.tab;
+        ui('title').textContent = workspace ? '工作区外观与脚本' : '外观与脚本';
+        ui('description').textContent = workspace ? '配置工作区默认外观，管理并发布脚本版本。' : '管理个人背景和样式，选择是否启用工作区脚本。';
+        ui('source-field').hidden = workspace;
+        ui('source').value = state.sourceDraft;
+        ui('fit').value = state.fitDraft;
+        ui('background-status').textContent = workspace ? '工作区默认' : state.sourceDraft === 'inherit' ? '跟随工作区' : '个人覆盖';
+        ui('background-help').textContent = workspace ? '用于尚未设置个人背景的成员，发布背景不会自动启用脚本。' : '个人图片只影响你自己的界面，配色主题切换时保持不变。';
+        ui('upload-label').textContent = workspace ? '上传工作区默认背景' : '上传个人背景图片';
+        action('save-background').textContent = workspace ? '发布背景' : '保存背景';
+        action('reset-background').textContent = workspace ? '清除默认背景' : '恢复工作区默认';
+        const image = workspace ? state.workspaceImageDraft : state.personalImageDraft;
+        ui('file-summary').hidden = !image;
+        if (image) { ui('thumbnail').src = image.data; ui('filename').textContent = image.name; }
+        else ui('thumbnail').removeAttribute('src');
+        ui('css-title').textContent = workspace ? '工作区 CSS' : '个人 CSS';
+        ui('css-help').textContent = workspace ? '作为所有成员的基础样式，个人 CSS 在此之后叠加加载。' : '先加载工作区样式，再加载你的样式。保存后只对你生效。';
+        ui('workspace-css-field').hidden = workspace;
+        ui('workspace-css').value = state.workspaceCss;
+        ui('css-label').textContent = workspace ? '默认样式' : '我的样式';
+        ui('css').value = state.cssDrafts[state.scope];
+        action('save-css').textContent = workspace ? '发布 CSS' : '保存 CSS';
+        action('reset-css').textContent = workspace ? '清空工作区 CSS' : '清空个人 CSS';
+        ui('script').readOnly = !workspace;
+        ui('script').value = workspace ? state.scriptDraft : state.publishedSource;
+        ui('script-label').textContent = workspace ? '脚本草稿' : '已发布代码 · 只读';
+        ui('script-meta').textContent = '管理员发布 · v' + state.revision;
+        ui('personal-js-actions').hidden = workspace;
+        ui('workspace-js-actions').hidden = !workspace;
+        const running = scriptRunning();
+        const pending = state.previouslyEnabled && state.consent !== state.revision;
+        ui('script-status').textContent = workspace ? '已发布 v' + state.revision : state.safe ? '恢复模式已暂停' : running ? '已启用 v' + state.revision : pending ? '待重新启用' : '未启用';
+        ui('script-status').dataset.state = running ? 'running' : pending ? 'pending' : 'disabled';
+        ui('script-notice').textContent = workspace ? '发布新的代码版本后，成员需重新启用。保存草稿不会影响当前已发布版本。' : pending ? '管理员已更新脚本。新版本尚未启用，脚本已暂停。' : '脚本可读取页面内容，并以你的身份操作。仅在你主动启用后运行。';
+        action('enable-script').disabled = running || state.safe;
+        action('enable-script').textContent = pending ? '重新启用 v' + state.revision : '启用本版本';
+        action('disable-script').disabled = state.consent !== state.revision;
+        ui('appearance').value = state.appearance;
+        ui('color-theme').value = state.colorTheme;
+        preview();
+      }
+      function loadScopeDrafts() {
+        state.fitDraft = state.scope === 'workspace' ? state.workspaceFit : state.personalFit;
+        state.sourceDraft = state.imageSource;
+        ui('file').value = '';
+      }
+      root.querySelectorAll('[data-scope]').forEach(button => button.addEventListener('click', () => {
+        state.scope = button.dataset.scope;
+        loadScopeDrafts(); report(''); render(); persist();
+      }));
+      root.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => {
+        state.tab = button.dataset.tab; report(''); render(); persist();
+      }));
+      root.querySelectorAll('[data-tab]').forEach((button, index, buttons) => button.addEventListener('keydown', event => {
+        if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[next].click(); buttons[next].focus();
+      }));
+      ui('source').addEventListener('change', () => { state.sourceDraft = ui('source').value; render(); });
+      ui('fit').addEventListener('change', () => { state.fitDraft = ui('fit').value; preview(); });
+      ui('file').addEventListener('change', () => {
+        const file = ui('file').files[0];
+        if (!file) return;
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { report('请选择 JPG、PNG 或 WebP 图片。', true); ui('file').value = ''; return; }
+        const selectedScope = state.scope;
+        const reader = new FileReader();
+        reader.addEventListener('load', () => {
+          const image = { data: reader.result, name: file.name };
+          if (selectedScope === 'workspace') state.workspaceImageDraft = image;
+          else { state.personalImageDraft = image; state.sourceDraft = 'custom'; }
+          if (state.scope === selectedScope) { render(); report('图片已进入预览，尚未保存。'); }
+        });
+        reader.addEventListener('error', () => report('无法读取图片，请重新选择。', true));
+        reader.readAsDataURL(file);
+      });
+      action('save-background').addEventListener('click', () => {
+        if (state.scope === 'workspace') { state.workspaceImage = state.workspaceImageDraft; state.workspaceFit = state.fitDraft; }
+        else {
+          if (state.sourceDraft === 'custom' && !state.personalImageDraft) { report('请先选择个人背景图片。', true); return; }
+          state.personalImage = state.personalImageDraft; state.imageSource = state.sourceDraft; state.personalFit = state.fitDraft;
+        }
+        render(); report('背景已保存。脚本启用状态保持不变。');
+      });
+      action('reset-background').addEventListener('click', () => {
+        if (state.scope === 'workspace') { state.workspaceImage = null; state.workspaceImageDraft = null; }
+        else { state.imageSource = 'inherit'; state.sourceDraft = 'inherit'; state.personalImage = null; state.personalImageDraft = null; }
+        ui('file').value = ''; render(); report(state.scope === 'workspace' ? '工作区背景已清除。' : '已恢复工作区默认背景。');
+      });
+      ui('css').addEventListener('input', () => {
+        const value = ui('css').value;
+        if (/@import|url\s*\(/i.test(value)) { report('本次预览只支持不加载外部资源的样式。', true); return; }
+        state.cssDrafts[state.scope] = value; preview(); report('正在预览 CSS 草稿，尚未保存。');
+      });
+      action('save-css').addEventListener('click', () => {
+        if (/@import|url\s*\(/i.test(ui('css').value)) { report('请先移除外部资源引用再预览。', true); return; }
+        state.cssDrafts[state.scope] = ui('css').value;
+        if (state.scope === 'workspace') state.workspaceCss = state.cssDrafts.workspace;
+        else state.personalCss = state.cssDrafts.personal;
+        render(); report('CSS 已保存。脚本启用状态保持不变。');
+      });
+      action('reset-css').addEventListener('click', () => {
+        state.cssDrafts[state.scope] = '';
+        if (state.scope === 'workspace') state.workspaceCss = ''; else state.personalCss = '';
+        render(); report('自定义 CSS 已清空。');
+      });
+      ui('script').addEventListener('input', () => { if (state.scope === 'workspace') state.scriptDraft = ui('script').value; });
+      action('save-script-draft').addEventListener('click', () => { state.scriptDraft = ui('script').value; report('草稿已保留，当前发布版本和用户启用状态不变。'); });
+      action('publish-script').addEventListener('click', () => {
+        state.scriptDraft = ui('script').value;
+        if (state.scriptDraft === state.publishedSource) { report('脚本代码未变化，发布版本保持不变。'); return; }
+        state.publishedSource = state.scriptDraft; state.revision += 1; state.consent = null;
+        render(); report('已发布 v' + state.revision + '。用户脚本已暂停，等待重新启用。');
+      });
+      action('enable-script').addEventListener('click', () => {
+        ui('consent-version').textContent = '本次启用仅适用于 v' + state.revision + '。代码或依赖变化后需要重新启用。';
+        ui('enable-dialog').showModal();
+      });
+      action('cancel-enable').addEventListener('click', () => ui('enable-dialog').close());
+      action('confirm-enable').addEventListener('click', () => {
+        state.consent = state.revision; state.previouslyEnabled = true; ui('enable-dialog').close(); render(); report('已启用 v' + state.revision + '；预览出现“快捷工具”示例按钮。');
+      });
+      action('disable-script').addEventListener('click', () => { state.consent = null; state.previouslyEnabled = false; render(); report('脚本已停用，示例按钮已移除。'); });
+      action('recovery').addEventListener('click', () => { state.safe = !state.safe; render(); report(state.safe ? '已暂停所有自定义，配置保留。' : '已退出恢复模式。'); persist(); });
+      ui('appearance').addEventListener('change', () => { state.appearance = ui('appearance').value; preview(); persist(); });
+      ui('color-theme').addEventListener('change', () => { state.colorTheme = ui('color-theme').value; preview(); report('配色已切换，背景、CSS 与脚本配置保持不变。'); persist(); });
+      window.addEventListener('openai:set_globals', event => {
+        const value = event.detail?.globals?.widgetState?.privateContent;
+        restore(value); loadScopeDrafts(); render();
+      });
+      loadScopeDrafts(); render();
+      const design = { layout: 'side-by-side' };
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({ container: root, onChange: () => { root.dataset.layout = design.layout; } });
+        tweak.addSelect(design, 'layout', { label: '编辑与预览布局', options: [{ label: '并排预览', value: 'side-by-side' }, { label: '上下预览', value: 'stacked' }] });
+      }
+    })();
+  </script>
+</div>

@@ -81,3 +81,11 @@ export { default as Theme } from "./Theme";
 export { default as UserPasskey } from "./UserPasskey";
 
 export { default as AccessRequest } from "./AccessRequest";
+
+export { WorkspaceCustomization } from "./WorkspaceCustomization";
+
+export { UserCustomization } from "./UserCustomization";
+
+export { CustomizationAsset } from "./CustomizationAsset";
+
+export { CustomizationScriptRevision } from "./CustomizationScriptRevision";

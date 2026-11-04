@@ -32,7 +32,17 @@ Questions to answer:
 
 <!-- How to create and run migrations -->
 
-(To be filled by the team)
+Generate migrations with Yarn and Sequelize CLI. Once a running application or
+test database has applied a migration name, changing that file will not rerun it.
+Append a migration for every later schema change, including during development.
+Do not infer schema correctness from `SequelizeMeta` or a successful fresh install.
+
+When the development server watches or applies migrations automatically, generate
+drafts with `yarn sequelize migration:create --migrations-path <temporary-dir>`.
+Finish the file outside the watched directory, then move the complete file into
+`server/migrations/` atomically. An empty CLI template must not become an applied
+migration. Keep the ordinary repository CLI path for environments without an
+active migration consumer.
 
 ---
 
@@ -49,6 +59,80 @@ Questions to answer:
 <!-- Database-related mistakes your team has made -->
 
 (To be filled by the team)
+
+## Scenario: Repairing a field omitted by an already applied migration
+
+### 1. Scope / Trigger
+
+The early `create-customizations` table existed without `customizationAssets.ready`,
+while the current model and initial migration included it. Its migration name
+was already recorded. Both upload INSERT and cleanup SELECT failed with PostgreSQL
+`42703`, even though image validation succeeded. Fresh-database API tests did not
+cover this older applied schema.
+
+### 2. Signatures
+
+- A new Sequelize migration exposes `up(queryInterface, Sequelize)` and `down()`.
+- The repair adds `ready BOOLEAN NOT NULL DEFAULT false` only when absent.
+- Upload creates a staged row with `ready=false`, writes private image bytes,
+  then sets `ready=true`. Reads require `ready=true`.
+
+### 3. Contracts
+
+Use a new migration filename and a transaction. `ADD COLUMN IF NOT EXISTS`
+preserves a column already created by the final initial migration, including
+existing true/false values and constraints. A missing column receives false for
+existing rows. Metadata alone cannot prove an old file reached storage, so do
+not mark unknown uploads ready. Preserve all rows and background references.
+
+The repair's `down` is intentionally a no-op: the initial migration owns the
+column, and reverting this repair on a new database must not remove that existing
+column or destroy upload state. Reverting the initial migration still removes
+its tables normally. This repair is narrow; unrelated schema drift requires
+separate investigation rather than silently changing other columns.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Initial migration recorded, ready absent | Append and run the repair; upload and cleanup can access ready. |
+| ready already present with true/false data | Keep values, type, nullability and default unchanged. |
+| Existing row has no readiness metadata | Preserve it and references; default to false rather than assume storage succeeded. |
+| Repair runs twice or down runs | No data loss and no deletion of a column owned by the initial migration. |
+| Storage write fails after staging | Existing upload compensation/retry behavior remains unchanged. |
+| Other fields or constraints differ | Report the concrete mismatch; do not reset the database or delete migration history. |
+
+### 5. Good / Base / Bad Cases
+
+Good: reproduce the old applied schema in an isolated PostgreSQL schema, run the
+new migration and verify INSERT/SELECT plus preserved references. Base: on a fresh
+database, the repair is a no-op. Bad: change the old CREATE TABLE definition,
+restart, and assume an already recorded migration ran again; or drop tables to
+make tests pass.
+
+### 6. Tests Required
+
+Test the older missing-column schema and the final complete schema against real
+PostgreSQL. Preserve existing records and foreign-key references. Assert the
+new default is false, explicit readiness updates work, existing true values stay
+true and a second up/no-op down is safe. Run the existing upload/read/cleanup API
+regressions after the repair. Do not mutate public application tables to simulate
+the old schema in tests; use a disposable schema or database. Serialize separate
+server test invocations sharing the same test database.
+
+For a live report, compare `information_schema.columns` and constraints with
+the model as well as checking `SequelizeMeta`. Apply the reviewed additive
+migration through the normal runner. Verify database reads/writes in a rolled-back
+transaction when a real browser upload is unavailable. State that validation
+scope explicitly.
+
+### 7. Wrong vs Correct
+
+Wrong: add `ready` only to an already applied `create-customizations` file, or
+delete its metadata and rerun CREATE TABLE on existing data.
+
+Correct: append a conditional, transactional ADD COLUMN migration and test both
+the previously applied schema and a fresh complete schema.
 
 
 ## Scenario: Explicit email sign-in preference and rollback

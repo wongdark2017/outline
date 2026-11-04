@@ -70,6 +70,16 @@ React.useEffect(() => {
 
 ## Shared theme styling
 
+The legacy `/settings/theme` and `/settings/themes` manager and all `themes.*`
+RPC endpoints are currently paused. Do not mount `useCustomThemeTokens` or request
+themes from Preferences or `CustomizationPreview`. Application and preview use
+the built-in light/dark/system palette with the existing branding accent input;
+saved legacy IDs/cache do not select a palette. Keep stored themes and preferences
+intact. Backgrounds use the remaining `customizations.*` endpoints; author CSS
+and scripts are currently paused with stored data retained. Legacy
+addresses redirect with replace, preserve search/hash (including recovery), and
+choose workspace appearance only when `can.update` permits it.
+
 - Adapt external themes through semantic tokens in `shared/styles/theme.ts` and scoped styled-components. Preserve `buildLightTheme`/`buildDarkTheme` custom palette overrides and use real dark colors rather than inverting the page.
 - Keep the user's `fontFamilies` stacks and the `--font-body`, `--font-ui`, `--font-mono` variables. Document typography belongs in the document wrapper; shared editor element styles in `shared/editor/components/Styles.ts` also reach read-only rendering and HTML export.
 - Measure contrast after translucent backgrounds are composited. Test dark sidebar active text, inline code and focused buttons, including hover/focus states. Use `selected` for focus outlines so the dark theme can supply a visible accent variant.
@@ -77,3 +87,251 @@ React.useEffect(() => {
 - Keep KaTeX selectors, editable source styling, mobile overflow and print visibility rules when adapting editor styles. Formula rendering uses the installed KaTeX package; preserve MathML output, source-editor selection boundaries, and font readiness before printing. Verify the actual default/custom highlight DOM and both light/dark themes, mobile width, RTL sidebar selection, menus and printing.
 - Formula source editors forward undo/redo shortcuts to the enclosing editor's configured key handlers. Do not bind them directly to `prosemirror-history`: collaborative editors use Yjs history. Keep select-all confined to the formula source.
 - A sidebar's decorative accent rail must remain in every hover/focus/collapsed shadow branch. Use logical inline properties for active indicators and dividers.
+
+## Historical contract: Appearance settings and script lifecycle
+
+The current product is background-only. CSS and script entry points, effective
+sources and execution are paused; the current contract below takes precedence.
+
+### 1. Scope / Trigger
+
+`CustomizationProvider` belongs inside authenticated routes, outside per-page
+scenes. Public shares do not mount it, even with a signed-in viewer. Independent
+settings live in `CustomizationsStore`; the API contract is documented in
+`../backend/quality-guidelines.md`.
+
+### 2. Signatures
+
+- `CustomizationRuntime.setScript({ identity, id, digest, url } | null)` owns
+  one exact consented revision. `stop()` disposes registered resources.
+- ESM exports `activate(ctx)`, which can return a synchronous or asynchronous
+  cleanup function. Context provides `appRoot`, `toolbar`, `appearance`,
+  `signal`, `onCleanup`, `onNavigation` and `onAppearanceChange`.
+- Recovery is `?disableCustomizations=1`; check it before using stored settings.
+
+### 3. Contracts
+
+Workspace CSS loads before personal CSS. CSS specificity and importance still
+apply. Screen-only style elements and background CSS variables must clear for
+printing, recovery and identity changes. Use `backgroundColor` rather than a
+`background` shorthand in `PageTheme`; a shorthand resets the uploaded image.
+Keep the normal opaque document surface when no custom background is active.
+When a background is active, the main `content` region uses a 92% theme surface
+and the editor uses that same surface without a second background or decorative
+rounded card. A nested 94% editor surface over 92% main opacity becomes 99.52%
+opaque and makes the image nearly disappear inside the article. Remove that
+extra base rule instead of forcing every editor background to transparent; keep
+the `editor` DOM hook and author CSS overrides intact. Transparent settings
+controls remain readable over light images in dark mode and dark images in light
+mode. Verify the composited
+text contrast in a real browser; jsdom does not calculate `color-mix()` pixels.
+
+Load native modules from the authenticated versioned endpoint. Never evaluate
+source text with `eval` or `new Function`. Match revision ID AND digest after
+revalidation; websocket invalidation, reconnect, visibility and fallback polling
+update that state. Do not restart a script for CSS/background or theme changes.
+Generation checks prevent delayed imports from activating obsolete scripts;
+abort immediately and run each registered cleanup once. A disposed async
+activation must still execute a late returned disposer.
+
+This is trusted main-window execution. Imported module top-level code is not
+cancelable, and arbitrary DOM changes or network requests cannot be undone.
+Place side effects in `activate` and register cleanup. Runtime-fetched code is
+outside the managed dependency digest; UI must state this limit explicitly.
+
+Each tab has separate draft/version/error state. Do not replace unsaved drafts
+on revalidation or save another tab's draft implicitly. Preview background/CSS
+in an iframe with no script permission; fetch authorized images as local blob
+URLs and revoke them. Never run preview JavaScript. Provide a copyable recovery
+URL alongside the recovery action.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| New publication | Stop old managed effects; show `Enable again`; require exact consent. |
+| Slow import or activation after disable/logout | Do not call `activate` after a stale import; dispose managed effects and run any late returned cleanup. |
+| Failed save or stale version | Keep saved state and unsaved draft; show an error/reload action. |
+| Invalid source/modules or image | Show validation error; do not replace saved settings. |
+| Recovery or print | Remove custom appearance and pause managed script effects; keep recovery editors usable. |
+
+### 5. Good / Base / Bad Cases
+
+Good: SPA navigation keeps one running instance and notifies registered listeners.
+Base: no consent means no import. Bad: assume dynamic import is a sandbox, claim
+all script side effects can be undone, or infer consent from a theme selection.
+
+### 6. Tests Required
+
+Run `CustomizationsStore.test.ts`, `CustomizationRuntime.test.ts`,
+`customizations.test.ts` and `customizationPreview.test.ts`. Assert stale identity
+responses are discarded, exact consent is required, field versions remain
+independent, cleanup survives StrictMode/async races, CSS order is stable and
+preview HTML cannot execute scripts. Use real-browser native ESM for publication,
+reenabling, navigation, print/recovery and signed-in public shares. Check actual
+control bounds at 320/390/736/1024 px; body overflow alone can hide clipped fields.
+
+### 7. Wrong vs Correct
+
+Wrong: `document.body.style.background = theme.background` resets the image.
+Correct: `document.body.style.backgroundColor = theme.background` changes only
+the theme color and preserves independent background configuration.
+
+## Scenario: Releasing the startup root background for saved images
+
+### 1. Scope / Trigger
+
+`server/static/index.html` gives `#root` an inline background before React loads.
+It fills the viewport between `body` and the authenticated layout. Making the
+layout transparent does not release this opaque layer; an image can upload,
+preview, save and decode successfully while remaining completely hidden.
+
+### 2. Signatures
+
+`CustomizationStyleManager.apply(state)` acquires the existing root background
+when an image activates. `clear()`, `dispose()` and an apply without an image
+release it. The snapshot stores the element, background value and CSS priority.
+The server/API/storage contracts remain unchanged.
+
+### 3. Contracts
+
+Capture the pre-existing inline `background` shorthand once, then remove it so
+the authenticated body image can paint. Revalidation and image replacement must
+not replace the saved original value with an empty value. Leave unrelated inline
+styles untouched. No image means no acquisition; an independently authored
+longhand without a shorthand must not be taken over.
+
+Restore the original value and priority on cleanup only while the controller
+still owns the cleared state. If an author script writes a new `background` or
+`background-*` declaration after acquisition, retain that author change rather
+than overwrite it. Clear the snapshot even on repeated cleanup. Do not add
+`!important` to fight user CSS or remove the startup loading background globally.
+
+Keep the screen-only 92% main surface without a second editor surface. Restoration during
+print/recovery/logout must not leave the private image behind. Native printing
+restores the root, clears custom appearance, then reacquires after printing when
+the saved image remains active.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Saved image plus startup root shorthand | Root becomes transparent; actual image pixels reach the main surface. |
+| Replace image or repeat apply | Retain the first snapshot and paint the new image. |
+| Remove image, clear or dispose | Restore original background/priority and preserve unrelated inline properties. |
+| Author writes shorthand or longhand after acquisition | Preserve the author's new value during cleanup. |
+| No image or pre-existing longhand without a shorthand | Do not remove unrelated authored styles. |
+| Recovery or native printing | No custom image; root restoration remains safe and idempotent. |
+
+### 5. Good / Base / Bad Cases
+
+Good: black and white image cells produce different real screenshot pixels after
+save, while text contrast remains at least 4.5:1. Base: the startup root remains
+unchanged when no background is configured. Bad: accept a saved asset ID, decoded
+image, CSS variable or iframe preview as proof that the main page displays it.
+
+### 6. Tests Required
+
+`app/utils/customizations.test.ts` creates a realistic opaque startup `#root` and
+covers acquisition, replacement, no-image restoration, clear/dispose, repeated
+cleanup, priority, unrelated styles and author overrides. Inspect actual CSS
+declarations and computed styles in jsdom; a shorthand getter can retain an old
+cached value after `removeProperty()` even when its declaration is gone.
+
+Use a high-contrast checkerboard in a real browser with the actual HTML bootstrap.
+Sample the same blank main-surface coordinates before and after the fix. At the
+current 92% light surface, black/white cells differ by about 20 channel levels;
+the defective opaque root produces zero difference. Also verify contain, swapping,
+light/dark contrast, original-root restoration, native document print and recovery.
+Do not use an almost-white avatar or CSS-variable presence as the paint test.
+
+### 7. Wrong vs Correct
+
+Wrong: only make Layout/Document transparent and assume body images are visible.
+That ignores the opaque startup root between them.
+
+Correct: manage the intervening root shorthand's lifecycle and verify visible
+pixels through the real page, preserving cleanup and author ownership.
+
+### Collection surfaces and sticky tabs
+
+The Home `Documents`, collection `Content` and shared `Tabs` sticky wrapper must use
+`background: var(--outline-customization-layout-background, ${s("background")})`.
+An opaque theme background in either component creates a second solid slab over
+the main content's readable surface. Reuse the existing variable; do not override
+all descendant backgrounds or reduce the main surface opacity to fix a local slab.
+
+When a custom image is active on screen, sticky tabs use `backdrop-filter: blur(12px)`
+to soften rows scrolling underneath. Their overflow cue uses a `mask-image`
+gradient when more tabs remain to the right, and `none` at the end. Disable the
+old opaque theme-colored `::after` fade in this state. Scope blur/mask changes to
+`@media screen` and `body[data-outline-customization-background]`; ordinary pages,
+recovery and printing retain the theme background and original overflow cue.
+
+Verify the actual collection route with enough documents to scroll: list and
+tabs paint the saved image, sticky links remain clickable, and 320/390px widths
+allow horizontal scrolling and keyboard access to the final A–Z tab. A screenshot
+of the settings page alone cannot verify collection-specific backgrounds.
+
+Home has a separate `Documents` wrapper shared by Recently viewed, Popular,
+Recently updated and Created by me. Verify all four routes with seeded viewed and
+owned documents. In dark mode an opaque slab is dark rather than white, so test
+both themes with actual background pixels. Parent/layout and collection fixes
+do not automatically release Home's local background. Audit other list wrappers
+without clearing intentional input, drag-over, highlight or sticky-mask surfaces.
+
+Use a short article with a rendered formula and a child document to verify the
+article surface. Compare actual pixels just inside and outside the editor edge
+over the same image cell: there must be no extra near-white card boundary.
+Verify read and edit modes, light/dark text contrast, narrow screens, author CSS,
+recovery and native printing. Do not treat an opaque inner editor as necessary
+for readability when the containing main surface already provides it.
+
+### Inline editable title backgrounds
+
+`ContentEditable` renders its text and empty placeholder in an inner styled
+`span`. Releasing the document/editor wrapper does not release that span's own
+background. Use the same existing layout background variable with the original
+theme fallback in this shared component. Preserve `color`, `-webkit-text-fill-color`,
+`data-empty`, placeholder pseudo-element rules and editing/selection handlers.
+Do not broadly clear all spans, inputs, highlights or code surfaces.
+
+Test a real image with a dark cell beneath the title: a white image cell can
+hide the defect even in a real screenshot. Verify populated text, the read-only
+Untitled fallback, the truly empty editable placeholder and a focused caret.
+Compare unchanged blank glyph pixels before/after, then check light/dark,
+390px width, author CSS, no-image fallback, recovery and native printing.
+
+## Current contract: Background-only appearance and Chinese UI
+
+`Customizations` mounts only the background form and isolated image preview.
+Do not mount CSS/JavaScript editors or retain their tab navigation. Personal and
+admin settings follow the user's existing language preference; Simplified Chinese
+must cover menus, descriptions, upload/save/recovery, error states and preview
+sample text. Use ordinary English source extraction and preserve unrelated locale
+values. Background fit labels use dedicated ordinary source keys (`Fill
+background`, `Fit background`, `Tile background`) to avoid changing the global
+meaning of `Cover` or exposing generated `_background` keys in English.
+
+The main sidebar and personal collection display name already use `t("Personal")`.
+Provide the missing Simplified Chinese value `个人` in that catalog; do not
+rename stored personal collections or change the English source key.
+
+The Provider must not import/instantiate `CustomizationRuntime` or request author
+modules. Pass empty workspace/personal CSS to the style manager. Store effective
+CSS getters return empty strings and the effective script is null even if an old
+response claims a valid consent. The preview builder no longer accepts or injects
+user CSS. Keep dormant source and stored data rather than deleting it.
+
+Retain background identity checks, invalidation/reconnect/visibility refresh,
+print/recovery cleanup, source inheritance and private image access. Keep all
+previous root/collection/article/title background fixes. Old positive script/CSS
+tests and custom author-CSS examples describe historical dormant behavior, not
+the active product surface.
+
+Run store, preview and style tests. In a real production browser, seed nonempty
+CSS and exact consent, confirm no effects/module requests, inject a stale enabled
+response to prove client suppression, then exercise Chinese personal/admin forms,
+preview-before-save, inheritance, personal override, errors, mobile, print and
+recovery. Reload paused database fields to prove they were retained. Source
+inspection and hiding tabs alone do not prove the full pause.

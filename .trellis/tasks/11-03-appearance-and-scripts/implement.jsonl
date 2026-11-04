@@ -1,0 +1,6 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"遵循设置表单与主题样式规范。保留编辑器和打印行为。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"遵循前端测试范围。遵循翻译提取和 CSRF 约定。"}
+{"file":".trellis/spec/backend/directory-structure.md","reason":"遵循后端目录约定。测试必须与源码同级。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"校验后端权限与事务事件。遵循定向测试和自定义域名约定。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"核对跨层数据约定。"}
+{"file":".trellis/tasks/11-03-appearance-and-scripts/research/codebase.md","reason":"读取跨层源码证据。核对原型验证范围。"}

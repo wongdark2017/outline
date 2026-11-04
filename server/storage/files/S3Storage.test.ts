@@ -1,10 +1,64 @@
+// @vitest-isolate true
 import { vi } from "vitest";
 import { Week, Day } from "@shared/utils/time";
+import env from "@server/env";
 import Logger from "@server/logging/Logger";
 import BaseStorage from "./BaseStorage";
 import S3Storage from "./S3Storage";
 
+const { uploadParams } = vi.hoisted(() => ({ uploadParams: vi.fn() }));
+
+vi.mock("@aws-sdk/lib-storage", () => ({
+  Upload: class {
+    constructor(options: { params: { ACL?: string } }) {
+      uploadParams(options.params);
+    }
+
+    done() {
+      return Promise.resolve({});
+    }
+  },
+}));
+
 describe("S3Storage", () => {
+  describe("store", () => {
+    const previousAcl = env.AWS_S3_ACL;
+    const previousBucket = env.AWS_S3_UPLOAD_BUCKET_NAME;
+
+    beforeEach(() => {
+      env.AWS_S3_ACL = "public-read";
+      env.AWS_S3_UPLOAD_BUCKET_NAME = "customization-images";
+      uploadParams.mockClear();
+    });
+
+    afterEach(() => {
+      env.AWS_S3_ACL = previousAcl;
+      env.AWS_S3_UPLOAD_BUCKET_NAME = previousBucket;
+      vi.restoreAllMocks();
+    });
+
+    it.each([
+      { acl: "private", expected: "private" },
+      { acl: undefined, expected: "public-read" },
+    ])(
+      "uses $expected ACL when the explicit ACL is $acl",
+      async ({ acl, expected }) => {
+        const storage = new S3Storage();
+
+        await storage.store({
+          body: Buffer.from("private image"),
+          key: "customizations/workspace/image.png",
+          contentType: "image/png",
+          acl,
+        });
+
+        expect(uploadParams).toHaveBeenCalledExactlyOnceWith(
+          expect.objectContaining({ ACL: expected })
+        );
+      }
+    );
+  });
+
   describe("getFileStream", () => {
     afterEach(() => {
       vi.restoreAllMocks();

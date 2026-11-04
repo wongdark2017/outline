@@ -49,7 +49,14 @@ const Security = lazy(() => import("~/scenes/Settings/Security"));
 const Shares = lazy(() => import("~/scenes/Settings/Shares"));
 const Templates = lazy(() => import("~/scenes/Settings/Templates"));
 const CustomEmojis = lazy(() => import("~/scenes/Settings/CustomEmojis"));
-const Themes = lazy(() => import("~/scenes/Settings/Themes"));
+const PersonalCustomizations = lazy(
+  () => import("~/scenes/Settings/Customizations"),
+  { exportName: "PersonalCustomizationsSettings" }
+);
+const WorkspaceCustomizations = lazy(
+  () => import("~/scenes/Settings/Customizations"),
+  { exportName: "WorkspaceCustomizationsSettings" }
+);
 const Embeds = lazy(() => import("~/scenes/Settings/Embeds"));
 
 export type ConfigItem = {
@@ -108,6 +115,15 @@ const useSettingsConfig = () => {
         enabled: true,
         group: t("Account"),
         icon: EmailIcon,
+      },
+      {
+        name: t("Appearance"),
+        path: settingsPath("appearance"),
+        component: PersonalCustomizations.Component,
+        preload: PersonalCustomizations.preload,
+        enabled: true,
+        group: t("Account"),
+        icon: PaletteIcon,
       },
       {
         name: t("API & Access"),
@@ -192,11 +208,11 @@ const useSettingsConfig = () => {
         icon: SmileyIcon,
       },
       {
-        name: t("Themes"),
-        path: settingsPath("themes"),
-        component: Themes.Component,
-        preload: Themes.preload,
-        enabled: can.createTheme || can.update,
+        name: t("Workspace appearance"),
+        path: settingsPath("workspace-appearance"),
+        component: WorkspaceCustomizations.Component,
+        preload: WorkspaceCustomizations.preload,
+        enabled: can.update,
         group: t("Workspace"),
         icon: PaletteIcon,
       },
@@ -294,14 +310,7 @@ const useSettingsConfig = () => {
     });
 
     return items;
-  }, [
-    t,
-    can.createApiKey,
-    can.update,
-    can.createImport,
-    can.createExport,
-    can.createTheme,
-  ]);
+  }, [t, can.createApiKey, can.update, can.createImport, can.createExport]);
 
   return config.filter((item) => item.enabled);
 };

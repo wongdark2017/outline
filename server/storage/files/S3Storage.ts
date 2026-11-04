@@ -156,6 +156,7 @@ export default class S3Storage extends BaseStorage {
     body,
     contentType,
     key,
+    acl = env.AWS_S3_ACL,
   }: {
     body: Buffer | Uint8Array | string | Readable;
     contentLength?: number;
@@ -168,7 +169,7 @@ export default class S3Storage extends BaseStorage {
     const upload = new Upload({
       client,
       params: {
-        ...(env.AWS_S3_ACL && { ACL: env.AWS_S3_ACL as ObjectCannedACL }),
+        ...(acl && { ACL: acl as ObjectCannedACL }),
         Bucket: this.getBucket(),
         Key: key,
         ContentType: contentType,

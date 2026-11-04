@@ -404,6 +404,7 @@ function DocumentScene({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         data-drop-area
+        data-outline-part="document-surface"
       >
         <PageTitle title={pageTitle} favicon={favicon} />
         {(isUploading || isSaving) && <LoadingIndicator />}
@@ -658,7 +659,10 @@ const EditorContainer = styled.div<EditorContainerProps>`
 
 const Background = styled(Container)`
   position: relative;
-  background: ${s("background")};
+  background: var(
+    --outline-customization-layout-background,
+    ${s("background")}
+  );
 `;
 
 const ReferencesWrapper = styled.div`

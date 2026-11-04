@@ -166,6 +166,7 @@ function DocumentHeader({
 
   return (
     <StyledHeader
+      data-outline-part="document-toolbar"
       ref={measureRef}
       $hidden={isEditingFocus}
       hasSidebar

@@ -1,0 +1,302 @@
+{
+  "date": "2026-11-04T09:47:40.853Z",
+  "environment": "production Chromium; Chinese admin/members, English other workspace; isolated DB/Redis with nonempty retained CSS/JS and consent; old script flag=true",
+  "checks": [
+    {
+      "name": "Chinese personal/admin pages expose only background controls and a localized background-only preview",
+      "status": "passed"
+    },
+    {
+      "name": "previous nonempty CSS, publication and exact consent produce neutral responses and no effects even with the old true script flag",
+      "status": "passed"
+    },
+    {
+      "name": "Chinese fit choices use meaningful labels without leaking internal context keys",
+      "status": "passed"
+    },
+    {
+      "name": "workspace upload previews without saving, then publishes a background inherited by both members",
+      "status": "passed"
+    },
+    {
+      "name": "personal override persists after refresh, remains isolated and restores workspace inheritance",
+      "status": "passed"
+    },
+    {
+      "name": "invalid-image error is Chinese and retains the saved background",
+      "status": "passed"
+    },
+    {
+      "name": "Chinese background form and preview remain usable at 320/390px",
+      "status": "passed"
+    },
+    {
+      "name": "dark document keeps the background and formula without retained CSS or script activation",
+      "status": "passed",
+      "typography": {
+        "font": "18px",
+        "line": "32.4px",
+        "editorBackground": "rgba(0, 0, 0, 0)",
+        "titleBackground": "rgba(0, 0, 0, 0)"
+      }
+    },
+    {
+      "name": "normal startup, preview, saving and document navigation request no author modules",
+      "status": "passed",
+      "requests": 0
+    },
+    {
+      "name": "client refuses injected old responses with nonempty CSS and enabled script consent",
+      "status": "passed",
+      "interceptedOldResponses": 3
+    },
+    {
+      "name": "native document print and recovery continue to suspend the remaining background only",
+      "status": "passed"
+    },
+    {
+      "name": "English pages keep readable labels and the existing language preference",
+      "status": "passed"
+    },
+    {
+      "name": "all paused writes and both module paths return standard 404 for admin/member/other workspace",
+      "status": "passed",
+      "requests": 21
+    },
+    {
+      "name": "no unexpected runtime or HTTP errors beyond deliberate paused-endpoint probes",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 14,
+    "failed": 0
+  },
+  "disabledEndpointRequests": [
+    {
+      "method": "updateCss",
+      "status": 404
+    },
+    {
+      "method": "saveScriptDraft",
+      "status": 404
+    },
+    {
+      "method": "publishScript",
+      "status": 404
+    },
+    {
+      "method": "enableScript",
+      "status": 404
+    },
+    {
+      "method": "disableScript",
+      "status": 404
+    },
+    {
+      "module": "entry.js",
+      "status": 404
+    },
+    {
+      "module": "helper.js",
+      "status": 404
+    },
+    {
+      "method": "updateCss",
+      "status": 404
+    },
+    {
+      "method": "saveScriptDraft",
+      "status": 404
+    },
+    {
+      "method": "publishScript",
+      "status": 404
+    },
+    {
+      "method": "enableScript",
+      "status": 404
+    },
+    {
+      "method": "disableScript",
+      "status": 404
+    },
+    {
+      "module": "entry.js",
+      "status": 404
+    },
+    {
+      "module": "helper.js",
+      "status": 404
+    },
+    {
+      "method": "updateCss",
+      "status": 404
+    },
+    {
+      "method": "saveScriptDraft",
+      "status": 404
+    },
+    {
+      "method": "publishScript",
+      "status": 404
+    },
+    {
+      "method": "enableScript",
+      "status": 404
+    },
+    {
+      "method": "disableScript",
+      "status": 404
+    },
+    {
+      "module": "entry.js",
+      "status": 404
+    },
+    {
+      "module": "helper.js",
+      "status": 404
+    }
+  ],
+  "automaticModuleRequests": 0,
+  "userDatabaseChanged": false,
+  "databaseRetention": {
+    "status": "passed",
+    "workspaceCssAndVersion": true,
+    "draftSourceModulesAndVersion": true,
+    "publishedRevisionPointer": true,
+    "personalCssAndConsentRecords": 3,
+    "immutableRevisionSourceModulesDigest": true,
+    "method": "Reloaded all paused fields from isolated PostgreSQL after background edits and disabled API probes; deep equality with pre-run snapshot.",
+    "userDatabaseChanged": false
+  },
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Disposable background-only and Chinese UI acceptance environment only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "translationExtraction": {
+    "newEnglishKeys": [
+      "Choose a personal background image or use the workspace default.",
+      "Could not load appearance settings. Please try again.",
+      "Could not save the background. Please try again.",
+      "Could not upload the background image. Please try again.",
+      "Fill background",
+      "Fit background",
+      "Only administrators can manage workspace appearance.",
+      "Set the default background image for your workspace.",
+      "Tile background",
+      "Workspace appearance"
+    ],
+    "removedEnglishKeys": [
+      "Appearance and scripts",
+      "CSS styles",
+      "Choose your own background and styles, and decide whether to run workspace scripts.",
+      "Contain",
+      "Cover",
+      "Independent customization settings",
+      "JavaScript",
+      "Only administrators can manage workspace appearance and scripts.",
+      "Set default appearance and publish trusted scripts for your workspace.",
+      "Tile",
+      "Workspace appearance and scripts"
+    ],
+    "changedExistingEnglishValues": [],
+    "addedChineseKeys": [
+      "Appearance preview",
+      "Background image",
+      "Background saved",
+      "Capture your team’s ideas and make every collaboration count.",
+      "Choose a JPG, PNG, or WebP image",
+      "Choose a personal background image first",
+      "Choose a personal background image or use the workspace default.",
+      "Choose background image",
+      "Choose image",
+      "Copy recovery URL",
+      "Could not load appearance settings. Please try again.",
+      "Could not load the background preview",
+      "Could not save the background. Please try again.",
+      "Could not upload the background image. Please try again.",
+      "Display mode",
+      "Drafts are previewed here without changing your saved settings.",
+      "Favorites",
+      "Fill background",
+      "Fit background",
+      "Image source",
+      "JPG, PNG, or WebP, up to 10 MB",
+      "Knowledge within reach",
+      "Only administrators can manage workspace appearance.",
+      "Open recovery mode",
+      "Personal override",
+      "Preview",
+      "Preview appearance",
+      "Publish background",
+      "Reload saved setting",
+      "Remove default background",
+      "Restore workspace default",
+      "Save background",
+      "Set the default background image for your workspace.",
+      "Share what your team knows",
+      "Team knowledge base",
+      "The image must be smaller than 10 MB",
+      "The saved setting changed while you were editing.",
+      "Tile background",
+      "Try again",
+      "Unsaved changes",
+      "Upload personal background",
+      "Upload workspace background",
+      "Use a personal image",
+      "Used by members who have not chosen a personal image.",
+      "Workspace appearance",
+      "Workspace default",
+      "Write your first document",
+      "Your image only changes your own appearance and stays independent of color themes.",
+      "{{ size }} KB"
+    ],
+    "changedExistingChineseValues": [],
+    "removedChineseKeys": [],
+    "otherLocaleChanges": [],
+    "secondExtractionIdentical": true,
+    "addedChineseKeyCount": 49,
+    "manualEnglishCatalogEdits": false
+  },
+  "targetedTests": {
+    "serverApi": 21,
+    "frontend": {
+      "store": 10,
+      "preview": 6,
+      "styles": 14,
+      "total": 30
+    },
+    "total": 51,
+    "status": "passed"
+  },
+  "staticChecks": {
+    "lint": "passed; repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "contextManifests": "passed",
+    "independentReview": "passed; no findings"
+  },
+  "build": {
+    "isolatedServer": "passed",
+    "finalClient": "NODE_ENV=production yarn vite:build",
+    "status": "passed"
+  },
+  "scope": {
+    "active": "background settings and private images",
+    "paused": "CSS/JS editors, writes, module reads and client execution",
+    "database": "all paused source, drafts, publications and consent retained",
+    "oldBrowserTabs": "refresh to load the background-only UI; unmanaged effects from previously executed scripts require a page reload"
+  }
+}

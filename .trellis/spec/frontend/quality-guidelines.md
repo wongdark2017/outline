@@ -71,11 +71,11 @@ The repository parser uses `namespaceSeparator: ":"` and a fixed output path. Av
 
 | Condition | Required behavior |
 | --- | --- |
-| Normal extraction | Existing English key/value set remains; only intended new keys appear. |
+| Normal extraction | Preserve unrelated English keys/values; record intentional removal of source keys when removing a feature. |
 | Second extraction | Same locale bytes; no new namespace/output files. |
 | Confirmed Chinese additions | Exact approved mappings, existing keys/values untouched. |
 | Variable/markup mismatch | Fail validation before commit. |
-| Parser exits zero but catalog shrinks | Treat as failure; restore generated output and correct the narrow source key. |
+| Parser exits zero but catalog loses unrelated keys | Treat as failure; restore generated output and correct the narrow source key. |
 
 ### 5. Good / Base / Bad Cases
 
@@ -83,7 +83,15 @@ Good: render both Chinese default labels through real i18next. Base: add one sou
 
 ### 6. Tests Required
 
-Compare old/new locale key/value sets; verify JSON, interpolation/markup parity and code-leading mail subject. Run extraction twice and compare hashes. Exercise actual runtime interpolation for both default methods and all approved mappings; existing mounted settings and email-render tests cover consumers.
+Compare old/new locale key/value sets; verify JSON, interpolation/markup parity and code-leading mail subject. An intentionally removed UI can remove its unused English source keys through normal extraction; list those exact removals and preserve all unrelated keys and translated values. Run extraction twice and compare hashes. Exercise actual runtime interpolation for both default methods and all approved mappings; existing mounted settings and email-render tests cover consumers.
+
+For the approved background-settings Chinese additions, retain all existing
+Chinese values and all other locale files. Context extraction can emit an
+internal value such as `Cover_background` because the configured default-value
+callback receives the generated key. Verify actual English values, not only key
+presence or extraction success. Prefer ordinary background-specific source keys
+with meaningful English values when contexts produce internal labels. Do not
+manually patch English output or alter the parser globally to hide this issue.
 
 ### 7. Wrong vs Correct
 

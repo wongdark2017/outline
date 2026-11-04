@@ -8,7 +8,6 @@ import GlobalStyles from "@shared/styles/globals";
 import { TeamPreference, UserPreference } from "@shared/types";
 import { isRTLLanguage } from "@shared/utils/rtl";
 import useBuildTheme from "~/hooks/useBuildTheme";
-import useCustomThemeTokens from "~/hooks/useCustomThemeTokens";
 import useStores from "~/hooks/useStores";
 
 type Props = {
@@ -18,13 +17,10 @@ type Props = {
 const Theme: React.FC<Props> = ({ children }: Props) => {
   const { auth, ui } = useStores();
   const { i18n } = useTranslation();
-  const customTokens = useCustomThemeTokens();
   const theme = useBuildTheme(
     auth.team?.getPreference(TeamPreference.CustomTheme) ||
       auth.config?.customTheme ||
-      undefined,
-    undefined,
-    customTokens
+      undefined
   );
   const direction = isRTLLanguage(i18n.language) ? "rtl" : "ltr";
 

@@ -824,6 +824,12 @@ export class Environment {
     environment.OAUTH_DISABLE_DCR ?? "false"
   );
 
+  /** Whether administrator-published browser customizations can execute. */
+  @IsBoolean()
+  public CUSTOMIZATION_SCRIPTS_ENABLED = this.toBoolean(
+    environment.CUSTOMIZATION_SCRIPTS_ENABLED ?? "true"
+  );
+
   /**
    * Enable unsafe-inline in script-src CSP directive
    */

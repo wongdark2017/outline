@@ -1,0 +1,227 @@
+{
+  "date": "2026-11-04T08:31:18.886Z",
+  "environment": "production Chromium; isolated database copied from inactive test database; native PNG screenshot pixels",
+  "baseline": {
+    "phase": "before",
+    "original": {
+      "rootInlineBackground": "rgb(255, 255, 255)",
+      "rootPriority": "",
+      "rootComputedBackground": "rgb(255, 255, 255)",
+      "rootWidth": "",
+      "rootHeight": "",
+      "bodyImage": "none",
+      "mainSurface": "rgba(0, 0, 0, 0)",
+      "viewport": {
+        "width": 1280,
+        "height": 960
+      }
+    },
+    "assetId": "ed9c0381-76da-4bee-bc1d-08b537b2f732",
+    "geometry": {
+      "rootInlineBackground": "rgb(255, 255, 255)",
+      "rootPriority": "",
+      "rootComputedBackground": "rgb(255, 255, 255)",
+      "rootWidth": "",
+      "rootHeight": "",
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=ed9c0381-76da-4bee-bc1d-08b537b2f732\")",
+      "mainSurface": "color(srgb 1 1 1 / 0.92)",
+      "viewport": {
+        "width": 1280,
+        "height": 960
+      }
+    },
+    "pixels": {
+      "left": [
+        255,
+        255,
+        255
+      ],
+      "right": [
+        255,
+        255,
+        255
+      ],
+      "maximumChannelDelta": 0
+    },
+    "diagnosis": "Saved background is decoded, but opaque startup #root makes opposite image cells paint the same color."
+  },
+  "after": {
+    "geometry": {
+      "rootInlineBackground": "",
+      "rootPriority": "",
+      "rootComputedBackground": "rgba(0, 0, 0, 0)",
+      "rootWidth": "",
+      "rootHeight": "",
+      "bodyImage": "url(\"https://localhost:3002/api/customizations.background?id=ed9c0381-76da-4bee-bc1d-08b537b2f732\")",
+      "mainSurface": "color(srgb 1 1 1 / 0.92)",
+      "viewport": {
+        "width": 1280,
+        "height": 960
+      }
+    },
+    "pixels": {
+      "left": [
+        235,
+        235,
+        235
+      ],
+      "right": [
+        255,
+        255,
+        255
+      ],
+      "maximumChannelDelta": 20
+    }
+  },
+  "checks": [
+    {
+      "name": "saved checkerboard paints through the cleared startup root instead of remaining fully hidden",
+      "status": "passed",
+      "before": {
+        "left": [
+          255,
+          255,
+          255
+        ],
+        "right": [
+          255,
+          255,
+          255
+        ],
+        "maximumChannelDelta": 0
+      },
+      "after": {
+        "left": [
+          235,
+          235,
+          235
+        ],
+        "right": [
+          255,
+          255,
+          255
+        ],
+        "maximumChannelDelta": 20
+      }
+    },
+    {
+      "name": "light-mode text remains readable over the darkest possible image",
+      "status": "passed",
+      "text": [
+        {
+          "element": "H1",
+          "contrast": 10.6
+        },
+        {
+          "element": "P",
+          "contrast": 6.22
+        },
+        {
+          "element": "BUTTON",
+          "contrast": 10.6
+        }
+      ]
+    },
+    {
+      "name": "contain fit keeps the saved background visible",
+      "status": "passed"
+    },
+    {
+      "name": "replacing the image keeps the initial background snapshot and paints the new image",
+      "status": "passed",
+      "pixels": {
+        "left": [
+          255,
+          255,
+          255
+        ],
+        "right": [
+          235,
+          235,
+          235
+        ],
+        "maximumChannelDelta": 20
+      }
+    },
+    {
+      "name": "dark-mode text remains readable with an actual transparent root",
+      "status": "passed",
+      "text": [
+        {
+          "element": "H1",
+          "contrast": 10.54
+        },
+        {
+          "element": "P",
+          "contrast": 6.74
+        },
+        {
+          "element": "BUTTON",
+          "contrast": 12.21
+        }
+      ]
+    },
+    {
+      "name": "native document printing restores the startup root and resumes background painting afterward",
+      "status": "passed",
+      "rootBackground": "rgb(255, 255, 255)",
+      "image": "",
+      "styles": 0
+    },
+    {
+      "name": "recovery does not remove the startup root background",
+      "status": "passed"
+    },
+    {
+      "name": "removing the image restores the original startup background and unrelated inline sizes",
+      "status": "passed"
+    },
+    {
+      "name": "cleanup preserves an author script's later inline background change",
+      "status": "passed"
+    },
+    {
+      "name": "no uncaught runtime or HTTP errors in the full paint lifecycle",
+      "status": "passed"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0
+  },
+  "userDatabaseChanged": false,
+  "cleanup": {
+    "reviewServiceProcessesStopped": 3,
+    "reviewDatabaseDropped": true,
+    "reservedRedisDatabaseCleared": true,
+    "privateFixtureCredentialsRemoved": true,
+    "userDatabaseUntouched": true,
+    "status": "passed",
+    "scope": "Current background-paint browser acceptance only; current development configuration inspected read-only.",
+    "reviewPortReleased": 3002,
+    "userServicesRetained": [
+      3000,
+      3001
+    ]
+  },
+  "regressionTests": {
+    "file": "app/utils/customizations.test.ts",
+    "tests": 14,
+    "newTests": 8,
+    "status": "passed"
+  },
+  "staticChecks": {
+    "lint": "passed; repository warnings without errors",
+    "typescript": "passed",
+    "format": "passed",
+    "diff": "passed",
+    "clientBuild": "NODE_ENV=production yarn vite:build"
+  },
+  "privacy": {
+    "testImage": "generic black/white checkerboard",
+    "originalUserImageCopied": false,
+    "developmentDatabaseInspection": "read-only",
+    "originalSavedImageReady": true,
+    "originalSavedImageBytes": 1417785
+  }
+}

@@ -32,3 +32,5 @@ import "./userPasskey";
 import "./emoji";
 import "./theme";
 import "./accessRequest";
+
+import "./customization";
