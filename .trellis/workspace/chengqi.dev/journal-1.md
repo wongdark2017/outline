@@ -397,3 +397,37 @@ User explicitly paused further email code sign-in development and rollout. Clean
 ### Status
 
 [OK] **Completed**
+
+
+## Session 12: Editable TikZ diagrams and development engine recovery
+<!-- trellis-session: v=2 fp=e495c33e3e7cc784 -->
+
+**Date**: 2026-11-05
+**Task**: Editable TikZ diagrams and development engine recovery
+**Branch**: `codex/tikz-diagrams`
+
+### Summary
+
+Implemented editable TikZ SVG diagrams with lazy same-origin rendering, original source metadata, guarded saves and localized errors. Fixed development Worker CSP, gzip transport headers and stale-cache recovery. Completed Trellis implementation, review, specs and archive.
+
+### Main Changes
+
+- Added the approved TikZ editor, image integration, vendored runtime and compatibility contracts.
+- Repaired the development proxy without changing ordinary asset caching or production behavior.
+- Preserved user-owned environment, AGENTS.md and server/main.ts changes; recovered the archive-only auto-commit path issue.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5e0c70609` | feat: add editable TikZ diagrams |
+
+### Testing
+
+- [OK] Feature suite: 153 passed and one environment skip; development regression suite: 44 passed. Counts overlap and are not summed.
+- [OK] Full TypeScript and lint, scoped formatting, production build, actual production UI and development cold/warm browser rendering passed.
+- [OK] Same-browser recovery changes engine -3 into a valid SVG; Worker revalidation remains 304 and opaque gzip entities return 200.
+
+### Status
+
+[OK] **Completed**
