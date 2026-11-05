@@ -987,6 +987,20 @@ th .image .image-wrapper img {
   clear: initial;
 }
 
+// Aligned block images occupy their own row in both NodeViews and static HTML.
+:is(.image-left-50, .image-right-50):not(.image-icon) {
+  float: none;
+  width: fit-content;
+  clear: both;
+  margin-left: 0;
+  margin-right: auto;
+
+  &.image-right-50 {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
 .image-full-width {
   width: initial;
   max-width: 100vw;

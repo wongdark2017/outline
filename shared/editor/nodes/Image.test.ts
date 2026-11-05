@@ -61,6 +61,57 @@ describe("Image node source attribute round-trip", () => {
     }
   );
 
+  describe.runIf(typeof document !== "undefined")("small image HTML", () => {
+    it.each([null, "left-50", "right-50"])(
+      "keeps a small TikZ figure as a block with its caption (%s)",
+      (layoutClass) => {
+        const image = schema.nodes.image.create({
+          src: "https://example.com/tikz.svg",
+          source: ImageSource.Tikz,
+          width: 38,
+          height: 26,
+          layoutClass,
+          alt: "Diagram caption",
+        });
+        const wrapper = document.createElement("div");
+        wrapper.appendChild(
+          DOMSerializer.fromSchema(schema).serializeNode(image)
+        );
+
+        expect(wrapper.querySelector("div.image")).not.toBeNull();
+        expect(wrapper.querySelector(".image-icon")).toBeNull();
+        expect(wrapper.querySelector(".caption")?.textContent).toBe(
+          "Diagram caption"
+        );
+        expect(
+          findImageNode(DOMParser.fromSchema(schema).parse(wrapper)).attrs
+        ).toMatchObject({
+          source: ImageSource.Tikz,
+          width: 38,
+          height: 26,
+          layoutClass,
+          alt: "Diagram caption",
+        });
+      }
+    );
+
+    it("preserves ordinary small images as inline icons", () => {
+      const image = schema.nodes.image.create({
+        src: "https://example.com/icon.png",
+        width: 38,
+        height: 26,
+        alt: "Icon",
+      });
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(
+        DOMSerializer.fromSchema(schema).serializeNode(image)
+      );
+
+      expect(wrapper.querySelector("span.image-icon")).not.toBeNull();
+      expect(wrapper.querySelector(".caption")).toBeNull();
+    });
+  });
+
   it("preserves diagrams.net source through markdown serialize → parse", () => {
     const doc = parser.parse(
       `![](https://example.com/diagram.svg "source=${ImageSource.DiagramsNet}")`

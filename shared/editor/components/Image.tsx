@@ -7,6 +7,7 @@ import { find } from "es-toolkit/compat";
 import Flex from "../../components/Flex";
 import { s } from "../../styles";
 import { isExternalUrl, sanitizeImageSrc, sanitizeUrl } from "../../utils/urls";
+import { ImageSource } from "../lib/FileHelper";
 import { EditorStyleHelper } from "../styles/EditorStyleHelper";
 import type { ComponentProps } from "../types";
 import {
@@ -33,31 +34,35 @@ type Props = ComponentProps & {
   children?: React.ReactElement<{ style?: React.CSSProperties }>;
 };
 
-/** Images rendered smaller than this width are displayed as inline icons. */
+/** Ordinary images smaller than this width are displayed as inline icons. */
 export const InlineIconMaxWidth = 48;
 
-type ImageClassNameOptions = {
+interface ImageClassNameOptions {
   /** Layout modifier, e.g. "full-width", "left-50". */
   layoutClass?: string | null;
   /** Rendered width of the image in pixels. */
   width?: number | null;
+  /** Source application for an editable diagram. */
+  source?: string | null;
   /** Whether the image failed to load. */
   error?: boolean;
-};
+}
 
 /**
  * Whether an image should render as an inline icon rather than a block. Small
- * images are displayed inline with the surrounding text.
+ * images are displayed inline with the surrounding text, except TikZ figures.
  *
- * @param options The image's layout, width, and error state.
- * @returns True if the image should be rendered as an inline icon.
+ * @param options the image's layout, width, source, and error state.
+ * @returns true if the image should be rendered as an inline icon.
  */
 export function isInlineImageIcon({
   layoutClass,
   width,
+  source,
   error,
 }: ImageClassNameOptions): boolean {
   return (
+    source !== ImageSource.Tikz &&
     layoutClass !== "full-width" &&
     !!width &&
     width < InlineIconMaxWidth &&
@@ -70,8 +75,8 @@ export function isInlineImageIcon({
  * inline-icon modifiers. Shared by the live NodeView and the static HTML
  * serializer so that exported documents render small images inline too.
  *
- * @param options The image's layout, width, and error state.
- * @returns The space-separated className string.
+ * @param options the image's layout, width, source, and error state.
+ * @returns the space-separated className string.
  */
 export function imageClassName(options: ImageClassNameOptions): string {
   return [
@@ -85,7 +90,7 @@ export function imageClassName(options: ImageClassNameOptions): string {
 
 const Image = (props: Props) => {
   const { isSelected, node, isEditable, onChangeSize, onClick } = props;
-  const { src, layoutClass } = node.attrs;
+  const { src, layoutClass, source } = node.attrs;
   const { t } = useTranslation();
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState(false);
@@ -105,11 +110,11 @@ const Image = (props: Props) => {
     });
 
   const isFullWidth = layoutClass === "full-width";
-  const isInlineIcon = isInlineImageIcon({ layoutClass, width, error });
+  const isInlineIcon = isInlineImageIcon({ layoutClass, width, source, error });
   const isResizable = !!props.onChangeSize && !error && !isInlineIcon;
   const isDownloadable = !!props.onDownload && !error;
 
-  const className = imageClassName({ layoutClass, width, error });
+  const className = imageClassName({ layoutClass, width, source, error });
 
   const sanitizedSrc = sanitizeImageSrc(src);
   const linkMarkType = props.view.state.schema.marks.link;

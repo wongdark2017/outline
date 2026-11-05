@@ -175,11 +175,6 @@ export class DragTarget {
         return null;
       }
 
-      // Floated and full-width images sit outside the content column, so a
-      // handle in the gutter would not line up with them.
-      if (this.hasLayoutImage(node)) {
-        return null;
-      }
       return { pos: $pos.before(1), kind: "block" };
     }
 
@@ -233,19 +228,6 @@ export class DragTarget {
       default:
         return "block";
     }
-  }
-
-  private static hasLayoutImage(node: ProsemirrorNode): boolean {
-    if (!node.isTextblock) {
-      return false;
-    }
-    let found = false;
-    node.forEach((child) => {
-      if (child.type.name === "image" && child.attrs.layoutClass) {
-        found = true;
-      }
-    });
-    return found;
   }
 
   private static mermaidFromEvent(

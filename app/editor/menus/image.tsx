@@ -12,7 +12,7 @@ import {
 } from "outline-icons";
 import { NodeSelection } from "prosemirror-state";
 import { isNodeActive } from "@shared/editor/queries/isNodeActive";
-import { InlineIconMaxWidth } from "@shared/editor/components/Image";
+import { isInlineImageIcon } from "@shared/editor/components/Image";
 import type { MenuItem, SelectionContext } from "@shared/editor/types";
 import { metaDisplay } from "@shared/utils/keyboard";
 import { ImageSource } from "@shared/editor/lib/FileHelper";
@@ -66,14 +66,16 @@ export default function imageMenuItems(
     src: "",
   });
 
-  // Small images are displayed as inline icons, so alignment controls don't apply.
+  // Ordinary small images render as inline icons without alignment controls.
   const selectedNode =
     state.selection instanceof NodeSelection ? state.selection.node : undefined;
   const isInlineIcon =
     selectedNode?.type === schema.nodes.image &&
-    selectedNode.attrs.layoutClass !== "full-width" &&
-    !!selectedNode.attrs.width &&
-    selectedNode.attrs.width < InlineIconMaxWidth;
+    isInlineImageIcon({
+      layoutClass: selectedNode.attrs.layoutClass,
+      width: selectedNode.attrs.width,
+      source: selectedNode.attrs.source,
+    });
 
   return [
     {

@@ -414,6 +414,41 @@ always white. Only document/lightbox `source=tikz` images invert on dark screens
 static HTML and print retain light output. Write `data-source` on linked and
 unlinked images and sanitize URLs in `toDOM`.
 
+Non-inline images occupy an entire paragraph row. The row spans the content
+column while the figure retains its saved width and alignment. Left/right
+alignment uses `float: none`, `clear: both`, fit-content width and automatic
+margins. Following text and block-insert controls start below the complete
+figure, including its caption, and may move vertically as the image resizes.
+Ordinary inline icons retain their inline layout. Check both NodeViews and parsed
+static HTML: containing a float only in `.component-image` misses static output.
+
+TikZ figures keep that block layout at every width, including below the 48 px
+inline-icon threshold. Pass `source` to the shared `isInlineImageIcon()` check in
+the live image, HTML serializer and image toolbar; TikZ must never gain
+`.image-icon`, lose its caption/resize handles, or hide alignment controls.
+Exercise real pointer resizing across the threshold before, during and after
+pointer release, including captions and resize handles.
+
+Image paragraphs reuse the existing text block drag handle. `DragTarget` must
+not exclude a paragraph because its image has left/right/full-width alignment.
+Drag the containing paragraph as a closed block slice; retain all image attrs
+and its caption. Mixed image/text paragraphs continue to move as one paragraph,
+and list items and tables retain their existing drag target boundaries. Keep
+the shared inline image schema and existing drop behavior. Read-only updates
+must hide the handle, and click/drag entry points must recheck `view.editable`.
+
+A standalone block image owns its entire paragraph row. The blank area beside
+it is not a text input: it must not expose a text caret or block-menu controls.
+Text belongs in a separate paragraph below the image. Keep a genuine following
+empty paragraph editable with its normal plus and slash-menu hint. Ordinary
+inline icons and existing mixed image/text paragraphs retain their text editing
+behavior. This behavior does not introduce columns.
+`imageBlockPlugin()` enforces that input boundary with view-only paragraph
+decorations and selection/input handling, keeping the stored image schema.
+Image and containing-paragraph node selections must preserve the image when
+typing or pasting. Process/229 input-method startup moves to an editable
+paragraph before native composition begins. Keep caption editing independent.
+
 ### 4. Validation & Error Matrix
 
 | Condition | Required behavior |
@@ -460,6 +495,18 @@ invalidation, concurrent image attribute updates and widget registration.
 Browser verification must cover real
 workers/CSP, lazy requests and PWA, focus/Tab/history, errors, mobile sizing,
 save/reopen, imported source, dark mode and light export/print.
+For figure alignment, verify left/right placement, the following empty
+paragraph and insertion button, linked images, intrinsic/oversized widths,
+captions, narrow containers, ordinary-image controls and inline-icon controls
+in screen and print layouts.
+For image block handles, exercise real hover and native handle dragging for
+ordinary/TikZ images with left/right/center/full-width alignment. Check the
+entire row remains occupied during dragging, one image paragraph moves without
+changing its attrs, and read-only mode and printing suppress the handle.
+Use real Image/BlockMenu plugins and the real Caption component to test blank-row
+clicks, keyboard input, multiline paste, native Chinese composition, caption
+editing/Enter and the editable following paragraph. Verify the image survives
+both image and containing-paragraph node selections.
 
 ### 7. Wrong vs Correct
 
