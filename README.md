@@ -100,11 +100,6 @@ yarn db:rollback
 ```shell
 yarn db:migrate --env test
 ```
-
-# 项目活跃度
-
-![Alt](https://repobeats.axiom.co/api/embed/ff2e4e6918afff1acf9deb72d1ba6b071d586178.svg "Repobeats analytics image")
-
 # 许可证
 
 Outline 使用 [BSL 1.1 许可证](LICENSE)。
