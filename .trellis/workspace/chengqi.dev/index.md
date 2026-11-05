@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 12
-- **Last Active**: 2026-11-05
+- **Total Sessions**: 13
+- **Last Active**: 2026-11-06
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~433 | Active |
+| `journal-1.md` | ~468 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 13 | 2026-11-06 | Image block editing and drag fixes | `a464009f3`, `f79819fb8` | `codex/tikz-diagrams` |
 | 12 | 2026-11-05 | Editable TikZ diagrams and development engine recovery | `5e0c70609` | `codex/tikz-diagrams` |
 | 11 | 2026-11-04 | 中文背景设置、背景遮挡修复与脚本暂停 | `8fa983344608608b5e474dec19b458debe8cc140` | `feat/custom-themes` |
 | 10 | 2026-10-30 | Pause email code sign-in and clean development resources | `b32246ce5467de9723bcde95e243aec48177a1b2` | `feat/email-code-signin-release` |

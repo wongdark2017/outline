@@ -431,3 +431,38 @@ Implemented editable TikZ SVG diagrams with lazy same-origin rendering, original
 ### Status
 
 [OK] **Completed**
+
+
+## Session 13: Image block editing and drag fixes
+<!-- trellis-session: v=2 fp=ef0dbae53eb1a92e -->
+
+**Date**: 2026-11-06
+**Task**: Image block editing and drag fixes
+**Branch**: `codex/tikz-diagrams`
+
+### Summary
+
+Make standalone images occupy atomic rows, reuse text block drag handles, and direct text, paste, and IME input below images while retaining captions and inline icons. Commit current development settings and project guidance.
+
+### Main Changes
+
+- Keep non-inline figures on separate rows and restore existing block drag handles for aligned images.
+- Add view-only image paragraph boundaries and preserve images across keyboard, clipboard, and Chinese IME input.
+- Record source-aware inline icon behavior, selection handling, and genuine following-paragraph controls in frontend specs.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a464009f3` | fix: keep image blocks atomic and draggable |
+| `f79819fb8` | chore: update development settings and project guidance |
+
+### Testing
+
+- [OK] 79 focused tests passed; 18 DOM-dependent project cases skipped in the node environment.
+- [OK] Real Chromium checks passed for blank-row clicks, text/IME/multiline paste, captions, resize, native dragging, readonly mode, and printing.
+- [OK] TypeScript, scoped Oxlint/Oxfmt, commit hooks, and stable locale extraction passed.
+
+### Status
+
+[OK] **Completed**
