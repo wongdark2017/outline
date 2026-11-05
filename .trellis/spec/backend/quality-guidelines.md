@@ -121,13 +121,30 @@ The developer's browser may reach only the forwarded application port. A success
 
 Development entry scripts, module imports, fonts and HMR use the application origin. The proxy targets only local `127.0.0.1:3001`, preserves queries and response MIME/cache headers, and strips authentication cookies and authorization headers. TLS trusts the local public certificate without disabling verification globally. Mount development asset middleware before the global API rate limiter so a cold module graph cannot consume the API quota. Production keeps its existing static-serving behavior. Collaboration and realtime upgrade handlers leave the development HMR path to its owner; web-only processes still reject unknown upgrades.
 
+The pinned `/static/tikzjax-e374921f/run-tex.js` response is a separate Worker
+execution context. Set exactly `default-src 'none';script-src 'self'
+'wasm-unsafe-eval';connect-src 'self'` on that response; the page policy runs
+after the proxy and cannot grant the Worker's WebAssembly permission. Keep all
+other JavaScript and adjacent versions under their existing policies.
+
+The engine decompresses `core.dump.gz`, `tex.wasm.gz` and
+`tex_files/[\w.-]+.gz` itself. For these exact versioned paths, remove Vite's
+incorrect HTTP `Content-Encoding: gzip` while preserving compressed bytes and
+`Content-Length`. Do not forward `If-None-Match` or `If-Modified-Since` for these
+inputs: a 304 response cannot remove an encoding header already in the browser
+cache. Send a fresh 200 entity so existing failed sessions recover. Do not
+change ordinary gzip responses, conditional caching or production serving.
+
 ### 4. Validation & Error Matrix
 
 | Condition | Required behavior |
 | --- | --- |
 | Browser cannot reach port 3001 | Login, document modules, math fonts and HMR work through port 3000. |
 | Editor preview reports a connection timeout | Confirm the desktop forwarding path reaches port 3000, then distinguish TLS certificate rejection from HTTP or script loading failures. Server-side health checks alone do not verify the developer's preview. |
-| Conditional GET or HEAD | Preserve 304, ETag and empty HEAD response bodies. |
+| Ordinary conditional GET or HEAD | Preserve 304, ETag and empty HEAD response bodies. |
+| Pinned TikZ Worker script | A strict response policy allows same-origin loading and WebAssembly, without `unsafe-eval`. |
+| Pinned TikZ gzip input | Browser `fetch().arrayBuffer()` retains gzip magic `1f8b` and the original compressed length. |
+| Old incorrectly encoded TikZ cache entry | Replace the entity with 200; do not retain the old encoding through 304. |
 | Local Vite unavailable | Return 502 instead of application HTML or an indefinitely pending request. |
 | Cold development module graph | Static requests do not exhaust the API rate limit. |
 | Production | Do not activate the development proxy or HMR route. |
@@ -140,9 +157,20 @@ Good: a browser blocking all HTTP and WebSocket traffic to port 3001 can load th
 
 Run `server/middlewares/vite.test.ts` and `server/onupgrade.test.ts`. In a real browser, block port 3001, verify login rendering, import the document editor, render inline and block KaTeX formulas with local fonts, receive an HMR update, and confirm realtime/collaboration handshakes. HTML formula exports embed CSS and WOFF2 fonts from the installed KaTeX version for offline use; never use a hard-coded CDN version. Check failed requests and HTTP 429 responses, not only page errors. Do not log HMR tokens or authentication cookies.
 
+For TikZ, also run the colocated CSP and renderer tests. Verify the default
+template through the development application port, including browser-visible
+compressed lengths, the Worker's own response policy and same-browser recovery
+from an old incorrectly encoded response. Assert path boundaries, ordinary gzip
+decoding/304 preservation and the production bypass. A production-only smoke
+test or a cold-cache-only development test does not cover this contract.
+
 ### 7. Wrong vs Correct
 
 Wrong: emit `https://localhost:3001/static/app/index.tsx` and assume the developer forwarded both ports. Correct: emit `/static/app/index.tsx`, proxy the fixed local Vite target, and verify the complete load with browser access to port 3001 blocked.
+
+Wrong: forward an engine `.gz` response with HTTP gzip encoding and rely on the
+page's CSP. Correct: preserve the engine's opaque compressed input, repair stale
+encoding metadata with 200 and grant WebAssembly only on its Worker response.
 
 ## Development startup lifecycle
 

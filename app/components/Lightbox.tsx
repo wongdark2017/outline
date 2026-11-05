@@ -74,6 +74,7 @@ import {
   initialStatus,
   reducer,
 } from "./LightboxState";
+import { getTikzImageSelection } from "./LightboxImageSelection";
 
 type Animation = {
   fadeIn?: { apply: () => Keyframes; duration: number };
@@ -263,6 +264,7 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const pendingTikzSrc = useRef<string | undefined>(undefined);
   const [status, dispatch] = useReducer(reducer, initialStatus);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentsRendered, setCommentsRendered] = useState(false);
@@ -765,6 +767,64 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
     editor.commands.editDiagram();
   };
 
+  const handleEditTikz = () => {
+    const { view } = editor;
+    if (
+      readOnly ||
+      editor.props.readOnly ||
+      view.isDestroyed ||
+      activeImage.source !== ImageSource.Tikz
+    ) {
+      return;
+    }
+
+    const selection = getTikzImageSelection(
+      view,
+      activeImage.src,
+      activeImage.getElement()
+    );
+    if (!selection) {
+      return;
+    }
+
+    // ProseMirror maps this selection through changes during the close animation,
+    // preserving the selected instance even when another image has the same URL.
+    view.dispatch(view.state.tr.setSelection(selection));
+    pendingTikzSrc.current = activeImage.src;
+    close();
+  };
+
+  const handleCloseAutoFocus: ComponentProps<
+    typeof Dialog.Content
+  >["onCloseAutoFocus"] = (event) => {
+    const src = pendingTikzSrc.current;
+    if (src === undefined) {
+      return;
+    }
+
+    event.preventDefault();
+    pendingTikzSrc.current = undefined;
+
+    const { view } = editor;
+    if (readOnly || editor.props.readOnly || view.isDestroyed) {
+      return;
+    }
+
+    // Radix calls this after the focus scope unmounts. A deleted target no longer
+    // has a matching NodeSelection and must not fall back to another image.
+    const { selection } = view.state;
+    if (
+      !(selection instanceof NodeSelection) ||
+      selection.node.type.name !== "image" ||
+      selection.node.attrs.source !== ImageSource.Tikz ||
+      selection.node.attrs.src !== src
+    ) {
+      return;
+    }
+
+    editor.commands.editTikz();
+  };
+
   return (
     <Dialog.Root open={true}>
       <Dialog.Portal>
@@ -776,6 +836,7 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
         />
         <StyledContent
           onKeyDown={handleKeyDown}
+          onCloseAutoFocus={handleCloseAutoFocus}
           ref={contentRef}
           $commentsOpen={canShowComments && commentsOpen}
         >
@@ -871,6 +932,23 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
                   />
                 </Tooltip>
               )}
+            {activeImage.source === ImageSource.Tikz && !readOnly && (
+              <Tooltip content={t("Edit TikZ")} placement="bottom">
+                <ActionButton
+                  tabIndex={-1}
+                  disabled={
+                    status.image === ImageStatus.ERROR ||
+                    status.lightbox !== LightboxStatus.OPENED
+                  }
+                  onClick={handleEditTikz}
+                  aria-label={t("Edit TikZ")}
+                  size={32}
+                  icon={<EditIcon />}
+                  borderOnHover
+                  neutral
+                />
+              </Tooltip>
+            )}
             {canShowComments && (
               <Tooltip content={t("Comments")} placement="bottom">
                 <ActionButton
@@ -926,6 +1004,7 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
             <Image
               ref={imgRef}
               src={activeImage.src}
+              source={activeImage.source}
               alt={activeImage.alt}
               onLoading={handleImageLoading}
               onLoad={handleImageLoad}
@@ -984,6 +1063,7 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
 
 type ImageProps = {
   src: string;
+  source?: string;
   alt: string;
   onLoading: () => void;
   onLoad: () => void;
@@ -1002,6 +1082,7 @@ type ImageProps = {
 
 function Image({
   src,
+  source,
   alt,
   onLoading,
   onLoad,
@@ -1071,6 +1152,7 @@ function Image({
         <StyledImg
           ref={ref}
           src={src}
+          data-source={source}
           alt={alt}
           animation={animation}
           onAnimationStart={() => setHidden(false)}
@@ -1152,6 +1234,14 @@ const StyledImg = styled.img<{
   max-width: 100%;
   min-height: 0;
   object-fit: contain;
+
+  @media screen {
+    &[data-source="${ImageSource.Tikz}"] {
+      filter: ${(props) =>
+        props.theme.isDark ? "invert(1) hue-rotate(180deg)" : "none"};
+    }
+  }
+
   cursor: ${(props) =>
     props.$panning
       ? "grabbing"

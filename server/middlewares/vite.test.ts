@@ -2,7 +2,9 @@ import { once } from "node:events";
 import http from "node:http";
 import https from "node:https";
 import { Socket } from "node:net";
+import { gzipSync } from "node:zlib";
 import Koa from "koa";
+import helmet from "koa-helmet";
 import WebSocket from "ws";
 import env from "@server/env";
 import onupgrade, { rejectUnhandledUpgrades } from "@server/onupgrade";
@@ -21,6 +23,7 @@ let websocketServer: WebSocket.Server;
 let upstreamPort: number;
 let baseURL: string;
 let requests: http.IncomingMessage[];
+const gzipAsset = gzipSync(Buffer.from("engine-fixture"));
 
 function redirectRequest(original: typeof http.request) {
   return (
@@ -55,6 +58,22 @@ beforeAll(async () => {
       request.socket.destroy();
       return;
     }
+    if (request.url?.split("?")[0].endsWith(".gz")) {
+      response.setHeader("Content-Type", "application/octet-stream");
+      response.setHeader("Content-Encoding", "gzip");
+      response.setHeader("Content-Length", gzipAsset.length);
+      response.setHeader("ETag", '"gzip-fixture"');
+      response.setHeader("Last-Modified", "Thu, 05 Nov 2026 00:00:00 GMT");
+      if (
+        request.headers["if-none-match"] === '"gzip-fixture"' ||
+        request.headers["if-modified-since"] === "Thu, 05 Nov 2026 00:00:00 GMT"
+      ) {
+        response.writeHead(304).end();
+        return;
+      }
+      response.end(gzipAsset);
+      return;
+    }
     response.setHeader("Content-Type", "text/javascript");
     response.setHeader("ETag", '"fixture"');
     response.setHeader("Cache-Control", "no-cache");
@@ -84,6 +103,7 @@ beforeAll(async () => {
   upstreamPort = upstreamAddress.port;
 
   const app = new Koa();
+  app.use(helmet());
   app.use(createViteMiddleware());
   app.use((ctx) => {
     ctx.body = "application";
@@ -126,6 +146,96 @@ afterAll(async () => {
 });
 
 describe("development Vite proxy", () => {
+  it("sets a same-origin WebAssembly policy only on the pinned TikZ worker", async () => {
+    const worker = await fetch(
+      `${baseURL}/static/tikzjax-e374921f/run-tex.js?v=1`
+    );
+    expect(worker.headers.get("content-security-policy")).toBe(
+      "default-src 'none';script-src 'self' 'wasm-unsafe-eval';connect-src 'self'"
+    );
+
+    for (const pathname of [
+      "/static/tikzjax-e374921f/other.js",
+      "/static/tikzjax-e374921f/run-tex.js.map",
+      "/static/tikzjax-e374921f/run-tex.js/extra",
+      "/static/tikzjax-e374921f-other/run-tex.js",
+      "/static/tikzjax-other/run-tex.js",
+      "/static/@vite/client",
+      "/",
+    ]) {
+      const response = await fetch(`${baseURL}${pathname}`);
+      expect(response.headers.get("content-security-policy")).toContain(
+        "script-src 'self';"
+      );
+      expect(response.headers.get("content-security-policy")).not.toContain(
+        "wasm-unsafe-eval"
+      );
+    }
+  });
+
+  it.each(["core.dump.gz", "tex.wasm.gz", "tex_files/pgfplots.sty.gz"])(
+    "preserves compressed engine bytes for the browser to read %s",
+    async (asset) => {
+      const response = await fetch(
+        `${baseURL}/static/tikzjax-e374921f/${asset}`
+      );
+      expect(response.headers.get("content-encoding")).toBeNull();
+      expect(response.headers.get("content-length")).toBe(
+        String(gzipAsset.length)
+      );
+      const contents = Buffer.from(await response.arrayBuffer());
+      expect(contents.subarray(0, 2)).toEqual(Buffer.from([0x1f, 0x8b]));
+      expect(contents).toEqual(gzipAsset);
+    }
+  );
+
+  it.each(["core.dump.gz", "tex.wasm.gz", "tex_files/pgfplots.sty.gz"])(
+    "replaces stale HTTP encoding metadata for %s",
+    async (asset) => {
+      const response = await fetch(
+        `${baseURL}/static/tikzjax-e374921f/${asset}?v=1`,
+        {
+          headers: {
+            "If-None-Match": '"gzip-fixture"',
+            "If-Modified-Since": "Thu, 05 Nov 2026 00:00:00 GMT",
+          },
+        }
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-encoding")).toBeNull();
+      expect(Buffer.from(await response.arrayBuffer())).toEqual(gzipAsset);
+      expect(requests[0].headers["if-none-match"]).toBeUndefined();
+      expect(requests[0].headers["if-modified-since"]).toBeUndefined();
+    }
+  );
+
+  it("preserves conditional requests outside the pinned engine assets", async () => {
+    const response = await fetch(`${baseURL}/static/ordinary.gz`, {
+      headers: { "If-None-Match": '"gzip-fixture"' },
+    });
+
+    expect(response.status).toBe(304);
+    expect(requests[0].headers["if-none-match"]).toBe('"gzip-fixture"');
+  });
+
+  it.each([
+    "/static/ordinary.gz",
+    "/static/tikzjax-e374921f/ordinary.gz",
+    "/static/tikzjax-other/core.dump.gz",
+    "/static/tikzjax-e374921f-other/core.dump.gz",
+  ])(
+    "preserves HTTP gzip encoding outside engine assets at %s",
+    async (pathname) => {
+      const response = await fetch(`${baseURL}${pathname}`);
+      expect(response.headers.get("content-encoding")).toBe("gzip");
+      expect(response.headers.get("content-length")).toBe(
+        String(gzipAsset.length)
+      );
+      expect(await response.text()).toBe("engine-fixture");
+    }
+  );
+
   it("streams JavaScript and preserves queries without forwarding credentials", async () => {
     const response = await fetch(`${baseURL}/static/@vite/client?v=123`, {
       headers: {
@@ -177,6 +287,15 @@ describe("development Vite proxy", () => {
     const response = await fetch(`${baseURL}/static/app/index.tsx`);
     expect(await response.text()).toBe("application");
     expect(requests).toHaveLength(0);
+    for (const asset of ["run-tex.js", "core.dump.gz"]) {
+      const production = await fetch(
+        `${baseURL}/static/tikzjax-e374921f/${asset}`
+      );
+      expect(await production.text()).toBe("application");
+      expect(production.headers.get("content-security-policy")).not.toContain(
+        "wasm-unsafe-eval"
+      );
+    }
   });
 
   it("returns an explicit bad gateway when Vite is unavailable", async () => {

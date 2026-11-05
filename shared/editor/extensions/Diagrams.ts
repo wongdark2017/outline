@@ -5,7 +5,7 @@ import type { CommandFactory } from "../lib/Extension";
 import Extension from "../lib/Extension";
 import FileHelper, { ImageSource } from "../lib/FileHelper";
 import { IntegrationService } from "../../types";
-import type { NodeWithPos } from "../types";
+import { findImageNodeBySrc } from "../queries/findImageNodeBySrc";
 import {
   DiagramsNetClient,
   EMPTY_DIAGRAM_IMAGE,
@@ -217,7 +217,7 @@ export default class Diagrams extends Extension {
     const imageType = this.editor.schema.nodes.image;
 
     // Try to find and update the existing node by its current src attribute.
-    const existingNode = this.findImageNodeBySrc(state, srcToFind);
+    const existingNode = findImageNodeBySrc(state.doc, srcToFind);
 
     const attrs = {
       ...dimensions,
@@ -237,28 +237,6 @@ export default class Diagrams extends Extension {
       const transaction = state.tr.insert(state.selection.from, imageNode);
       dispatch(transaction);
     }
-  }
-
-  /**
-   * Finds an image node in the document by its src attribute.
-   *
-   * @param state - the editor state.
-   * @param src - the image source URL to search for.
-   * @returns the node and its position, or undefined.
-   */
-  private findImageNodeBySrc(
-    state: EditorState,
-    src: string
-  ): NodeWithPos | undefined {
-    let foundNode: NodeWithPos | undefined;
-    state.doc.descendants((node, pos) => {
-      if (node.attrs.src === src && node.type.name === "image") {
-        foundNode = { node, pos };
-        return false; // Stop searching
-      }
-      return true;
-    });
-    return foundNode;
   }
 
   /**

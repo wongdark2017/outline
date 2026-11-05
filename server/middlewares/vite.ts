@@ -8,6 +8,11 @@ import env from "@server/env";
 import { rejectUpgrade } from "@server/onupgrade";
 
 const hmrPath = "/static/vite-hmr";
+const tikzWorkerPath = "/static/tikzjax-e374921f/run-tex.js";
+const tikzGzipAssetPath =
+  /^\/static\/tikzjax-e374921f\/(?:core\.dump|tex\.wasm|tex_files\/[\w.-]+)\.gz$/;
+const tikzWorkerCsp =
+  "default-src 'none';script-src 'self' 'wasm-unsafe-eval';connect-src 'self'";
 const requestHeaders = [
   "accept",
   "accept-language",
@@ -63,6 +68,15 @@ export function createViteMiddleware() {
       return;
     }
 
+    const isTikzGzipAsset = tikzGzipAssetPath.test(ctx.path);
+    const headers = copyHeaders(ctx.req.headers, requestHeaders);
+    if (isTikzGzipAsset) {
+      // A 304 response cannot remove an old cached Content-Encoding header.
+      // Fetch the entity again so browsers replace incorrectly decoded assets.
+      delete headers["if-none-match"];
+      delete headers["if-modified-since"];
+    }
+
     try {
       const response = await new Promise<http.IncomingMessage>(
         (resolve, reject) => {
@@ -71,7 +85,7 @@ export function createViteMiddleware() {
               ...target.options,
               path: ctx.req.url,
               method: ctx.method,
-              headers: copyHeaders(ctx.req.headers, requestHeaders),
+              headers,
             },
             resolve
           );
@@ -91,6 +105,16 @@ export function createViteMiddleware() {
         if (value !== undefined) {
           ctx.set(name, value);
         }
+      }
+
+      if (ctx.path === tikzWorkerPath) {
+        // Workers use their script response's CSP. This proxy runs before the
+        // web service's page policy, so supply the engine's own narrow policy.
+        ctx.set("Content-Security-Policy", tikzWorkerCsp);
+      } else if (isTikzGzipAsset) {
+        // Vite labels .gz files as HTTP encoding. The engine needs the original
+        // compressed file bytes so its own decompressor can read them once.
+        ctx.remove("Content-Encoding");
       }
       ctx.body = response;
     } catch {

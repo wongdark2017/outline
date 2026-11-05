@@ -335,3 +335,136 @@ response to prove client suppression, then exercise Chinese personal/admin forms
 preview-before-save, inheritance, personal override, errors, mobile, print and
 recovery. Reload paused database fields to prove they were retained. Source
 inspection and hiding tabs alone do not prove the full pause.
+
+## Scenario: Editable TikZ image lifecycle
+
+### 1. Scope / Trigger
+
+TikZ crosses the UI extension, CodeMirror, browser worker, attachment upload,
+shared image serialization, static assets and CSP. Preserve its ordinary-image
+storage format when changing any of those boundaries.
+
+### 2. Signatures
+
+- Commands: `insertTikz()` and `editTikz()`; editing requires a TikZ image
+  `NodeSelection`, a live editable view and an upload callback.
+- `renderTikz(source: string, signal?: AbortSignal): Promise<RenderResult>`;
+  success is `{ ok: true, svg }`, failure is `{ ok: false, error, reason }`.
+  Reasons are `compile`, `timeout`, `engine`, `invalid-svg`, and `aborted`.
+- `prepareSource(source)` returns `{ tex, info }`; `embedSource(svg, source)`
+  and `extractSource(svg)` exchange the exact original source.
+- `TikzSession.save(svg, save)` supplies an attempt-specific abort signal.
+  `findImageNodeBySrc(doc, src)` returns the first image and its current position.
+
+### 3. Contracts
+
+`ExtensionManager.widgets` probes widgets before a session exists. Return a
+lightweight wrapper while closed; mount the lazy editor only during a writable
+session. Keep CodeMirror and threads out of eager imports and browser globals
+out of module initialization.
+
+Debounce source revisions for 600 ms. Disable saving immediately on an edit,
+including undo to identical text; only that revision's successful preview is
+current. Retain the last successful preview during compilation and errors.
+Each render allocates a fresh worker, retains it before `spawn()` resolves and
+terminates it exactly once. The 10-second timeout includes startup/loading.
+Remove timer/listener resources on every path and keep user cancellation silent.
+
+Resolve `/static/tikzjax-e374921f` against the page origin, independent of
+`CDN_URL`. Create threads workers with `{ CORSWorkaround: false }`; absolute URLs
+otherwise become blob wrappers that violate `worker-src 'self'`. CSP adds only
+`'wasm-unsafe-eval'`. Workbox ignores `**/tikzjax-*/**`, including `fonts.css`, so
+reader precaching never loads the engine. Keep pinned vendor bytes unchanged;
+root/server Oxlint and oxfmt ignore this vendor subtree. Verify its 449 hashes
+and preserve its component-specific licenses and recorded build-source gap.
+
+Development assets pass through `createViteMiddleware()` before the page's CSP.
+The pinned worker response must carry its own strict policy allowing same-origin
+scripts/connections and `wasm-unsafe-eval`. Engine `.gz` files are opaque gzip
+inputs for the worker's decompressor, not HTTP-encoded representations: remove
+Vite's `Content-Encoding` only for the pinned engine assets. A 304 cannot remove
+an encoding header stored by an older response. Do not forward conditional
+validators for these gzip inputs; return a fresh entity to repair existing
+browser caches. Preserve ordinary asset caching and production behavior. Check
+the bytes returned by browser `fetch()`, not just raw curl responses, and verify
+failure-to-success recovery in the same browser with a previously cached asset.
+
+Compilation adaptations may remove declarations, font setup and comment content.
+Keep comment `%` markers so TeX still consumes the following newline. The pinned
+worker drops every raw line containing `\documentclass`, including comments.
+Never pass that trigger through a comment or overwrite the source to be saved.
+Store source only in SVG `metadata/script[type="text/x-tikz"]`, using XML escaping
+and carriage-return character references. Reject malformed SVG/DOCTYPE, strip
+active content and external URLs, and preserve embedded font styles.
+
+Map the exact edit target through individual transaction steps; never retarget
+another image with the same URL after deletion. `setNodeMarkup` uses a
+`ReplaceAroundStep` whose boundary map reports deletion. Preserve only a
+same-src/source image step retaining its exact original content gap; allow
+concurrent resizing/alignment while rejecting structural replacements.
+After upload, recheck the attempt signal,
+session identity, current permission and latest target before dispatching. Copy
+existing image attrs to retain layout, caption, dimensions and links. Closing or
+editing source invalidates a pending save. Lightbox passes a mapped selection
+only after actual Radix focus-scope unmount through `onCloseAutoFocus`.
+
+Use the scoped `Modal.expanded` layout for this editor. Keep two panels, a
+120 px bounded error region and footer actions within the viewport. Preview is
+always white. Only document/lightbox `source=tikz` images invert on dark screens;
+static HTML and print retain light output. Write `data-source` on linked and
+unlinked images and sanitize URLs in `toDOM`.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Compile, missing package, timeout, engine or invalid output | Fixed localized message; relevant TeX log and original package declaration line; old preview retained; saving disabled. |
+| Source request/parse fails or metadata is absent | Distinct source/metadata message inside the dialog; no default source and no document change. |
+| Attachment upload fails | Save error; retain code, preview and original image. |
+| Source edit, dialog close or superseding session | Abort/invalidate old work; late success/error cannot mutate documents or the newer session. |
+| Edited image deleted/replaced | No fallback to a duplicate or insertion; reject the save. |
+| Same image resized/aligned during editing/upload | Keep its mapped target and preserve the latest attrs when saving. |
+
+Use the approved task's PRD E01–E08/E02-F catalog through `getTikzErrorMessage`.
+English extraction keys must not contain namespace-separating colons.
+
+The pinned worker can return SVG from a partial DVI despite TeX errors. Call
+`texify` with `showConsole: true` and listen to raw worker string messages only
+during compilation; protocol objects and loading messages are not diagnostics.
+Keep the first `!` error and following context within 16,384 characters. A missing
+package can also become an empty virtual input with no TeX error: recognize its
+explicit `(TeXinputs:"...sty")` file trace. Retain only 1,024 characters of rolling
+file trace and join TeX log wrapping for recognition. Long filenames may lose
+their suffix, closing quote or even the virtual prefix; only an observed
+unclosed filename trace matching a unique original package declaration may
+supply the original name. An ambiguous trace fails compilation without inventing
+a package name or source line. Do not replace this evidence with a package
+allowlist. Preserve the actual log context and remove the message listener on
+every completion path. A diagnostic must not override cancellation or timeout;
+an empty document without errors maps to `invalid-svg`.
+
+### 5. Good / Base / Bad Cases
+
+Good: edit the second of two identical URLs, insert preceding text during upload,
+then replace only that mapped image. Base: insert a snippet as an ordinary SVG
+and reopen its exact source. Bad: accept a stale preview during debounce, update
+the first URL match after target deletion, or let a late upload close a new session.
+
+### 6. Tests Required
+
+Run the colocated runtime, extension/session/error, Lightbox selection, image
+detection/serialization, shared query, Diagrams and CSP tests. Assert startup
+abort/timeout cleanup, XML/CRLF/Unicode round trips, safe SVG font preservation,
+comment newline semantics, original package lines, target mapping, upload
+invalidation, concurrent image attribute updates and widget registration.
+Browser verification must cover real
+workers/CSP, lazy requests and PWA, focus/Tab/history, errors, mobile sizing,
+save/reopen, imported source, dark mode and light export/print.
+
+### 7. Wrong vs Correct
+
+Wrong: `await spawn(new Worker(url))` with no raw worker retained, then terminate
+only the spawned thread. Correct: retain a same-origin worker before startup,
+race the complete operation against timeout/abort, and release the thread or raw
+worker in `finally`. Wrong: embed `prepareSource(source).tex`; correct:
+`embedSource(renderedSvg, source)` preserves the user's original text.

@@ -1,0 +1,93 @@
+TikZ engine asset provenance
+Recorded: 2026-11-05
+
+IMMEDIATE SOURCE (exact byte-for-byte copy; no rebuilding or code patches)
+Repository: https://github.com/YuxinZhaozyx/siyuan-embed-tikz
+Commit: e374921f417ef84bd42aaf78886d8326eef8f6f4
+Directory: src/libs/tikzjax/
+Source browser:
+https://github.com/YuxinZhaozyx/siyuan-embed-tikz/tree/e374921f417ef84bd42aaf78886d8326eef8f6f4/src/libs/tikzjax
+The 449 original files total 9,696,446 bytes. SHA256SUMS records their
+relative paths and hashes. Added LICENSE-*.txt, NOTICE.txt, SOURCES.txt and
+SHA256SUMS are attribution/inventory files, not original engine files.
+
+BUILD-SOURCE MAPPING LIMITATION
+The immediate source ships run-tex.js, tex.wasm.gz and core.dump.gz as
+prebuilt artifacts. It does not provide a verified mapping from these
+artifacts to exact TikZJax/web2js/dvi2html source commits, complete build
+inputs or dependency versions. The plugin worker also contains adaptations
+for source preprocessing and wide-character replacement. This local copy
+has not been rebuilt. Reproducibility and complete corresponding-source
+availability for those artifacts have not been established. The links below
+identify the upstream projects and their current notices; they do not assert
+that current HEAD reproduces these pinned bytes. Deployment/publication
+requires resolving that upstream source mapping and applicable obligations.
+
+UPSTREAM PROJECTS AND BUILD DESCRIPTION (reference, not reproducible pins)
+TikZJax: Jim Fowler; fork by Glenn Rice
+https://github.com/drgrice1/tikzjax
+https://github.com/kisonecat/tikzjax
+https://raw.githubusercontent.com/drgrice1/tikzjax/main/package.json
+  Declares GPL-3.0+; original kisonecat package declares GPL-3.0 or LPPL-1.3c.
+https://raw.githubusercontent.com/drgrice1/tikzjax/main/README.md
+  Describes WebAssembly/core creation, standalone/xcolor/tikz preloading,
+  gzip compression, font installation and package generation.
+Web2JS (TeX to WebAssembly): Jim Fowler; Glenn Rice; Jesse Hoobergs
+https://github.com/drgrice1/web2js
+https://github.com/kisonecat/web2js
+https://github.com/jhoobergs/web2js
+  GPL-3.0 as declared by upstream package metadata.
+DVI2HTML (DVI to SVG): Jim Fowler; Glenn Rice
+https://github.com/drgrice1/dvi2html
+https://github.com/kisonecat/dvi2html
+  GPL-3.0 as declared by upstream package metadata.
+SiYuan wrapper: https://github.com/YuxinZhaozyx/siyuan-embed-tikz
+  MIT, Copyright (c) 2025 Yuxin Zhao. Its root license does not relicense
+  bundled engine components, TeX packages or fonts.
+
+FONTS
+152 WOFF2 files are copied unchanged from the immediate source.
+The upstream font build script identifies the BaKoMa collection and converts
+OTF to WOFF2 using fonteditor-core after removing out-of-range glyphs:
+https://raw.githubusercontent.com/drgrice1/tikzjax/main/installFonts.mjs
+Original fonts: https://ctan.org/pkg/bakoma-fonts
+https://www.ctan.org/tex-archive/fonts/cm/ps-type1/bakoma
+Copyright (C) 1994, 1995, Basil K. Malyshev. All Rights Reserved.
+Author: Basil K. Malyshev, Institute for High Energy Physics, Protvino, Russia.
+The exact input font archive revision used for these binaries is unverified.
+License text retrieved from:
+https://mirrors.ibiblio.org/CTAN/fonts/cm/ps-type1/bakoma/LICENCE
+Saved as LICENSE-BaKoMa.txt. These fonts are not relabeled as SIL OFL.
+
+TEX PACKAGES
+293 gzip package files retain their original contents and copyright/license
+headers. See those headers for per-file authorship and distribution terms.
+Examples: PGF/TikZ (Till Tantau, LPPL and/or GPL); pgfplots (Christian
+Feuersaenger, GPL v3 or later); CircuiTikZ (Romano Giannetti, Stefan Lindner,
+Stefan Erhardt, Massimo Redaelli, LPPL and/or GPL); chemfig (Christian
+Tellechea, LPPL 1.3c or later); amsmath (AMS and LaTeX Project, LPPL 1.3c or
+later); newunicodechar (Enrico Gregorio, LPPL 1.3c or later).
+Sources and documentation:
+https://ctan.org/pkg/pgf
+https://ctan.org/pkg/pgfplots
+https://ctan.org/pkg/circuitikz
+https://ctan.org/pkg/chemfig
+https://ctan.org/pkg/amsmath
+https://ctan.org/pkg/newunicodechar
+LPPL text: https://www.latex-project.org/lppl/lppl-1-3c.txt
+GPL text: https://www.gnu.org/licenses/gpl-3.0.txt
+
+JAVASCRIPT SUPPORT COMPONENTS
+The worker identifies pako and contains browser/threads support code.
+Upstream TikZJax metadata lists pako, threads, buffer, process,
+stream-browserify and dvi2html. Exact bundled versions/dependency closure
+are unverified. MIT/BSD and zlib notices for known support components are
+retained in the separate LICENSE files; those do not supersede GPL terms.
+Pako 2.1.0 reference notices:
+https://raw.githubusercontent.com/nodeca/pako/2.1.0/LICENSE
+https://raw.githubusercontent.com/nodeca/pako/2.1.0/lib/zlib/README
+Other support notices are copied verbatim from locally installed packages
+with the corresponding names: threads, buffer, base64-js, ieee754, events,
+process, stream-browserify, readable-stream, observable-fns, is-observable,
+debug and ms. These notices are attribution references, not an assertion
+that those locally installed versions produced the prebuilt worker.

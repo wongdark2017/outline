@@ -58,6 +58,9 @@ export default function imageMenuItems(
   const isDiagram = isNodeActive(schema.nodes.image, {
     source: ImageSource.DiagramsNet,
   });
+  const isTikz = isNodeActive(schema.nodes.image, {
+    source: ImageSource.Tikz,
+  });
   const isEmptyDiagram = isNodeActive(schema.nodes.image, {
     source: ImageSource.DiagramsNet,
     src: "",
@@ -125,6 +128,12 @@ export default function imageMenuItems(
       visible: isDiagram(state) && !Desktop.isElectron(),
     },
     {
+      name: "editTikz",
+      tooltip: t("Edit TikZ"),
+      icon: <EditIcon />,
+      visible: isTikz(state),
+    },
+    {
       name: "downloadImage",
       tooltip: t("Download image"),
       icon: <DownloadIcon />,
@@ -133,7 +142,7 @@ export default function imageMenuItems(
     {
       tooltip: t("Replace image"),
       icon: <ReplaceIcon />,
-      visible: !isDiagram(state),
+      visible: !isDiagram(state) && !isTikz(state),
       children: [
         {
           name: "replaceImage",

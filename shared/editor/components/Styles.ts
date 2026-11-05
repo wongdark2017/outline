@@ -5,6 +5,7 @@ import styled, { css, keyframes } from "styled-components";
 import { HEADER_HEIGHT } from "../../constants";
 import { breakpoints, hover } from "../../styles";
 import { EditorStyleHelper } from "../styles/EditorStyleHelper";
+import { ImageSource } from "../lib/FileHelper";
 import { videoStyle } from "./Video";
 
 export type Props = {
@@ -877,6 +878,16 @@ iframe.embed {
 .image .image-wrapper,
 .image .image-wrapper img {
   width: var(--image-width, auto);
+}
+
+@media screen {
+  .image img[data-source="${ImageSource.Tikz}"] {
+    filter: ${
+      props.theme.isDark && !props.staticHTML
+        ? "invert(1) hue-rotate(180deg)"
+        : "none"
+    };
+  }
 }
 
 /* Inside auto-layout table cells the plain pixel width would expand the cell  */

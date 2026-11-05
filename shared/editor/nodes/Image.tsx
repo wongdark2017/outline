@@ -196,7 +196,8 @@ export default class Image extends SimpleImage {
               src: img?.getAttribute("src"),
               alt: img?.getAttribute("alt"),
               title: img?.getAttribute("title"),
-              source: img?.getAttribute("source"),
+              source:
+                img?.getAttribute("source") ?? img?.getAttribute("data-source"),
               width: width ? parseInt(width, 10) : undefined,
               height: height ? parseInt(height, 10) : undefined,
               layoutClass,
@@ -235,6 +236,8 @@ export default class Image extends SimpleImage {
               src: dom.getAttribute("src"),
               alt: dom.getAttribute("alt"),
               title: dom.getAttribute("title"),
+              source:
+                dom.getAttribute("source") ?? dom.getAttribute("data-source"),
               width: width ? parseInt(width, 10) : undefined,
               height: height ? parseInt(height, 10) : undefined,
             };
@@ -259,6 +262,7 @@ export default class Image extends SimpleImage {
           "img",
           {
             ...attrs,
+            "data-source": node.attrs.source,
             src: sanitizeImageSrc(node.attrs.src),
             width: node.attrs.width,
             height: node.attrs.height,

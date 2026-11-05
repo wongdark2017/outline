@@ -2,5 +2,5 @@
   "printWidth": 80,
   "trailingComma": "es5",
   "sortPackageJson": false,
-  "ignorePatterns": []
+  "ignorePatterns": ["server/static/tikzjax-*/**"]
 }

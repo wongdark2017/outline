@@ -71,6 +71,9 @@ export default ({ mode }: ConfigEnv) =>
         workbox: {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           globPatterns: ["**/*.{css,ico,png,svg}"],
+
+          // Engine assets are fetched only when a user opens the TikZ editor.
+          globIgnores: ["**/tikzjax-*/**"],
           navigateFallback: null,
           modifyURLPrefix: {
             "": `${environment.CDN_URL ?? ""}/static/`,
