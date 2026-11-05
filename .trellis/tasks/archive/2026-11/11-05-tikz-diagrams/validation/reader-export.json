@@ -1,0 +1,25 @@
+{
+  "checks": [
+    {
+      "name": "real HTML export API produces self-contained marked SVG without engine",
+      "status": "passed"
+    },
+    {
+      "name": "reader document and lightbox hide editing and load no runtime",
+      "status": "passed",
+      "engineRequests": 0,
+      "heavyEditorRequests": 0
+    },
+    {
+      "name": "anonymous share renders SVG and loads no runtime",
+      "status": "passed",
+      "engineRequests": 0,
+      "heavyEditorRequests": 0
+    },
+    {
+      "name": "exported HTML stays light under dark preference without runtime",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

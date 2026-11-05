@@ -1,0 +1,32 @@
+{
+  "steps": [
+    "editor ready",
+    "zero reader runtime before open",
+    "slash dialog",
+    "real preview",
+    "attachment saved"
+  ],
+  "requests": [
+    {
+      "id": "2341579.622",
+      "url": "https://127.0.0.1:4117/static/assets/TikzEditor.BCUMkk4H.js",
+      "type": "Script"
+    },
+    {
+      "id": "568D3DDD7EB8FF973B2175B5FCD0F276",
+      "url": "https://127.0.0.1:4117/static/tikzjax-e374921f/run-tex.js",
+      "type": "Script"
+    },
+    {
+      "id": "2341579.633",
+      "url": "https://127.0.0.1:4117/api/attachments.create",
+      "type": "Fetch"
+    },
+    {
+      "id": "2341579.635",
+      "url": "https://127.0.0.1:4117/api/attachments.redirect?id=a16747e3-7e55-4e2c-9c16-b586dbef70cd",
+      "type": "Image"
+    }
+  ],
+  "errors": []
+}

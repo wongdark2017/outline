@@ -1,0 +1,113 @@
+{
+  "evaluated": {
+    "result": {
+      "type": "object",
+      "value": {
+        "origin": "http://127.0.0.1:43529",
+        "before": {
+          "ok": false,
+          "reason": "engine",
+          "error": "-3"
+        },
+        "result": {
+          "ok": true,
+          "bytes": 20782
+        },
+        "assets": [
+          {
+            "asset": "run-tex.js",
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache",
+              "content-length": "607420",
+              "content-security-policy": "default-src 'none';script-src 'self' 'wasm-unsafe-eval';connect-src 'self'",
+              "content-type": "text/javascript",
+              "date": "Thu, 05 Nov 2026 13:35:57 GMT",
+              "etag": "W/\"607420-1793867431941\"",
+              "expect-ct": "max-age=0",
+              "last-modified": "Thu, 05 Nov 2026 08:30:31 GMT",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0"
+            },
+            "bytes": 607420,
+            "magic": [
+              40,
+              40,
+              41,
+              61
+            ]
+          },
+          {
+            "asset": "core.dump.gz",
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache",
+              "connection": "keep-alive",
+              "content-length": "5979317",
+              "content-security-policy": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "content-type": "application/octet-stream",
+              "date": "Thu, 05 Nov 2026 13:35:57 GMT",
+              "etag": "W/\"5979317-1793867431927\"",
+              "expect-ct": "max-age=0",
+              "keep-alive": "timeout=5",
+              "last-modified": "Thu, 05 Nov 2026 08:30:31 GMT",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0"
+            },
+            "bytes": 5979317,
+            "magic": [
+              31,
+              139,
+              8,
+              8
+            ]
+          },
+          {
+            "asset": "tex.wasm.gz",
+            "status": 200,
+            "headers": {
+              "cache-control": "no-cache",
+              "connection": "keep-alive",
+              "content-length": "123081",
+              "content-security-policy": "default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests",
+              "content-type": "application/wasm",
+              "date": "Thu, 05 Nov 2026 13:35:57 GMT",
+              "etag": "W/\"123081-1793867431941\"",
+              "expect-ct": "max-age=0",
+              "keep-alive": "timeout=5",
+              "last-modified": "Thu, 05 Nov 2026 08:30:31 GMT",
+              "referrer-policy": "no-referrer",
+              "strict-transport-security": "max-age=15552000; includeSubDomains",
+              "x-content-type-options": "nosniff",
+              "x-dns-prefetch-control": "off",
+              "x-download-options": "noopen",
+              "x-frame-options": "SAMEORIGIN",
+              "x-permitted-cross-domain-policies": "none",
+              "x-xss-protection": "0"
+            },
+            "bytes": 123081,
+            "magic": [
+              31,
+              139,
+              8,
+              8
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "events": []
+}

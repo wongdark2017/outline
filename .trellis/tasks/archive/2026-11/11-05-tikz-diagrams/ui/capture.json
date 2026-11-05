@@ -1,0 +1,949 @@
+{
+  "scope": "Static design prototype; no TeX compilation or attachment upload",
+  "captures": [
+    {
+      "file": "01-slash.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=slash",
+      "screen": "slash",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": null,
+      "panels": null,
+      "save": null,
+      "error": null,
+      "footer": null,
+      "focus": "",
+      "previewBackground": null,
+      "editButtons": 0,
+      "imageFilter": null,
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "02-editor.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=editor",
+      "screen": "editor",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 604,
+        "right": 1246,
+        "bottom": 824
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": null,
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "saveDisabled": false,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "03-error.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=error",
+      "screen": "error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 506,
+        "right": 1246,
+        "bottom": 726
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": {
+        "x": 194,
+        "y": 740,
+        "width": 1052,
+        "height": 84,
+        "right": 1246,
+        "bottom": 824
+      },
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "errorText": "第 3 行：渲染引擎不支持宏包 pgf-pie。请移除该声明或改用支持的 TikZ 库。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\documentclass[tikz,border=5mm]{standalone}2\\usetikzlibrary{calc}3\\usepackage{pgf-pie}4\\begin{document}5\\begin{tikzpicture}6  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};7  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};8  \\draw[thick, blue, domain=0:2.8]9    plot (\\x, {sin(\\x r) + 1});10\\end{tikzpicture}11\\end{document}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "04-image.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=image",
+      "screen": "image",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": null,
+      "panels": null,
+      "save": null,
+      "error": null,
+      "footer": null,
+      "focus": "",
+      "previewBackground": null,
+      "editButtons": 1,
+      "imageFilter": "none",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "05-lightbox.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=lightbox",
+      "screen": "lightbox",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": null,
+      "panels": null,
+      "save": null,
+      "error": null,
+      "footer": null,
+      "focus": "",
+      "previewBackground": null,
+      "editButtons": 1,
+      "imageFilter": null,
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "06-dark.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=dark",
+      "screen": "dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 604,
+        "right": 1246,
+        "bottom": 824
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": null,
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "saveDisabled": false,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "07-mobile.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=editor",
+      "screen": "editor",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "dpr": 2
+      },
+      "overflow": false,
+      "modal": {
+        "x": 0,
+        "y": 48,
+        "width": 390,
+        "height": 796,
+        "right": 390,
+        "bottom": 844
+      },
+      "panels": {
+        "x": 14,
+        "y": 108,
+        "width": 362,
+        "height": 672,
+        "right": 376,
+        "bottom": 780
+      },
+      "save": {
+        "x": 304,
+        "y": 794,
+        "width": 72,
+        "height": 36,
+        "right": 376,
+        "bottom": 830
+      },
+      "error": null,
+      "footer": {
+        "x": 0,
+        "y": 780,
+        "width": 390,
+        "height": 64,
+        "right": 390,
+        "bottom": 844
+      },
+      "saveDisabled": false,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 780,
+        "expectedHeight": 1688
+      }
+    },
+    {
+      "file": "08-mobile-error.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=error",
+      "screen": "error",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "dpr": 2
+      },
+      "overflow": false,
+      "modal": {
+        "x": 0,
+        "y": 48,
+        "width": 390,
+        "height": 796,
+        "right": 390,
+        "bottom": 844
+      },
+      "panels": {
+        "x": 14,
+        "y": 108,
+        "width": 362,
+        "height": 567.40625,
+        "right": 376,
+        "bottom": 675.40625
+      },
+      "save": {
+        "x": 304,
+        "y": 794,
+        "width": 72,
+        "height": 36,
+        "right": 376,
+        "bottom": 830
+      },
+      "error": {
+        "x": 14,
+        "y": 687.40625,
+        "width": 362,
+        "height": 92.59375,
+        "right": 376,
+        "bottom": 780
+      },
+      "footer": {
+        "x": 0,
+        "y": 780,
+        "width": 390,
+        "height": 64,
+        "right": 390,
+        "bottom": 844
+      },
+      "errorText": "第 3 行：渲染引擎不支持宏包 pgf-pie。请移除该声明或改用支持的 TikZ 库。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\documentclass[tikz,border=5mm]{standalone}2\\usetikzlibrary{calc}3\\usepackage{pgf-pie}4\\begin{document}5\\begin{tikzpicture}6  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};7  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};8  \\draw[thick, blue, domain=0:2.8]9    plot (\\x, {sin(\\x r) + 1});10\\end{tikzpicture}11\\end{document}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 780,
+        "expectedHeight": 1688
+      }
+    },
+    {
+      "file": "09-source-error.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=source-error",
+      "screen": "source-error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 563.5625,
+        "right": 1246,
+        "bottom": 783.5625
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": {
+        "x": 194,
+        "y": 797.5625,
+        "width": 1052,
+        "height": 26.4375,
+        "right": 1246,
+        "bottom": 824
+      },
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "errorText": "图表源码加载失败。原图未修改，请稍后重新打开。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "源码未加载",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "10-dark-image.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=dark-image",
+      "screen": "dark-image",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": null,
+      "panels": null,
+      "save": null,
+      "error": null,
+      "footer": null,
+      "focus": "",
+      "previewBackground": null,
+      "editButtons": 1,
+      "imageFilter": "invert(1) hue-rotate(180deg)",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "11-readonly.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=readonly",
+      "screen": "readonly",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": null,
+      "panels": null,
+      "save": null,
+      "error": null,
+      "footer": null,
+      "focus": "",
+      "previewBackground": null,
+      "editButtons": 0,
+      "imageFilter": "none",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "12-loading.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=loading",
+      "screen": "loading",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 604,
+        "right": 1246,
+        "bottom": 824
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": null,
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "13-saving.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=saving",
+      "screen": "saving",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 604,
+        "right": 1246,
+        "bottom": 824
+      },
+      "save": {
+        "x": 1160,
+        "y": 842,
+        "width": 86,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": null,
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "saveDisabled": true,
+      "saveText": "保存中…",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "14-save-error.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=save-error",
+      "screen": "save-error",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 563.5625,
+        "right": 1246,
+        "bottom": 783.5625
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": {
+        "x": 194,
+        "y": 797.5625,
+        "width": 1052,
+        "height": 26.4375,
+        "right": 1246,
+        "bottom": 824
+      },
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "errorText": "图表保存失败。代码和预览已保留。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "15-timeout.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=timeout",
+      "screen": "timeout",
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "overflow": false,
+      "modal": {
+        "x": 170,
+        "y": 154,
+        "width": 1100,
+        "height": 744,
+        "right": 1270,
+        "bottom": 898
+      },
+      "panels": {
+        "x": 194,
+        "y": 220,
+        "width": 1052,
+        "height": 563.5625,
+        "right": 1246,
+        "bottom": 783.5625
+      },
+      "save": {
+        "x": 1180,
+        "y": 842,
+        "width": 66,
+        "height": 34,
+        "right": 1246,
+        "bottom": 876
+      },
+      "error": {
+        "x": 194,
+        "y": 797.5625,
+        "width": 1052,
+        "height": 26.4375,
+        "right": 1246,
+        "bottom": 824
+      },
+      "footer": {
+        "x": 170,
+        "y": 824,
+        "width": 1100,
+        "height": 74,
+        "right": 1270,
+        "bottom": 898
+      },
+      "errorText": "渲染超时（10 秒）。请简化代码后重试。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\begin{tikzpicture}2  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};3  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};4  \\draw[thick, blue, domain=0:2.8]5    plot (\\x, {sin(\\x r) + 1});6\\end{tikzpicture}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 1440,
+        "expectedHeight": 1000
+      }
+    },
+    {
+      "file": "16-mobile-narrow.png",
+      "title": "TikZ 界面设计预览 · Outline",
+      "url": "http://127.0.0.1:36739/ui-preview.html?screen=error",
+      "screen": "error",
+      "viewport": {
+        "width": 320,
+        "height": 736,
+        "dpr": 2
+      },
+      "overflow": false,
+      "modal": {
+        "x": 0,
+        "y": 48,
+        "width": 320,
+        "height": 688,
+        "right": 320,
+        "bottom": 736
+      },
+      "panels": {
+        "x": 14,
+        "y": 108,
+        "width": 292,
+        "height": 459.40625,
+        "right": 306,
+        "bottom": 567.40625
+      },
+      "save": {
+        "x": 234,
+        "y": 686,
+        "width": 72,
+        "height": 36,
+        "right": 306,
+        "bottom": 722
+      },
+      "error": {
+        "x": 14,
+        "y": 579.40625,
+        "width": 292,
+        "height": 92.59375,
+        "right": 306,
+        "bottom": 672
+      },
+      "footer": {
+        "x": 0,
+        "y": 672,
+        "width": 320,
+        "height": 64,
+        "right": 320,
+        "bottom": 736
+      },
+      "errorText": "第 3 行：渲染引擎不支持宏包 pgf-pie。请移除该声明或改用支持的 TikZ 库。",
+      "saveDisabled": true,
+      "saveText": "保存",
+      "focus": "source",
+      "previewBackground": "rgb(255, 255, 255)",
+      "editButtons": 0,
+      "imageFilter": null,
+      "sourceText": "1\\documentclass[tikz,border=5mm]{standalone}2\\usetikzlibrary{calc}3\\usepackage{pgf-pie}4\\begin{document}5\\begin{tikzpicture}6  \\draw[->] (-0.5,0) -- (3,0) node[right] {$x$};7  \\draw[->] (0,-0.5) -- (0,2) node[above] {$y$};8  \\draw[thick, blue, domain=0:2.8]9    plot (\\x, {sin(\\x r) + 1});10\\end{tikzpicture}11\\end{document}",
+      "screenshot": {
+        "full_page": false,
+        "screenshot_scale": "device",
+        "expectedWidth": 640,
+        "expectedHeight": 1472
+      }
+    }
+  ],
+  "checks": [
+    "01-slash: correct page identity",
+    "01-slash: viewport and DPR match",
+    "01-slash: no page horizontal overflow",
+    "02-editor: correct page identity",
+    "02-editor: viewport and DPR match",
+    "02-editor: no page horizontal overflow",
+    "02-editor: Save remains visible",
+    "02-editor: footer remains visible",
+    "02-editor: code panel receives initial focus",
+    "02-editor: preview stays white",
+    "02-editor: correct Save state",
+    "03-error: correct page identity",
+    "03-error: viewport and DPR match",
+    "03-error: no page horizontal overflow",
+    "03-error: Save remains visible",
+    "03-error: footer remains visible",
+    "03-error: code panel receives initial focus",
+    "03-error: preview stays white",
+    "03-error: correct Save state",
+    "03-error: inline error position and 120px cap",
+    "04-image: correct page identity",
+    "04-image: viewport and DPR match",
+    "04-image: no page horizontal overflow",
+    "04-image: one TikZ edit action",
+    "05-lightbox: correct page identity",
+    "05-lightbox: viewport and DPR match",
+    "05-lightbox: no page horizontal overflow",
+    "05-lightbox: one TikZ edit action",
+    "06-dark: correct page identity",
+    "06-dark: viewport and DPR match",
+    "06-dark: no page horizontal overflow",
+    "06-dark: Save remains visible",
+    "06-dark: footer remains visible",
+    "06-dark: code panel receives initial focus",
+    "06-dark: preview stays white",
+    "06-dark: correct Save state",
+    "07-mobile: correct page identity",
+    "07-mobile: viewport and DPR match",
+    "07-mobile: no page horizontal overflow",
+    "07-mobile: Save remains visible",
+    "07-mobile: footer remains visible",
+    "07-mobile: code panel receives initial focus",
+    "07-mobile: preview stays white",
+    "07-mobile: correct Save state",
+    "08-mobile-error: correct page identity",
+    "08-mobile-error: viewport and DPR match",
+    "08-mobile-error: no page horizontal overflow",
+    "08-mobile-error: Save remains visible",
+    "08-mobile-error: footer remains visible",
+    "08-mobile-error: code panel receives initial focus",
+    "08-mobile-error: preview stays white",
+    "08-mobile-error: correct Save state",
+    "08-mobile-error: inline error position and 120px cap",
+    "09-source-error: correct page identity",
+    "09-source-error: viewport and DPR match",
+    "09-source-error: no page horizontal overflow",
+    "09-source-error: Save remains visible",
+    "09-source-error: footer remains visible",
+    "09-source-error: code panel receives initial focus",
+    "09-source-error: preview stays white",
+    "09-source-error: correct Save state",
+    "09-source-error: inline error position and 120px cap",
+    "09-source-error: no default source after load failure",
+    "10-dark-image: correct page identity",
+    "10-dark-image: viewport and DPR match",
+    "10-dark-image: no page horizontal overflow",
+    "10-dark-image: one TikZ edit action",
+    "10-dark-image: dark image filter is scoped",
+    "11-readonly: correct page identity",
+    "11-readonly: viewport and DPR match",
+    "11-readonly: no page horizontal overflow",
+    "11-readonly: no edit action for readers",
+    "12-loading: correct page identity",
+    "12-loading: viewport and DPR match",
+    "12-loading: no page horizontal overflow",
+    "12-loading: Save remains visible",
+    "12-loading: footer remains visible",
+    "12-loading: code panel receives initial focus",
+    "12-loading: preview stays white",
+    "12-loading: correct Save state",
+    "13-saving: correct page identity",
+    "13-saving: viewport and DPR match",
+    "13-saving: no page horizontal overflow",
+    "13-saving: Save remains visible",
+    "13-saving: footer remains visible",
+    "13-saving: code panel receives initial focus",
+    "13-saving: preview stays white",
+    "13-saving: correct Save state",
+    "14-save-error: correct page identity",
+    "14-save-error: viewport and DPR match",
+    "14-save-error: no page horizontal overflow",
+    "14-save-error: Save remains visible",
+    "14-save-error: footer remains visible",
+    "14-save-error: code panel receives initial focus",
+    "14-save-error: preview stays white",
+    "14-save-error: correct Save state",
+    "14-save-error: inline error position and 120px cap",
+    "15-timeout: correct page identity",
+    "15-timeout: viewport and DPR match",
+    "15-timeout: no page horizontal overflow",
+    "15-timeout: Save remains visible",
+    "15-timeout: footer remains visible",
+    "15-timeout: code panel receives initial focus",
+    "15-timeout: preview stays white",
+    "15-timeout: correct Save state",
+    "15-timeout: inline error position and 120px cap",
+    "16-mobile-narrow: correct page identity",
+    "16-mobile-narrow: viewport and DPR match",
+    "16-mobile-narrow: no page horizontal overflow",
+    "16-mobile-narrow: Save remains visible",
+    "16-mobile-narrow: footer remains visible",
+    "16-mobile-narrow: code panel receives initial focus",
+    "16-mobile-narrow: preview stays white",
+    "16-mobile-narrow: correct Save state",
+    "16-mobile-narrow: inline error position and 120px cap",
+    "Prototype toolbar opens editor state",
+    "Prototype Save switches to saving state without uploading",
+    "Prototype Escape closes the dialog",
+    "Prototype sends no external network request"
+  ],
+  "checkCount": 119,
+  "browser": "Chrome/156.0.8078.4"
+}

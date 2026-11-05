@@ -1,0 +1,41 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "results": [
+        {
+          "name": "missing-package",
+          "svg": "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"28.85274pt\" height=\"28.85274pt\" viewBox=\"-72 -72 28.85274 28.85274\"><g stroke-miterlimit=\"10\" transform=\"translate(-72.07000732421874,-43.617263793945305) scale(1,-1)\"><g stroke=\"#000\" fill=\"#000\"> <g stroke-width=\"0.4\"> <path d=\" M 0.0 0.0 L 28.45274 28.45274  \" fill=\"none\"/> </g> </g> </g></svg>",
+          "logs": [
+            "This is e-TeX, Version 3.141592653-2.6 (preloaded format=latex 2025.6.13)",
+            "**entering extended mode",
+            "(input.tex",
+            "LaTeX2e <2023-11-01> patch level 1",
+            "L3 programming layer <2024-01-22>",
+            "(\"tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "xx) (\"l3backend-dvips.def\") (TeXinputs:\"input.aux\") [1] (input.aux) )",
+            "Output written on input.dvi (1 page, 912 bytes).",
+            "Transcript written on input.log."
+          ],
+          "prepared": "\\usepackage{tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx}\n\\begin{document}\n\\begin{tikzpicture}\\draw(0,0)--(1,1);\\end{tikzpicture}\n\\end{document}"
+        }
+      ],
+      "violations": [],
+      "origin": "http://127.0.0.1:38279"
+    }
+  },
+  "requestCount": 11,
+  "requests": [
+    "/",
+    "/smoke.js",
+    "/favicon.ico",
+    "/static/tikzjax-e374921f/run-tex.js",
+    "/static/tikzjax-e374921f/tex.wasm.gz",
+    "/static/tikzjax-e374921f/core.dump.gz",
+    "/static/tikzjax-e374921f/tex_files/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.gz",
+    "/static/tikzjax-e374921f/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "/static/tikzjax-e374921f/tex_files/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.gz",
+    "/static/tikzjax-e374921f/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "/static/tikzjax-e374921f/tex_files/l3backend-dvips.def.gz"
+  ]
+}

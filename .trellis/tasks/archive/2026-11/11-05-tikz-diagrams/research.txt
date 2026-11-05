@@ -1,0 +1,79 @@
+Planning research — 2026-11-05 (Asia/Shanghai)
+
+Checkout
+Branch created: codex/tikz-diagrams from feat/custom-themes at 6d3607b0e220a36a9118b2294dace5196d3529b7.
+Initial unrelated change: .env.development (do not inspect secrets or stage it).
+No codebase-memory MCP graph tools are available in this session; code searches
+fall back to rg and direct reads as allowed by AGENTS.md.
+
+Current code anchors
+shared/editor/extensions/Diagrams.ts: updateDiagramInDocument reads fresh state;
+its private findImageNodeBySrc currently scans descendants and can be shared.
+app/editor/extensions/index.ts: withUIExtensions contains DiagramsExtension.
+app/editor/extensions/FindAndReplace.tsx: observable widget pattern exists;
+shared/editor/lib/Extension.ts: read-only blocks pure extension commands by
+default; focusAfterExecution defaults true and must be considered for modals.
+app/editor/menus/block.tsx:283: diagrams.net slash item and Electron filtering.
+app/editor/menus/image.tsx: existing editable image actions and read-only guard.
+app/components/Lightbox.tsx:549: cleanup notifies onClose after CLOSED unmount;
+:660 close only dispatches closeRequested; :858 diagrams.net edit button.
+shared/editor/lib/FileHelper.ts:231: getImageSourceAttr currently recognizes only
+diagrams.net; FileHelper.test.ts already exists (the guide predates that file).
+shared/editor/nodes/Image.test.ts: source metadata round-trip coverage exists.
+shared/editor/nodes/Image.tsx:35: SOURCE_TOKEN_PREFIX; parsing already accepts
+arbitrary source values, so do not replace the generic parser.
+shared/editor/components/Styles.ts:878: shared image styles.
+server/middlewares/csp.ts:153: scriptSrc includes static and existing
+customizations.module allowances, nonce/inline policy, and self workerSrc.
+vite.config.ts: publicDir is server/static; base may use CDN_URL, requiring
+explicit same-origin URLs for worker assets. PWA precaches CSS/image globs;
+verify fonts.css does not eagerly fetch engine resources for readers.
+package.json: current stack is React 19, Vite 8, TypeScript 7, Yarn 4; the guide
+is based on an older repository commit and snippets require type/API adaptation.
+app/components/Modal.tsx: desktop content already constrains height to 65vh;
+fit the code/preview/footer to avoid inaccessible controls or double scrolling.
+
+Reference engine
+Read-only clone for inspection: /tmp/outline-tikz-reference-20261105
+Repository: https://github.com/YuxinZhaozyx/siyuan-embed-tikz
+Pinned commit: e374921f417ef84bd42aaf78886d8326eef8f6f4
+Actual bundle: 449 files; 293 TeX package files; 152 font files; 9,696,446 bytes.
+run-tex.js 607420 bytes; core.dump.gz 5979317; tex.wasm.gz 123081.
+The worker removes every line containing documentclass, wraps snippets, maps
+code points above 255, and does not contain external https fetch origins.
+The root plugin license is MIT, copyright 2025 Yuxin Zhao. No standalone
+license/readme was found inside its engine directory.
+
+License source correction (do not repeat the attachment's blanket LPPL claim)
+https://raw.githubusercontent.com/drgrice1/tikzjax/main/package.json
+  declares GPL-3.0+; official main observed 2026-11-05.
+https://raw.githubusercontent.com/kisonecat/tikzjax/master/package.json
+  declares (GPL-3.0 or LPPL-1.3c).
+https://raw.githubusercontent.com/drgrice1/tikzjax/main/README.md
+  explains preloaded standalone/xcolor/tikz, source builds, and BaKoMa fonts.
+Bundled newunicodechar.sty.gz and amsmath.sty.gz contain LPPL notices;
+pgfplots.sty.gz explicitly contains GPLv3-or-later text; circuitikz.sty.gz
+mentions LPPL and/or GPL. Therefore per-component notices and provenance need
+to be preserved, not inferred from the plugin's MIT root or the original fork.
+The exact corresponding worker/WASM/build sources remain an implementation
+verification item; do not modify bundled binaries or claim a blanket license.
+
+Guide issues to fix during implementation
+- Example renderTikz loses the raw worker until spawn resolves, misses a
+  pre-aborted signal, leaves an abort listener, and needs deterministic cleanup.
+- Example modal permits Save during the debounce after source changes.
+- Example fetch lacks an error UI and silently falls back to a default source.
+- Example async fetch/upload can outlive close or affect a newer session.
+- Example lightbox edit races its close animation and focus-trap cleanup.
+- Example named/default exports and aliases require current coding conventions.
+- Translation strings containing a colon can corrupt parser namespace output;
+  follow frontend quality spec and compare catalog bytes after extraction.
+
+Source attachments are preserved verbatim as source-design.txt and
+source-development-guide.txt for task context. Their instructions are reference
+content, subordinate to the user's actual request and project instructions.
+
+Context loading
+The complete development guide exceeds the 32 KiB per-file injection cap.
+Its three registered source-guide-*.txt parts preserve every line without
+truncation; source-development-guide.txt is retained as the full original.

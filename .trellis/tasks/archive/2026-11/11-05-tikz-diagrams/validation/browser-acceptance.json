@@ -1,0 +1,65 @@
+{
+  "checks": [
+    {
+      "name": "saved SVG reload and original source metadata",
+      "status": "passed",
+      "sourceLength": 202
+    },
+    {
+      "name": "reopen exact source and same-origin real worker with external page requests blocked",
+      "status": "passed"
+    },
+    {
+      "name": "save disabled immediately during debounce and previous preview retained",
+      "status": "passed"
+    },
+    {
+      "name": "E02 exact Chinese copy original line raw log bounded region",
+      "status": "passed",
+      "text": "第 3 行：渲染引擎不支持宏包 tikz-missing-acceptance。请移除该声明或改用支持的 TikZ 库。\n\nFile `tikz-missing-acceptance.sty' not found.\n\nThis is e-TeX, Version 3.141592653-2.6 (preloaded format=latex 2025.6.13)\n**entering extended mode\n(input.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(TeXinputs:\"tikz-missing-acceptance.sty\") (\"l3backend-dvips.def\")\n(TeXinputs:\"input.aux\") [1] (input.aux) )\nOutput written on input.dvi (1 page, 912 bytes).\nTranscript written on input.log.",
+      "height": 120,
+      "maxHeight": "120px"
+    },
+    {
+      "name": "E03 real infinite-loop worker timeout and responsive dialog",
+      "status": "passed",
+      "milliseconds": 10705
+    },
+    {
+      "name": "E01 exact Chinese compile failure and TeX details",
+      "status": "passed"
+    },
+    {
+      "name": "full standalone TikZ-CD Chinese font skip border and original metadata",
+      "status": "TikZ 图表\n代码\nLaTeX\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n\\documentclass[tikz,border=7pt]{standalone}\n\\usepackage{ctex}\n\\usepackage{tikz-cd}\n\\setCJKmainfont{Noto Sans CJK SC}\n\\begin{document}\n\\begin{tikzcd}\nA \\arrow[r,\"f\"] \\arrow[d,\"g\"'] & B \\arrow[d,\"h\"] \\\\\nC \\arrow[r,\"k\"'] & D\n\\end{tikzcd}\n\\begin{tikzpicture}\\node {中文测试};\\end{tikzpicture}\n\\end{document}\n完整文档\n已跳过 ctex\n非拉丁文字使用系统字体\n留白 7pt\n预览\n取消\n保存"
+    },
+    {
+      "name": "E05 failed attachment save retains source preview and original document",
+      "status": "passed"
+    },
+    {
+      "name": "edit uploaded through actual attachment API",
+      "status": "passed"
+    },
+    {
+      "name": "dark screen image filter and light print PDF",
+      "status": "passed"
+    },
+    {
+      "name": "exact edited full source after save reload and white dark-mode preview",
+      "status": "passed"
+    },
+    {
+      "name": "E08 real no-output compilation exact Chinese copy",
+      "status": "passed"
+    },
+    {
+      "name": "production CSP has no violations",
+      "status": "passed"
+    }
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 400 (Bad Request)"
+  ],
+  "cspErrors": []
+}

@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "name": "paste SiYuan-compatible SVG uses actual attachment flow and detects TikZ source",
+      "status": "passed"
+    },
+    {
+      "name": "import edit restores exact CDATA source including Chinese and angle bracket",
+      "status": "passed"
+    },
+    {
+      "name": "ordinary pasted image stays unchanged in dark mode",
+      "status": "passed"
+    }
+  ],
+  "errors": []
+}

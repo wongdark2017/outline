@@ -1,0 +1,678 @@
+
+用户常把 Overleaf 或本地 `.tex` 文件整段粘进对话框，里面带着 `\documentclass`、导言区和中文。第 0 步复制的 `run-tex.js` 已经能编译大部分这样的文档；这一步补上它漏掉的四种情况，并在对话框里说明代码被识别成了什么。存进 SVG 的始终是用户粘贴的原文，第 3 步的格式不变。
+
+### 引擎已经做了什么
+
+插件修改过的 `texify()` 在编译前会这样改写输入（`run-tex.js` 是压缩后的代码，可以搜索 `codePointAt(0)>255` 找到这一段）：
+
+| 输入 | `texify()` 的处理 | 结果 |
+| --- | --- | --- |
+| `\documentclass` 所在行 | 整行删除；格式文件已预载 `\documentclass[margin=0pt]{standalone}`、`\usepackage[svgnames]{xcolor}`、`\usepackage{tikz}` | 类选项全部丢失，包括 `border` |
+| `\begin{document}` 之前的内容 | 原样作为导言区 | `\usetikzlibrary`、`\usepackage`、`\def` 生效 |
+| 没有 `\begin{document}` | 整段放进 `document` 环境 | 片段里的 `\usepackage` 报 Can be used only in preamble |
+| 码位大于 U+00FF 的字符 | 用 `newunicodechar` 换成 `[U+XXXX]` 占位，生成 SVG 后换回原字符 | node 中的中文可以显示，字体由读者的系统提供 |
+| 空行 | 删除 | 不影响绘图 |
+
+### 还缺什么
+
+1. `border`、`margin` 随 `\documentclass` 一起被删。用 standalone 自带的 `\standaloneconfig{border=…}` 放回导言区。
+2. `ctex`、`xeCJK`、`CJKutf8`、`fontspec` 不在 `tex_files/` 中，而中文文档最常带的就是它们。引擎已经自己处理中文，注释掉这些行和 `\setCJKmainfont`、`\ctexset` 等命令即可。
+3. `\usepackage[dvipsnames]{xcolor}` 与预载的 xcolor 冲突，报 Option clash。去掉这一行，`svgnames` 的颜色名仍然可用。
+4. 片段中的 `\usepackage` 要先移到 `\begin{document}` 之前。这也是第 6 步默认模板能只写 `tikzpicture` 的前提。
+
+### 新建 `app/editor/lib/tikz/prepareSource.ts`
+
+```typescript
+/** What the dialog's status bar says about the source. */
+export type SourceInfo = {
+  /** True when the source has its own \begin{document}. */
+  isDocument: boolean;
+  /** The class named by \documentclass, if any. The engine drops the line. */
+  documentClass?: string;
+  /** The standalone border or margin, carried over with \standaloneconfig. */
+  border?: string;
+  /** Libraries loaded with \usetikzlibrary. */
+  libraries: string[];
+  /** Packages loaded with \usepackage, after the CJK ones are dropped. */
+  packages: string[];
+  /** CJK font packages that were commented out. */
+  skippedPackages: string[];
+  /** True when the source has characters above U+00FF, such as Chinese. */
+  hasWideChars: boolean;
+};
+
+export type PreparedSource = {
+  /** The text passed to texify(). Never stored: the SVG keeps the original. */
+  tex: string;
+  info: SourceInfo;
+};
+
+/**
+ * Font setup packages for CJK text. None of them ships with the engine, and
+ * run-tex.js already draws characters above U+00FF itself.
+ */
+const CJK_PACKAGES = new Set([
+  "ctex",
+  "xeCJK",
+  "CJKutf8",
+  "CJK",
+  "fontspec",
+  "xunicode",
+  "xltxtra",
+]);
+
+/**
+ * Loaded by the engine's format as \usepackage[svgnames]{xcolor} and
+ * \usepackage{tikz}. Asking again with other options is an "Option clash".
+ */
+const PRELOADED = new Set(["tikz", "pgf", "xcolor"]);
+
+/** Commands that only work with the packages above. */
+const CJK_COMMAND =
+  /^\s*\\(?:setCJK\w*font|set(?:main|sans|mono)font|ctexset|xeCJKsetup)\b|^\s*\\(?:begin|end)\s*\{CJK\*?\}/;
+
+const BEGIN_DOCUMENT = /\\begin\s*\{\s*document\s*\}/i;
+const DOCUMENT_CLASS = /\\documentclass\s*(?:\[([^\]]*)\])?\s*\{([^}]*)\}/;
+const BORDER_OPTION = /(?:^|,)\s*(?:border|margin)\s*=\s*(\{[^}]*\}|[^,]+)/;
+const USE_PACKAGE = /\\usepackage\s*(\[[^\]]*\])?\s*\{([^}]*)\}/g;
+const USE_LIBRARY = /\\usetikzlibrary\s*\{([^}]*)\}/g;
+const PREAMBLE_ONLY = /^\s*\\(?:usepackage|usetikzlibrary)\b/;
+
+/** Removes a TeX comment, keeping an escaped \%. */
+function stripComment(line: string) {
+  return line.replace(/(^|[^\\])%.*$/, "$1");
+}
+
+function splitNames(list: string) {
+  return list
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Turns what the user typed or pasted into input that run-tex.js compiles
+ * the same way a local pdfLaTeX run of a standalone document would.
+ *
+ * @param source - a tikzpicture snippet or a full .tex document.
+ * @returns the text for texify() and what was recognised in it.
+ */
+export function prepareSource(source: string): PreparedSource {
+  const lines = source.split(/\r?\n/);
+  const info: SourceInfo = {
+    isDocument: lines.some((line) => BEGIN_DOCUMENT.test(stripComment(line))),
+    libraries: [],
+    packages: [],
+    skippedPackages: [],
+    hasWideChars: /[^\u0000-\u00ff]/u.test(source),
+  };
+
+  const out = lines.map((line) => {
+    const code = stripComment(line);
+
+    const docClass = code.match(DOCUMENT_CLASS);
+    if (docClass) {
+      info.documentClass = docClass[2].trim();
+      const border = (docClass[1] ?? "").match(BORDER_OPTION);
+      if (border && info.documentClass === "standalone") {
+        info.border = border[1].trim();
+      }
+      return line; // run-tex.js removes every \documentclass line itself
+    }
+
+    if (CJK_COMMAND.test(code)) {
+      return `% ${line}`;
+    }
+
+    for (const match of code.matchAll(USE_LIBRARY)) {
+      info.libraries.push(...splitNames(match[1]));
+    }
+
+    if (!code.includes("\\usepackage")) {
+      return line;
+    }
+    let dropped = false;
+    const rewritten = code.replace(
+      USE_PACKAGE,
+      (_all, options: string | undefined, list: string) => {
+        const names = splitNames(list);
+        info.packages.push(...names.filter((name) => !CJK_PACKAGES.has(name)));
+        const keep = names.filter((name) => {
+          if (CJK_PACKAGES.has(name)) {
+            info.skippedPackages.push(name);
+            return false;
+          }
+          // Already loaded; the options would only cause an option clash.
+          return !(options && PRELOADED.has(name));
+        });
+        dropped ||= keep.length !== names.length;
+        return keep.length ? `\\usepackage${options ?? ""}{${keep.join(",")}}` : "";
+      }
+    );
+    if (!dropped) {
+      return line;
+    }
+    return rewritten.trim() ? `${rewritten} % ${line.trim()}` : `% ${line}`;
+  });
+
+  // Snippets: \usepackage is only allowed before \begin{document}.
+  let tex: string;
+  if (info.isDocument) {
+    tex = out.join("\n");
+  } else {
+    const preamble = out.filter((line) => PREAMBLE_ONLY.test(line));
+    const body = out.filter((line) => !PREAMBLE_ONLY.test(line));
+    tex = [...preamble, "\\begin{document}", ...body, "\\end{document}"].join("\n");
+  }
+
+  if (info.border) {
+    tex = `\\standaloneconfig{border=${info.border}}\n${tex}`;
+  }
+
+  return { tex, info };
+}
+
+/** A TeX error trimmed for the dialog, with a readable cause when known. */
+export type TexProblem = {
+  /** From the first "!" line to the "l.<n>" line of the log. */
+  detail: string;
+  /** A package named in "File `x.sty' not found". */
+  missingPackage?: string;
+  /** The 1-based line of the user's source that loads that package. */
+  line?: number;
+};
+
+/**
+ * Picks the part of a TeX log a person needs, and maps a missing package back
+ * to the user's own line number. The log's "l.<n>" counts lines of the
+ * prepared input, which differ from the editor's.
+ *
+ * @param error - the error message returned by renderTikz().
+ * @param source - the source as the user typed it.
+ */
+export function describeTexError(error: string, source: string): TexProblem {
+  const logLines = error.split(/\r?\n/);
+  const start = logLines.findIndex((line) => line.startsWith("!"));
+  let detail = error;
+  if (start >= 0) {
+    const end = logLines.findIndex((line, i) => i > start && /^l\.\d+/.test(line));
+    detail = logLines
+      .slice(start, end >= 0 ? end + 1 : start + 12)
+      .join("\n")
+      .trim();
+  }
+
+  const missing = error.match(/File `([^']+)\.sty' not found/);
+  if (!missing) {
+    return { detail };
+  }
+  const name = missing[1];
+  const index = source.split(/\r?\n/).findIndex((line) => {
+    const code = stripComment(line);
+    return [...code.matchAll(USE_PACKAGE)].some((m) => splitNames(m[2]).includes(name));
+  });
+  return {
+    detail,
+    missingPackage: name,
+    line: index >= 0 ? index + 1 : undefined,
+  };
+}
+```
+
+### 接入 `renderTikz()`
+
+回到第 2 步的 `renderTikz.ts` 改两处。交给 `texify()` 的是准备好的文本，`embedSource()` 仍然拿原文：
+
+```typescript
+// At the top of the file
+import { prepareSource } from "./prepareSource";
+
+// The last line of run()
+    return worker.texify(prepareSource(source).tex, { embedFonts: true });
+```
+
+### 对话框：状态栏与错误说明
+
+在第 7 步的 `TikzEditor.tsx` 中，代码区下方加一条状态栏，告诉用户这段代码会按「片段」还是「完整文档」编译、加载了哪些库、跳过了哪些宏包。状态栏只读 `prepareSource()` 的 `info`，不需要等渲染。缺宏包时，错误区先用一句话指出是第几行，下面再放裁剪过的 TeX 原文。
+
+导入和两个新值：
+
+```tsx
+import { describeTexError, prepareSource } from "../lib/tikz/prepareSource";
+import type { SourceInfo } from "../lib/tikz/prepareSource";
+
+// In TikzEditor, after the state hooks
+const info = React.useMemo(() => prepareSource(source).info, [source]);
+const problem = error ? describeTexError(error, source) : undefined;
+```
+
+把 `<Code ref={editorRef} />` 和原来的 `ErrorMessage` 换成：
+
+```tsx
+      <Flex gap={16}>
+        <CodeColumn column>
+          <Code ref={editorRef} />
+          <SourceStatus info={info} missingPackage={problem?.missingPackage} />
+        </CodeColumn>
+        <Preview align="center" justify="center">
+          {/* unchanged */}
+        </Preview>
+      </Flex>
+      {problem && (
+        <div role="alert">
+          {problem.missingPackage && (
+            <ErrorHint>
+              {problem.line
+                ? t(
+                    "Line {{line}}: the {{name}} package isn't available in the renderer. Remove the line or use a TikZ library instead.",
+                    { line: problem.line, name: problem.missingPackage }
+                  )
+                : t("The {{name}} package isn't available in the renderer.", {
+                    name: problem.missingPackage,
+                  })}
+            </ErrorHint>
+          )}
+          <ErrorMessage>{problem.detail}</ErrorMessage>
+        </div>
+      )}
+```
+
+在同一个文件中加状态栏组件。`Code` 的高度和边框移到 `CodeColumn` 上，状态栏才能贴在代码区底部：
+
+```tsx
+type SourceStatusProps = {
+  /** What prepareSource() recognised in the current code. */
+  info: SourceInfo;
+  /** A package the last render could not find. */
+  missingPackage?: string;
+};
+
+/** One line under the code saying how it will be compiled. */
+function SourceStatus({ info, missingPackage }: SourceStatusProps) {
+  const { t } = useTranslation();
+  return (
+    <StatusBar align="center" gap={10}>
+      <Badge>{info.isDocument ? t("Full document") : t("TikZ snippet")}</Badge>
+      {missingPackage && (
+        <Badge $danger>{t("{{name}} unavailable", { name: missingPackage })}</Badge>
+      )}
+      {info.libraries.length > 0 && (
+        <span>
+          {t("Libraries")} {info.libraries.join(" · ")}
+        </span>
+      )}
+      {info.skippedPackages.length > 0 && (
+        <span>
+          {t("Skipped {{names}}", { names: info.skippedPackages.join(", ") })}
+        </span>
+      )}
+      {info.hasWideChars && <span>{t("Non-Latin text uses the system font")}</span>}
+      {info.border && <span>{t("Border {{border}}", { border: info.border })}</span>}
+      {!info.isDocument && info.libraries.length === 0 && (
+        <span>{t("You can also paste a full .tex document")}</span>
+      )}
+    </StatusBar>
+  );
+}
+
+const CodeColumn = styled(Flex)`
+  flex: 1;
+  min-width: 0;
+  height: 60vh;
+  overflow: hidden;
+  border: 1px solid ${s("inputBorder")};
+  border-radius: 4px;
+`;
+
+// Replaces the Code from step 7: the column now carries height and border.
+const Code = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  font-size: 14px;
+`;
+
+const StatusBar = styled(Flex)`
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+  border-top: 1px solid ${s("inputBorder")};
+  font-size: 12px;
+  color: ${s("textSecondary")};
+`;
+
+const Badge = styled.span<{ $danger?: boolean }>`
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+  background: ${s("backgroundSecondary")};
+  color: ${(props) => (props.$danger ? props.theme.danger : props.theme.text)};
+`;
+
+const ErrorHint = styled.p`
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${s("danger")};
+`;
+```
+
+新增的文字都用 `t()` 包裹，第 9 步的 `yarn build:i18n` 会把它们加进 `en_US`。中文译文（提交给 Crowdin 参考）：
+
+```json
+  "Full document": "完整文档",
+  "TikZ snippet": "TikZ 片段",
+  "{{name}} unavailable": "{{name}} 不可用",
+  "Libraries": "库",
+  "Skipped {{names}}": "已跳过 {{names}}",
+  "Non-Latin text uses the system font": "中文等文字用系统字体显示",
+  "Border {{border}}": "留白 {{border}}",
+  "You can also paste a full .tex document": "也可以直接粘贴完整的 .tex 文档",
+  "Line {{line}}: the {{name}} package isn't available in the renderer. Remove the line or use a TikZ library instead.": "第 {{line}} 行的 {{name}} 宏包不在渲染引擎中，删除这一行或改用 TikZ 自带的库即可。",
+  "The {{name}} package isn't available in the renderer.": "渲染引擎中没有 {{name}} 宏包。"
+```
+
+### 测试 —— `app/editor/lib/tikz/prepareSource.test.ts`
+
+这两个函数是纯字符串处理，不需要引擎。把这个文件加进第 11 步的 `yarn test` 命令一起运行：
+
+```typescript
+import { describe, expect, it } from "vitest";
+import { describeTexError, prepareSource } from "./prepareSource";
+
+const ellipse = String.raw`\documentclass[tikz,border=5mm]{standalone}
+\usetikzlibrary{angles, quotes, calc}
+
+\begin{document}
+\begin{tikzpicture}[scale=1.5]
+  \draw[thick, blue] (0,0) ellipse ({2.236} and {1.414});
+  \node[below] at (0, -1.8) {图 1：椭圆几何关系示意图};
+\end{tikzpicture}
+\end{document}`;
+
+describe("prepareSource", () => {
+  it("keeps a full document and carries the border over", () => {
+    const { tex, info } = prepareSource(ellipse);
+    expect(info).toMatchObject({
+      isDocument: true,
+      documentClass: "standalone",
+      border: "5mm",
+      libraries: ["angles", "quotes", "calc"],
+      hasWideChars: true,
+    });
+    expect(tex).toBe(`\\standaloneconfig{border=5mm}\n${ellipse}`);
+  });
+
+  it("moves \\usepackage out of a snippet", () => {
+    const { tex, info } = prepareSource(
+      "\\usepackage{pgfplots}\n\\begin{tikzpicture}\n\\end{tikzpicture}"
+    );
+    expect(info.isDocument).toBe(false);
+    expect(tex).toBe(
+      "\\usepackage{pgfplots}\n\\begin{document}\n\\begin{tikzpicture}\n\\end{tikzpicture}\n\\end{document}"
+    );
+  });
+
+  it("comments out CJK font setup", () => {
+    const { tex, info } = prepareSource(
+      "\\usepackage[UTF8]{ctex}\n\\usepackage{amsmath,xeCJK}\n\\setCJKmainfont{SimSun}\n\\begin{document}\\end{document}"
+    );
+    expect(info.skippedPackages).toEqual(["ctex", "xeCJK"]);
+    expect(info.packages).toEqual(["amsmath"]);
+    expect(tex.split("\n").slice(0, 3)).toEqual([
+      "% \\usepackage[UTF8]{ctex}",
+      "\\usepackage{amsmath} % \\usepackage{amsmath,xeCJK}",
+      "% \\setCJKmainfont{SimSun}",
+    ]);
+  });
+
+  it("drops options on packages the format already loads", () => {
+    const { tex } = prepareSource(
+      "\\usepackage[dvipsnames]{xcolor}\n\\begin{document}\\end{document}"
+    );
+    expect(tex.split("\n")[0]).toBe("% \\usepackage[dvipsnames]{xcolor}");
+  });
+
+  it("only reads border from standalone and ignores commented code", () => {
+    expect(
+      prepareSource("\\documentclass[border=5mm]{article}").info.border
+    ).toBeUndefined();
+    expect(
+      prepareSource("\\node {50\\%}; % \\usepackage{ctex}").info.skippedPackages
+    ).toEqual([]);
+  });
+});
+
+describe("describeTexError", () => {
+  it("maps a missing package to the user's line", () => {
+    const source = ellipse.replace(
+      "calc}\n",
+      "calc}\n\\usepackage{pgf-pie}\n"
+    );
+    const log = [
+      "fail to generate dvi, log:",
+      "(./input.tex",
+      "! LaTeX Error: File `pgf-pie.sty' not found.",
+      "",
+      "Enter file name: ",
+      "! Emergency stop.",
+      "l.4 \\begin",
+      "           {document}",
+    ].join("\n");
+    const problem = describeTexError(log, source);
+    expect(problem).toMatchObject({ missingPackage: "pgf-pie", line: 3 });
+    expect(problem.detail.split("\n")[0]).toBe(
+      "! LaTeX Error: File `pgf-pie.sty' not found."
+    );
+    expect(problem.detail.endsWith("l.4 \\begin")).toBe(true);
+  });
+
+  it("passes other errors through", () => {
+    expect(describeTexError("Render took longer than 10s", "").detail).toBe(
+      "Render took longer than 10s"
+    );
+  });
+});
+```
+
+### 容易出错的地方
+
+- **SVG 里存原文，不存 `tex`。** 如果 `embedSource()` 拿到改写后的文本，再次编辑时用户会看到多出的 `\standaloneconfig` 和被注释的行，思源插件读回的也是改写后的代码。
+- **不要用日志里的行号。** `texify()` 删掉了空行，又在前面加了 `newunicodechar` 定义，日志中的 `l.<n>` 对不上编辑器的行号。所以 `describeTexError()` 从原文里找 `\usepackage` 所在的行。
+- **中文字体不嵌入。** SVG 里的中文用读者的系统字体显示，不同系统的字形不同；没有中文字体的设备会显示方框。每个字占 `\phantom{xx}` 的宽度，与 10pt 正文里的中文字宽接近。
+- **其他文档类也按 standalone 编译。** `ctexart`、`article` 的版面命令照常执行但不会分页，只保证 `tikzpicture` 的结果与本地一致。
+
+## 第 11 步 —— 测试
+
+`app/` 下的测试在 jsdom 中运行（`vitest.config.ts` 的 `app` 项目），`DOMParser` 和 `XMLSerializer` 都可用。TeX 引擎本身不在单元测试中运行，用 mock 代替。
+
+### 元数据 —— `app/editor/lib/tikz/svg.test.ts`
+
+```typescript
+import { embedSource, extractSource } from "./svg";
+
+const svg =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">' +
+  '<path d="M0 0" onclick="alert(1)"/><script>alert(1)</script></svg>';
+const source = String.raw`\begin{tikzpicture}\node {$a<b \& c$};\end{tikzpicture}`;
+
+describe("embedSource", () => {
+  it("round-trips source containing XML special characters", () => {
+    expect(extractSource(embedSource(svg, source))).toBe(source);
+  });
+
+  it("removes scripts and event handlers", () => {
+    const output = embedSource(svg, source);
+    expect(output).not.toContain("onclick");
+    expect(output).not.toContain("alert(1)");
+  });
+
+  it("throws when TeX did not produce an SVG", () => {
+    expect(() => embedSource("<html/>", source)).toThrow();
+  });
+});
+
+describe("extractSource", () => {
+  it("reads SVGs written by siyuan-embed-tikz", () => {
+    // The plugin escapes the source with escapeHTML before inserting it.
+    const siyuan =
+      '<svg xmlns="http://www.w3.org/2000/svg"><metadata>' +
+      '<script type="text/x-tikz">\\node {$a&lt;b$};</script>' +
+      "</metadata></svg>";
+    expect(extractSource(siyuan)).toBe("\\node {$a<b$};");
+  });
+
+  it("returns undefined for other SVGs", () => {
+    expect(extractSource(svg)).toBeUndefined();
+  });
+});
+```
+
+### 超时 —— `app/editor/lib/tikz/renderTikz.test.ts`
+
+```typescript
+import { vi } from "vitest";
+
+const { terminate } = vi.hoisted(() => ({ terminate: vi.fn() }));
+
+vi.mock("threads", () => ({
+  Worker: vi.fn(),
+  Thread: { terminate },
+  spawn: vi.fn(async () => ({
+    load: vi.fn(async () => undefined),
+    // Never resolves, like TeX stuck in a loop.
+    texify: vi.fn(() => new Promise(() => undefined)),
+  })),
+}));
+
+import { renderTikz } from "./renderTikz";
+
+describe("renderTikz", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    terminate.mockClear();
+  });
+
+  it("terminates the worker when TeX never returns", async () => {
+    vi.useFakeTimers();
+    const promise = renderTikz(String.raw`\def\x{\x}\x`);
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    const result = await promise;
+    expect(result.ok).toBe(false);
+    expect(terminate).toHaveBeenCalledTimes(1);
+  });
+
+  it("terminates the worker when aborted", async () => {
+    const controller = new AbortController();
+    const promise = renderTikz("", controller.signal);
+    // Abort before the worker has finished starting.
+    controller.abort();
+
+    expect((await promise).ok).toBe(false);
+    expect(terminate).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### 存储格式 —— `shared/editor/nodes/Image.test.ts`
+
+照着已有的 diagrams.net 用例加一个：
+
+```typescript
+  it("round-trips a TikZ image without losing source", () => {
+    const doc1 = parser.parse(
+      `![](https://example.com/diagram.svg "source=${ImageSource.Tikz}")`
+    );
+    const doc2 = parser.parse(serializer.serialize(doc1));
+    expect(findImageNode(doc2).attrs.source).toBe(ImageSource.Tikz);
+  });
+```
+
+### 识别 —— `shared/editor/lib/FileHelper.test.ts`
+
+```typescript
+import FileHelper, { ImageSource } from "./FileHelper";
+
+describe("getImageSourceAttr", () => {
+  it("detects SVGs carrying TikZ source", async () => {
+    const file = new File(
+      [
+        '<svg xmlns="http://www.w3.org/2000/svg"><metadata>' +
+          '<script type="text/x-tikz">x</script></metadata></svg>',
+      ],
+      "diagram.svg",
+      { type: "image/svg+xml" }
+    );
+    expect(await FileHelper.getImageSourceAttr(file)).toBe(ImageSource.Tikz);
+  });
+});
+```
+
+运行：
+
+```bash
+yarn test app/editor/lib/tikz
+yarn test shared/editor/nodes/Image.test.ts shared/editor/lib/FileHelper.test.ts
+```
+
+### 手动端到端测试
+
+在 `https://local.outline.dev:3000` 上逐项确认：
+
+- [ ] `/tikz` 打开对话框，默认模板在几秒内出现预览
+- [ ] 用 tikz-cd、pgfplots、circuitikz 各画一张图，公式字体正确
+- [ ] 输入 `\def\x{\x}\x`，10 秒后显示超时错误，页面始终可操作
+- [ ] 保存、刷新、点「编辑 TikZ」，代码原样还原
+- [ ] 从思源笔记导出一张 TikZ SVG 上传，可以编辑
+- [ ] 断开网络（只保留到 Outline 的连接），仍然可以渲染
+- [ ] 切换到暗色主题，图表清晰可见
+- [ ] 在 `yarn build && yarn start` 的生产构建上重复一次，控制台没有 CSP 报错
+- [ ] 粘贴一份带 `\documentclass[tikz,border=5mm]{standalone}`、`\usetikzlibrary` 和中文 node 的完整文档：状态栏显示「完整文档」，预览四周留白 5mm，中文正常显示
+- [ ] 保存后点「编辑 TikZ」，读回的是粘贴的原文，包括 `\documentclass` 一行
+- [ ] 粘贴带 `\usepackage{ctex}` 和 `\setCJKmainfont` 的文档，可以编译，状态栏显示「已跳过 ctex」
+- [ ] 在导言区加一行 `\usepackage{pgf-pie}`，代码下方指出是第几行，预览保留上一张
+
+## 完成的标准
+
+**引擎**
+
+- [ ] `server/static/tikzjax/` 中有 `LICENSES.md`，许可证已确认
+- [ ] 引擎文件只通过同源 URL 加载，没有被 `import`；读者打开文档时网络面板里没有 `tikzjax` 请求
+- [ ] 超时和中止都会调用 `Thread.terminate`
+- [ ] CSP 只加了 `'wasm-unsafe-eval'`，没有加 `'unsafe-eval'`
+
+**编辑器**
+
+- [ ] 源码格式与思源插件一致，双向都能编辑
+- [ ] 保存时读取最新的编辑器状态，按 `src` 找回节点
+- [ ] 所有面向用户的文字都使用 `t()`；对话框可以用键盘操作和关闭
+- [ ] 整段粘贴的 `.tex` 文档（含类选项、导言区、中文、`ctex`）可以直接编译，再次编辑时读回原文
+
+**质量**
+
+- [ ] `yarn lint`、`yarn tsc` 和第 11 步的 `yarn test` 全部通过
+- [ ] 导出的函数和类都有 JSDoc
+- [ ] 第 11 步的手动检查全部完成，包括生产构建和离线环境
+- [ ] 提交到上游时：已在 issue 中与维护者达成一致，并签署 CLA
+
+## 常见问题
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| `Refused to compile or instantiate WebAssembly module` | CSP 缺少 `'wasm-unsafe-eval'` | 第 4 步；代理层的 CSP 也要加 |
+| `Failed to construct 'Worker'` | worker 脚本不同源（通常是用了 CDN 地址） | 用 `window.location.origin`，见第 1 步 |
+| 引擎加载失败，提示解压错误 | 代理给 `.gz` 加了 `Content-Encoding: gzip` | 去掉该头，原样提供字节 |
+| `LaTeX Error: File 'xxx.sty' not found` | 宏包不在 `tex_files/` 中 | 换用已支持的宏包，或从 TeX Live 取 `.sty` 压缩后放进 `tex_files/` |
+| 预览中公式字体不对 | 后处理删掉了 `<style>` | 只删 `<script>` 和 `on*` 属性，见第 3 步 |
+| 「编辑 TikZ」只显示默认模板 | 读取 SVG 失败（多为 S3 CORS）或图片已被替换 | 确认用了 `cache: "no-store"`；检查存储桶的 CORS |
+| 更新引擎后用户仍用旧版 | `/static` 带一年 `immutable` 缓存 | 改目录名并更新 `TIKZJAX_URL` |
+| 图中的中文显示为方框 | 读者设备没有中文字体；SVG 不嵌入中文字体（第 10 步） | 安装中文字体，或把这段文字写在图片外的正文里 |
+
+## 参考来源
+
+- [siyuan-embed-tikz](https://github.com/YuxinZhaozyx/siyuan-embed-tikz) —— `src/tikz.ts`、`src/editor.ts`、`src/libs/tikzjax/`（MIT）
+- [drgrice1/tikzjax](https://github.com/drgrice1/tikzjax) —— TikZJax 引擎（LPPL 1.3c）
+- 本仓库提交 `4169e8256` 中的 `shared/editor/extensions/Diagrams.ts`、`app/editor/extensions/FindAndReplace.tsx`、`server/middlewares/csp.ts`
