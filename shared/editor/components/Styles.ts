@@ -5,6 +5,7 @@ import styled, { css, keyframes } from "styled-components";
 import { HEADER_HEIGHT } from "../../constants";
 import { breakpoints, hover } from "../../styles";
 import { EditorStyleHelper } from "../styles/EditorStyleHelper";
+import { ImageSource } from "../lib/FileHelper";
 import { videoStyle } from "./Video";
 
 export type Props = {
@@ -879,6 +880,16 @@ iframe.embed {
   width: var(--image-width, auto);
 }
 
+@media screen {
+  .image img[data-source="${ImageSource.Tikz}"] {
+    filter: ${
+      props.theme.isDark && !props.staticHTML
+        ? "invert(1) hue-rotate(180deg)"
+        : "none"
+    };
+  }
+}
+
 /* Inside auto-layout table cells the plain pixel width would expand the cell  */
 td .image .image-wrapper,
 th .image .image-wrapper,
@@ -974,6 +985,20 @@ th .image .image-wrapper img {
   margin-right: 2em;
   margin-bottom: 1em;
   clear: initial;
+}
+
+// Aligned block images occupy their own row in both NodeViews and static HTML.
+:is(.image-left-50, .image-right-50):not(.image-icon) {
+  float: none;
+  width: fit-content;
+  clear: both;
+  margin-left: 0;
+  margin-right: auto;
+
+  &.image-right-50 {
+    margin-left: auto;
+    margin-right: 0;
+  }
 }
 
 .image-full-width {

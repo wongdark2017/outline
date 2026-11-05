@@ -284,6 +284,12 @@ export default function blockMenuItems(
       icon: <Img src="/images/diagrams.png" alt="Diagrams.net Diagram" />,
       keywords: "flowchart drawio draw.io whiteboard",
     },
+    {
+      name: "insertTikz",
+      title: t("TikZ diagram"),
+      icon: <Img src="/images/tikz.svg" alt="TikZ" />,
+      keywords: "tikz latex tex pgfplots circuitikz chemfig commutative",
+    },
   ];
 
   // Filter out diagrams.net in desktop app

@@ -1,0 +1,120 @@
+{
+  "checks": [
+    {
+      "name": "dark screen TikZ filter and light print",
+      "status": "passed"
+    },
+    {
+      "name": "initial code focus and Tab reaches code Cancel Save",
+      "status": "passed",
+      "tabs": [
+        {
+          "text": "取消",
+          "code": false,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "保存",
+          "code": false,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "",
+          "code": false,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "\\begin{tikzpicture}\n  \\draw[->",
+          "code": true,
+          "tag": "DIV"
+        },
+        {
+          "text": "取消",
+          "code": false,
+          "tag": "BUTTON"
+        },
+        {
+          "text": "保存",
+          "code": false,
+          "tag": "BUTTON"
+        }
+      ]
+    },
+    {
+      "name": "CodeMirror undo and redo preserve original text",
+      "status": "passed"
+    },
+    {
+      "name": "cancel upload and late actual API response cannot modify document or close newer dialog",
+      "status": "passed"
+    },
+    {
+      "name": "E06 exact source fetch error inside dialog with no template",
+      "status": "passed"
+    },
+    {
+      "name": "390px stacked panels bounded error visible footer",
+      "status": "passed",
+      "panels": [
+        {
+          "y": 60,
+          "width": 362
+        },
+        {
+          "y": 445.640625,
+          "width": 362
+        }
+      ],
+      "buttons": [
+        {
+          "text": "取消",
+          "bottom": 830,
+          "right": 324
+        },
+        {
+          "text": "保存",
+          "bottom": 830,
+          "right": 376
+        }
+      ],
+      "errorHeight": 21.4375
+    },
+    {
+      "name": "320px short viewport visible footer",
+      "status": "passed"
+    },
+    {
+      "name": "Escape closes failed-source dialog",
+      "status": "passed"
+    },
+    {
+      "name": "E07 exact missing metadata text",
+      "status": "passed"
+    },
+    {
+      "name": "E04 real worker startup network failure with code retained",
+      "status": "passed"
+    },
+    {
+      "name": "panel pointer stays open and backdrop closes",
+      "status": "passed"
+    },
+    {
+      "name": "lightbox closes before one source-focused editor opens",
+      "status": "passed"
+    },
+    {
+      "name": "cancel real compiling worker stays responsive and terminates worker",
+      "status": "passed",
+      "milliseconds": 323
+    },
+    {
+      "name": "production CSP no violations",
+      "status": "passed"
+    }
+  ],
+  "errors": [
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "cspErrors": []
+}

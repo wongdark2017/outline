@@ -71,10 +71,15 @@ describe("CSP customization modules", () => {
         "knowledge.example.com:8443/api/customizations.module/"
       );
       expect(sources).toContain(`'nonce-${context.state.cspNonce}'`);
+      expect(sources).toContain("'wasm-unsafe-eval'");
+      expect(sources).toContain("knowledge.example.com:8443/static/");
       expect(sources).not.toContain("knowledge.example.com:8443");
       expect(sources).not.toContain("'self'");
       expect(sources).not.toContain("'unsafe-inline'");
       expect(sources).not.toContain("'unsafe-eval'");
+      expect(context.response.get("Content-Security-Policy")).toContain(
+        "worker-src 'self'"
+      );
     } finally {
       env.DEVELOPMENT_UNSAFE_INLINE_CSP = previousInlinePolicy;
     }

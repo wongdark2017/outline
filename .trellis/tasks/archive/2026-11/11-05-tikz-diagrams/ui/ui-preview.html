@@ -1,0 +1,1008 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TikZ 界面设计预览 · Outline</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #fff;
+        --surface: #f8f9fa;
+        --modal: #fff;
+        --text: #333;
+        --secondary: #55555a;
+        --muted: #76767c;
+        --border: #dedee2;
+        --accent: #7719aa;
+        --accent-soft: #f1e8f7;
+        --selected: #ededef;
+        --danger: #c61d41;
+        --error-soft: #fff1f4;
+        --backdrop: rgba(0, 0, 0, 0.25);
+        --ui:
+          "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC",
+          "Source Han Sans SC", "Microsoft YaHei", "WenQuanYi Zen Hei",
+          "Segoe UI", sans-serif;
+        --mono:
+          Menlo, Monaco, "SF Mono", Consolas, "WenQuanYi Zen Hei Mono",
+          monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        color: var(--text);
+        background: var(--background);
+        font: 14px/1.55 var(--ui);
+      }
+      body.dark {
+        color-scheme: dark;
+        --background: #242428;
+        --surface: #1b1b1f;
+        --modal: #2c2c31;
+        --text: #eeeef0;
+        --secondary: #c0c0c6;
+        --muted: #a0a0a8;
+        --border: #55555d;
+        --accent-soft: #35213e;
+        --selected: #3b3b42;
+        --danger: #ff93aa;
+        --error-soft: #44232d;
+        --backdrop: rgba(0, 0, 0, 0.5);
+      }
+      button,
+      select {
+        font: inherit;
+      }
+      button {
+        color: inherit;
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: default;
+      }
+      button:focus-visible,
+      select:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid #a34ace;
+        outline-offset: 3px;
+      }
+      svg {
+        display: block;
+      }
+      .review-bar {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--border);
+        background: var(--modal);
+        position: relative;
+        z-index: 20;
+      }
+      .review-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--secondary);
+        white-space: nowrap;
+      }
+      .review-label b {
+        color: var(--accent);
+        margin-right: 8px;
+      }
+      .review-bar select {
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 4px 8px;
+        background: var(--modal);
+        color: var(--text);
+        min-width: 200px;
+      }
+      .review-note {
+        margin-left: auto;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .canvas {
+        height: calc(100dvh - 52px);
+        display: flex;
+        position: relative;
+        overflow: hidden;
+      }
+      .sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        background: var(--surface);
+        padding: 20px 12px 16px;
+        display: flex;
+        flex-direction: column;
+      }
+      .workspace-title {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 16px;
+        font-weight: 600;
+        padding: 0 9px 24px;
+      }
+      .workspace-mark {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font:
+          600 17px Georgia,
+          serif;
+      }
+      .nav-item {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 5px;
+        padding: 0 12px;
+        color: var(--secondary);
+        margin-bottom: 2px;
+      }
+      .nav-item.active {
+        background: var(--accent-soft);
+        color: var(--text);
+        font-weight: 500;
+      }
+      .nav-item .icon,
+      .workspace-title .chevron {
+        color: var(--muted);
+      }
+      .nav-title {
+        font-size: 12px;
+        color: var(--muted);
+        margin: 23px 12px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .nav-item.indent {
+        padding-left: 37px;
+        font-size: 13px;
+      }
+      .account {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 12px;
+        color: var(--secondary);
+        font-size: 13px;
+      }
+      .avatar {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #dcd1e3;
+        color: #5d386d;
+        display: grid;
+        place-items: center;
+        font: 600 11px var(--ui);
+      }
+      .workspace {
+        flex: 1;
+        min-width: 0;
+        background: var(--background);
+      }
+      .topbar {
+        height: 64px;
+        padding: 0 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .topbar-right {
+        margin-left: auto;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+      .share {
+        border: 1px solid var(--border);
+        padding: 4px 13px;
+        border-radius: 5px;
+        color: var(--text);
+        font-size: 13px;
+      }
+      .document {
+        width: min(760px, calc(100% - 112px));
+        margin: 50px auto;
+        position: relative;
+      }
+      .document-icon {
+        font-size: 35px;
+        margin-bottom: 17px;
+        color: var(--accent);
+        font-family: Georgia, serif;
+      }
+      .document h1 {
+        font-size: 34px;
+        font-weight: 600;
+        line-height: 1.3;
+        margin: 0 0 16px;
+        letter-spacing: -0.8px;
+      }
+      .document-meta {
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 42px;
+      }
+      .document p {
+        margin: 19px 0;
+        font-size: 16px;
+        line-height: 1.95;
+      }
+      .document h2 {
+        font-size: 23px;
+        font-weight: 600;
+        margin: 34px 0 12px;
+      }
+      .document .formula {
+        font:
+          italic 22px/1.6 Georgia,
+          serif;
+        margin: 18px 0 28px;
+      }
+      .cursor-line {
+        margin-top: 23px;
+        padding: 5px 0;
+        position: relative;
+        font: 20px/1.6 var(--mono);
+      }
+      .caret {
+        width: 1.5px;
+        height: 22px;
+        background: var(--accent);
+        display: inline-block;
+        vertical-align: -4px;
+      }
+      .slash-menu {
+        width: 330px;
+        margin: 8px 0 0;
+        padding: 6px;
+        border-radius: 8px;
+        box-shadow:
+          0 0 0 1px rgb(0 0 0 / 7%),
+          0 4px 16px rgb(0 0 0 / 12%);
+        background: var(--surface);
+      }
+      .menu-row {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        height: 48px;
+        border: 0;
+        text-align: left;
+        background: transparent;
+        border-radius: 5px;
+        padding: 0 10px;
+      }
+      .menu-row.chosen {
+        background: var(--selected);
+      }
+      .menu-glyph {
+        width: 27px;
+        height: 27px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        background: var(--modal);
+        font:
+          600 18px Georgia,
+          serif;
+      }
+      .menu-glyph.tikz {
+        color: var(--accent);
+      }
+      .menu-glyph.mermaid {
+        color: #c253a4;
+      }
+      .menu-glyph.drawio {
+        color: #b86c18;
+      }
+      .menu-enter {
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 16px;
+      }
+      .figure-wrap {
+        margin: 54px 0 23px;
+        position: relative;
+      }
+      .document-figure {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 14px;
+        border-radius: 2px;
+      }
+      .document-figure.selected {
+        outline: 2px solid #9252b8;
+      }
+      .document-figure .graph {
+        width: 100%;
+        height: auto;
+        max-height: 330px;
+      }
+      .dark .document-figure .graph {
+        filter: invert(1) hue-rotate(180deg);
+      }
+      .image-caption {
+        font-size: 13px;
+        text-align: center;
+        color: var(--muted);
+        margin-top: 12px;
+      }
+      .image-toolbar {
+        position: absolute;
+        left: 50%;
+        top: -53px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        padding: 5px;
+        border-radius: 7px;
+        box-shadow:
+          0 0 0 1px rgb(0 0 0 / 8%),
+          0 4px 12px rgb(0 0 0 / 12%);
+        background: var(--modal);
+        white-space: nowrap;
+      }
+      .tool {
+        border: 0;
+        background: transparent;
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 4px;
+        color: var(--secondary);
+        padding: 0;
+      }
+      .tool.current {
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .tool.edit {
+        width: auto;
+        display: flex;
+        gap: 4px;
+        padding: 0 8px;
+        color: var(--text);
+        font-size: 12px;
+      }
+      .toolbar-separator {
+        height: 19px;
+        width: 1px;
+        background: var(--border);
+        margin: 0 5px;
+      }
+      .dimensions {
+        padding: 0 8px;
+        font-size: 12px;
+        color: var(--secondary);
+        font-family: var(--mono);
+      }
+      .overlay {
+        position: absolute;
+        inset: 0;
+        background: var(--backdrop);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        z-index: 10;
+      }
+      .modal {
+        width: min(1100px, 90vw);
+        height: min(calc(60vh + 144px), calc(100dvh - 108px));
+        background: var(--modal);
+        border-radius: 10px;
+        box-shadow:
+          0 0 0 1px rgb(0 0 0 / 7%),
+          0 8px 24px rgb(0 0 0 / 12%);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .modal-header {
+        min-height: 66px;
+        padding: 18px 24px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+      }
+      .modal-header h2 {
+        font-size: 18px;
+        line-height: 1.5;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text);
+      }
+      .close {
+        border: 0;
+        background: transparent;
+        width: 32px;
+        height: 32px;
+        border-radius: 5px;
+        display: grid;
+        place-items: center;
+        color: var(--secondary);
+        padding: 0;
+      }
+      .modal-body {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        flex: 1;
+        gap: 14px;
+        padding: 0 24px;
+      }
+      .panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        min-height: 0;
+        flex: 1;
+      }
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+        background: var(--modal);
+      }
+      .panel-header {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 12px;
+        color: var(--secondary);
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .panel-language {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .source {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        margin: 0;
+        padding: 14px 0;
+        font: 13px/1.85 var(--mono);
+        tab-size: 2;
+        outline-offset: -2px !important;
+      }
+      .code-line {
+        display: flex;
+        min-width: max-content;
+        padding-right: 18px;
+      }
+      .line-number {
+        width: 38px;
+        text-align: right;
+        padding-right: 13px;
+        color: var(--muted);
+        user-select: none;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
+      .line-code {
+        white-space: pre;
+        color: var(--text);
+      }
+      .token-command {
+        color: #812397;
+      }
+      .token-brace {
+        color: #7b7480;
+      }
+      .token-math {
+        color: #2569a1;
+      }
+      .token-comment {
+        color: #74806e;
+      }
+      .dark .token-command {
+        color: #d68deb;
+      }
+      .dark .token-brace {
+        color: #aaa2b0;
+      }
+      .dark .token-math {
+        color: #8fc5ed;
+      }
+      .error-line {
+        background: var(--error-soft);
+      }
+      .error-line .line-number {
+        color: var(--danger);
+      }
+      .source-placeholder {
+        padding: 20px 16px;
+        color: var(--muted);
+        font: 13px/1.7 var(--ui);
+      }
+      .source-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        min-height: 34px;
+        overflow: auto;
+        border-top: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--secondary);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .badge {
+        border-radius: 20px;
+        padding: 2px 7px;
+        background: var(--surface);
+        color: var(--secondary);
+        font-size: 11px;
+      }
+      .badge.bad {
+        background: var(--error-soft);
+        color: var(--danger);
+      }
+      .preview-header,
+      .preview-area {
+        background: #fff;
+        color: #55555a;
+      }
+      .preview-area {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 16px;
+        overflow: auto;
+      }
+      .preview-area .graph {
+        width: 100%;
+        max-height: 100%;
+      }
+      .render-status {
+        font-size: 11px;
+        color: #55555a;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .spinner {
+        width: 11px;
+        height: 11px;
+        border: 1.5px solid #dedee2;
+        border-top-color: #7719aa;
+        border-radius: 50%;
+      }
+      .preview-placeholder {
+        color: #76767c;
+        font-size: 13px;
+      }
+      .error-region {
+        flex-shrink: 0;
+        max-height: 120px;
+        overflow: auto;
+        color: var(--danger);
+        font-size: 13px;
+        line-height: 1.65;
+        padding: 0 1px;
+      }
+      .error-hint {
+        font-weight: 500;
+        margin: 0 0 5px;
+      }
+      .tex-log {
+        font: 12px/1.6 var(--mono);
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .modal-footer {
+        min-height: 72px;
+        padding: 18px 24px 22px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .button {
+        min-width: 66px;
+        height: 34px;
+        border-radius: 5px;
+        padding: 0 16px;
+        border: 1px solid var(--border);
+        background: var(--modal);
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .button.primary {
+        border-color: var(--accent);
+        color: #fff;
+        background: var(--accent);
+      }
+      .button.primary:disabled {
+        background: #b29ac0;
+        border-color: #b29ac0;
+        color: #fff;
+        opacity: 0.7;
+      }
+      .lightbox {
+        position: absolute;
+        inset: 0;
+        background: var(--background);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 80px 120px;
+        z-index: 10;
+      }
+      .lightbox .graph {
+        width: min(900px, 80vw);
+        max-height: 70vh;
+      }
+      .dark .lightbox .graph {
+        filter: invert(1) hue-rotate(180deg);
+      }
+      .lightbox-actions {
+        position: absolute;
+        top: 22px;
+        right: 80px;
+        display: flex;
+        gap: 7px;
+        align-items: center;
+      }
+      .lightbox-close {
+        position: absolute;
+        right: 24px;
+        top: 22px;
+      }
+      .lightbox-caption {
+        position: absolute;
+        bottom: 30px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .dark .review-label b {
+        color: #d08ae9;
+      }
+      .dark .share {
+        color: var(--text);
+      }
+      @media (max-width: 1024px) {
+        .sidebar {
+          width: 220px;
+        }
+        .document {
+          width: calc(100% - 64px);
+        }
+      }
+      @media (max-width: 736px) {
+        .review-bar {
+          height: 48px;
+          padding: 0 12px;
+          gap: 10px;
+        }
+        .review-label {
+          font-size: 11px;
+        }
+        .review-label b {
+          display: none;
+        }
+        .review-bar select {
+          min-width: 0;
+          flex: 1;
+          max-width: 210px;
+          font-size: 11px;
+        }
+        .review-note {
+          display: none;
+        }
+        .canvas {
+          height: calc(100dvh - 48px);
+        }
+        .sidebar {
+          display: none;
+        }
+        .topbar {
+          height: 52px;
+          padding: 0 18px;
+        }
+        .topbar-right {
+          gap: 6px;
+        }
+        .document {
+          width: calc(100% - 40px);
+          margin-top: 30px;
+        }
+        .document h1 {
+          font-size: 27px;
+        }
+        .document-meta {
+          margin-bottom: 28px;
+        }
+        .document p {
+          font-size: 14px;
+        }
+        .slash-menu {
+          width: min(330px, calc(100vw - 40px));
+        }
+        .overlay {
+          padding: 0;
+        }
+        .modal {
+          width: 100%;
+          height: 100%;
+          border-radius: 0;
+        }
+        .modal-header {
+          min-height: 60px;
+          padding: 12px 16px;
+        }
+        .modal-header h2 {
+          font-size: 17px;
+        }
+        .modal-body {
+          padding: 0 14px;
+          gap: 12px;
+        }
+        .panels {
+          grid-template-columns: 1fr;
+          grid-template-rows: minmax(150px, 1.25fr) minmax(130px, 1fr);
+          gap: 12px;
+        }
+        .panel-header {
+          height: 31px;
+        }
+        .source {
+          font-size: 12px;
+          padding: 9px 0;
+          line-height: 1.75;
+        }
+        .source-status {
+          font-size: 10px;
+          min-height: 29px;
+          padding: 5px 8px;
+        }
+        .source-status .badge {
+          font-size: 10px;
+        }
+        .preview-area {
+          padding: 8px;
+        }
+        .modal-footer {
+          min-height: 64px;
+          padding: 14px;
+        }
+        .button {
+          min-width: 72px;
+          height: 36px;
+        }
+        .error-region {
+          font-size: 12px;
+          max-height: 120px;
+        }
+        .tex-log {
+          font-size: 10px;
+        }
+        .lightbox {
+          padding: 64px 18px;
+        }
+        .lightbox-actions {
+          top: 16px;
+          right: 55px;
+          gap: 2px;
+        }
+        .lightbox-close {
+          top: 16px;
+          right: 12px;
+        }
+        .lightbox .graph {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="review-bar">
+      <span class="review-label"><b>Outline × TikZ</b>界面设计示意</span>
+      <select id="screen-select" aria-label="切换设计状态">
+        <option value="slash">01 · 菜单入口</option>
+        <option value="editor">02 · 编辑与预览</option>
+        <option value="loading">03 · 渲染中</option>
+        <option value="error">04 · 缺少宏包</option>
+        <option value="timeout">05 · 渲染超时</option>
+        <option value="saving">06 · 保存中</option>
+        <option value="save-error">07 · 保存失败</option>
+        <option value="source-error">08 · 源码加载失败</option>
+        <option value="image">09 · 图片工具栏</option>
+        <option value="lightbox">10 · 灯箱编辑入口</option>
+        <option value="dark">11 · 暗色编辑</option>
+        <option value="dark-image">12 · 暗色图片</option>
+        <option value="readonly">13 · 只读图片</option>
+      </select>
+      <span class="review-note"
+        >设计示意 · 预览使用固定样例 · 不编译或上传</span
+      >
+    </header>
+    <main class="canvas" id="canvas"></main>
+    <script>
+      const icons = {
+        search: '<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>',
+        home: '<path d="m3 10 9-7 9 7v10H4V10m5 10v-7h6v7"/>',
+        file: '<path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6m-6 4h6"/>',
+        folder: '<path d="M3 6h7l2 3h9v11H3z"/>',
+        star: '<path d="m12 3 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>',
+        plus: '<path d="M12 4v16M4 12h16"/>',
+        close: '<path d="m6 6 12 12M6 18 18 6"/>',
+        chevron: '<path d="m8 5 7 7-7 7"/>',
+        down: '<path d="m6 9 6 6 6-6"/>',
+        more: '<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',
+        left: '<path d="M4 4v16M8 7h12v10H8z"/>',
+        center: '<path d="M5 5h14v14H5zM12 2v3m0 14v3"/>',
+        right: '<path d="M20 4v16M4 7h12v10H4z"/>',
+        wide: '<path d="M3 4v16M21 4v16M6 7h12v10H6z"/>',
+        edit: '<path d="m4 16 11-11 4 4L8 20H4zM14 6l4 4"/>',
+        download: '<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>',
+        trash: '<path d="M5 7h14M9 7V4h6v3M7 7l1 14h8l1-14m-7 3v7m4-7v7"/>',
+        link: '<path d="m9 15 6-6m-4-3 2-2a4 4 0 0 1 6 6l-3 3m-3 5-2 2a4 4 0 0 1-6-6l3-3"/>',
+        comment: '<path d="M4 4h16v12h-9l-5 4v-4H4z"/>',
+        zoomin:
+          '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6m-3-3v6"/>',
+        zoomout: '<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6"/>',
+      };
+      const icon = (name, size = 20) =>
+        `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[name] || icons.file}</svg>`;
+      const escapeText = (value) =>
+        value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      const defaultSource = String.raw`\begin{tikzpicture}
+  \draw[->] (-0.5,0) -- (3,0) node[right] {$x$};
+  \draw[->] (0,-0.5) -- (0,2) node[above] {$y$};
+  \draw[thick, blue, domain=0:2.8]
+    plot (\x, {sin(\x r) + 1});
+\end{tikzpicture}`;
+      const errorSource = String.raw`\documentclass[tikz,border=5mm]{standalone}
+\usetikzlibrary{calc}
+\usepackage{pgf-pie}
+\begin{document}
+\begin{tikzpicture}
+  \draw[->] (-0.5,0) -- (3,0) node[right] {$x$};
+  \draw[->] (0,-0.5) -- (0,2) node[above] {$y$};
+  \draw[thick, blue, domain=0:2.8]
+    plot (\x, {sin(\x r) + 1});
+\end{tikzpicture}
+\end{document}`;
+      const messages = {
+        error:
+          "第 3 行：渲染引擎不支持宏包 pgf-pie。请移除该声明或改用支持的 TikZ 库。",
+        timeout: "渲染超时（10 秒）。请简化代码后重试。",
+        "save-error": "图表保存失败。代码和预览已保留。",
+        "source-error": "图表源码加载失败。原图未修改，请稍后重新打开。",
+      };
+      const texLog =
+        "! LaTeX Error: File `pgf-pie.sty' not found.\n! Emergency stop.\nl.4 \\begin{document}";
+      const graph = () => {
+        const path = Array.from({ length: 90 }, (_, i) => {
+          const x = (i * 2.8) / 89;
+          return `${i ? "L" : "M"}${115 + x * 106},${260 - (Math.sin(x) + 1) * 82}`;
+        }).join(" ");
+        return `<svg class="graph" viewBox="0 0 500 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="示例曲线 y 等于 sin x 加 1"><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0 0L6 3.5L0 7" fill="none" stroke="#222" stroke-width="1"/></marker></defs><g fill="none" stroke="#222" stroke-width="1.5"><path d="M62 260H438" marker-end="url(#arrow)"/><path d="M115 301V73" marker-end="url(#arrow)"/></g><path d="${path}" fill="none" stroke="#2868c7" stroke-width="2.7"/><g font-family="Georgia,serif" font-size="21" fill="#222"><text x="446" y="266" font-style="italic">x</text><text x="108" y="56" font-style="italic">y</text><text x="94" y="282" font-size="16">0</text></g></svg>`;
+      };
+      const tool = (name, label, extra = "") =>
+        `<button class="tool ${extra}" type="button" aria-label="${label}" title="${label}">${icon(name)}</button>`;
+      function sidebar() {
+        return `<aside class="sidebar"><div class="workspace-title"><span class="workspace-mark">O</span>知识库<span style="margin-left:auto">${icon("down", 15)}</span></div><div class="nav-item">${icon("home")}首页</div><div class="nav-item">${icon("search")}搜索</div><div class="nav-item">${icon("file")}草稿</div><div class="nav-title">收藏 ${icon("plus", 14)}</div><div class="nav-item">${icon("star")}写作指南</div><div class="nav-title">文档集 ${icon("plus", 14)}</div><div class="nav-item">${icon("folder")}数学与图表</div><div class="nav-item indent active">TikZ 图表示例</div><div class="nav-item indent">公式排版指南</div><div class="nav-item">${icon("folder")}团队文档</div><div class="nav-title">个人 ${icon("plus", 14)}</div><div class="nav-item">${icon("file")}我的笔记</div><div class="account"><span class="avatar">CQ</span>chengqi.dev<span style="margin-left:auto">${icon("more", 18)}</span></div></aside>`;
+      }
+      function imageToolbar() {
+        return `<div class="image-toolbar" role="toolbar" aria-label="图片工具栏">${tool("left", "左对齐")}${tool("center", "居中", "current")}${tool("right", "右对齐")}${tool("wide", "通栏")}<span class="toolbar-separator"></span><span class="dimensions">640 × 360</span><span class="toolbar-separator"></span><button class="tool edit" aria-label="编辑 TikZ" data-screen="editor">${icon("edit", 18)}编辑 TikZ</button>${tool("download", "下载图片")}${tool("trash", "删除图片")}<span class="toolbar-separator"></span>${tool("link", "创建链接")}${tool("comment", "评论")}</div>`;
+      }
+      function documentPage(screen) {
+        const showImage = ["image", "dark-image", "readonly"].includes(screen);
+        return `${sidebar()}<section class="workspace"><div class="topbar">${icon("folder", 17)}<span>数学与图表</span>${icon("chevron", 13)}<span>TikZ 图表示例</span><div class="topbar-right"><span class="share">分享</span>${icon("star", 19)}${icon("more", 21)}</div></div><article class="document"><div class="document-icon">∿</div><h1>TikZ 图表示例</h1><div class="document-meta">chengqi.dev · 设计示例内容</div><p>在文档中绘制函数图像，并保留可以再次编辑的源码。</p><h2>函数图像</h2><div class="formula">y = sin(x) + 1</div>${showImage ? `<div class="figure-wrap">${screen === "readonly" ? "" : imageToolbar()}<div class="document-figure ${screen === "readonly" ? "" : "selected"}" data-source="tikz">${graph()}</div><div class="image-caption">图 1 · 函数 y = sin(x) + 1</div></div><p>图表作为普通图片保存在文档中。</p>` : `<p>下面插入一张可以继续编辑的 TikZ 图表。</p><div class="cursor-line">/<span class="caret"></span></div>${screen === "slash" ? `<div class="slash-menu" role="menu" aria-label="插入图表"><button class="menu-row" role="menuitem"><span class="menu-glyph mermaid">M</span>Mermaid Diagram</button><button class="menu-row" role="menuitem"><span class="menu-glyph drawio">◇</span>Diagrams.net Diagram</button><button class="menu-row chosen" role="menuitem" data-screen="editor"><span class="menu-glyph tikz">T</span>TikZ 图表<span class="menu-enter">↵</span></button></div>` : ""}`}</article></section>`;
+      }
+      function codeLines(source, error) {
+        return source
+          .split("\n")
+          .map((line, index) => {
+            let code = escapeText(line).replace(
+              /(\\[a-zA-Z]+)/g,
+              '<span class="token-command">$1</span>'
+            );
+            code = code.replace(
+              /(\$[^$]*\$)/g,
+              '<span class="token-math">$1</span>'
+            );
+            return `<div class="code-line ${error && index === 2 ? "error-line" : ""}"><span class="line-number">${index + 1}</span><span class="line-code">${code || " "}</span></div>`;
+          })
+          .join("");
+      }
+      function modal(screen) {
+        const error = messages[screen];
+        const sourceFailed = screen === "source-error";
+        const isLoading = screen === "loading";
+        const isSaving = screen === "saving";
+        const missingPackage = screen === "error";
+        const ready = ["editor", "dark"].includes(screen);
+        return `<div class="overlay"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><header class="modal-header"><h2 id="dialog-title">TikZ 图表</h2><button class="close" aria-label="关闭" data-screen="image">${icon("close")}</button></header><div class="modal-body"><div class="panels"><section class="panel"><header class="panel-header"><span>代码</span><span class="panel-language">LaTeX</span></header>${sourceFailed ? '<div class="source source-placeholder" id="source" tabindex="0" role="textbox" aria-readonly="true" aria-label="TikZ 源码未加载">源码未加载</div>' : `<div class="source" id="source" tabindex="0" role="textbox" aria-readonly="true" aria-label="TikZ 源码设计示意">${codeLines(missingPackage ? errorSource : defaultSource, missingPackage)}</div>`}<div class="source-status">${sourceFailed ? "<span>等待成功读取原始源码</span>" : missingPackage ? '<span class="badge">完整文档</span><span class="badge bad">pgf-pie 不可用</span><span>库 calc · 留白 5mm</span>' : '<span class="badge">TikZ 片段</span><span>也可以直接粘贴完整的 .tex 文档</span>'}</div></section><section class="panel"><header class="panel-header preview-header"><span>预览</span>${isLoading ? '<span class="render-status"><span class="spinner"></span>正在渲染…</span>' : ""}</header><div class="preview-area">${sourceFailed || isLoading ? '<span class="preview-placeholder">预览</span>' : graph()}</div></section></div>${error ? `<div class="error-region" role="alert"><p class="error-hint">${escapeText(error)}</p>${missingPackage ? `<pre class="tex-log">${escapeText(texLog)}</pre>` : ""}</div>` : ""}</div><footer class="modal-footer"><button class="button" data-screen="image" type="button">取消</button><button id="save" class="button primary" type="button" ${ready ? 'data-screen="saving"' : "disabled"}>${isSaving ? "保存中…" : "保存"}</button></footer></section></div>`;
+      }
+      function lightbox() {
+        return `<section class="lightbox" role="dialog" aria-label="图片灯箱"><div class="lightbox-actions">${tool("zoomin", "放大")}${tool("zoomout", "缩小")}<span class="toolbar-separator"></span>${tool("link", "复制链接")}${tool("download", "下载")}<button class="tool edit" data-screen="editor" aria-label="编辑 TikZ">${icon("edit", 18)}编辑 TikZ</button>${tool("comment", "评论")}</div><button class="close lightbox-close" data-screen="image" aria-label="关闭灯箱">${icon("close")}</button>${graph()}<span class="lightbox-caption">图 1 · 函数 y = sin(x) + 1</span></section>`;
+      }
+      function render() {
+        const screen =
+          new URLSearchParams(location.search).get("screen") || "editor";
+        document.body.classList.toggle("dark", screen.startsWith("dark"));
+        document.body.dataset.screen = screen;
+        document.getElementById("screen-select").value = screen;
+        const isDialog = ![
+          "slash",
+          "image",
+          "dark-image",
+          "readonly",
+          "lightbox",
+        ].includes(screen);
+        document.getElementById("canvas").innerHTML =
+          documentPage(screen) +
+          (isDialog ? modal(screen) : screen === "lightbox" ? lightbox() : "");
+        const source = document.getElementById("source");
+        if (source) source.focus({ preventScroll: true });
+      }
+      function setScreen(screen) {
+        const url = new URL(location.href);
+        url.searchParams.set("screen", screen);
+        history.replaceState(null, "", url);
+        render();
+      }
+      document
+        .getElementById("screen-select")
+        .addEventListener("change", (event) => setScreen(event.target.value));
+      document.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-screen]");
+        if (trigger && trigger !== document.body)
+          setScreen(trigger.dataset.screen);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (
+          event.key === "Escape" &&
+          document.querySelector(".modal, .lightbox")
+        )
+          setScreen("image");
+      });
+      render();
+    </script>
+  </body>
+</html>

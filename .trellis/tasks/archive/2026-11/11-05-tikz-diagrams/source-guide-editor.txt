@@ -1,0 +1,521 @@
+import type { Node } from "prosemirror-model";
+import type { NodeWithPos } from "../types";
+
+/**
+ * Finds the first image node in the document with the given src.
+ *
+ * @param doc - the document to search.
+ * @param src - the image source URL to search for.
+ * @returns the node and its position, or undefined.
+ */
+export function findImageNodeBySrc(
+  doc: Node,
+  src: string
+): NodeWithPos | undefined {
+  let found: NodeWithPos | undefined;
+  doc.descendants((node, pos) => {
+    if (found) {
+      return false;
+    }
+    if (node.type.name === "image" && node.attrs.src === src) {
+      found = { node, pos };
+      return false;
+    }
+    return true;
+  });
+  return found;
+}
+```
+
+然后把 `Diagrams.ts` 中的私有方法改为调用它（`findImageNodeBySrc(state.doc, srcToFind)`）。
+
+### 默认模板 —— 加到 `constants.ts`
+
+`texify()` 在没有 `\begin{document}` 时会自动包一层，第 10 步的 `prepareSource()` 会先把 `\usepackage` 行移到导言区，所以模板只需要 `tikzpicture`：
+
+```typescript
+export const DEFAULT_SOURCE = String.raw`\begin{tikzpicture}
+  \draw[->] (-0.5,0) -- (3,0) node[right] {$x$};
+  \draw[->] (0,-0.5) -- (0,2) node[above] {$y$};
+  \draw[thick, blue, domain=0:2.8] plot (\x, {sin(\x r) + 1});
+\end{tikzpicture}`;
+```
+
+### 扩展 —— `app/editor/extensions/Tikz.tsx`
+
+```tsx
+import { action, makeObservable, observable } from "mobx";
+import type { Command } from "prosemirror-state";
+import { NodeSelection } from "prosemirror-state";
+import * as React from "react";
+import type { CommandFactory, WidgetProps } from "@shared/editor/lib/Extension";
+import Extension from "@shared/editor/lib/Extension";
+import FileHelper, { ImageSource } from "@shared/editor/lib/FileHelper";
+import { findImageNodeBySrc } from "@shared/editor/queries/findImageNodeBySrc";
+import { DEFAULT_SOURCE } from "../lib/tikz/constants";
+import { extractSource } from "../lib/tikz/svg";
+
+const TikzEditor = React.lazy(() => import("../components/TikzEditor"));
+
+type Session = {
+  /** The src of the image being edited, or an empty string for a new one. */
+  src: string;
+  /** The TikZ source to show when the dialog opens. */
+  source: string;
+};
+
+/**
+ * Adds commands to create and edit TikZ diagrams. Diagrams are stored as SVG
+ * images with the TikZ source embedded in their metadata.
+ */
+export default class TikzExtension extends Extension {
+  get name() {
+    return "tikz";
+  }
+
+  constructor(options = {}) {
+    super(options);
+    makeObservable(this);
+  }
+
+  commands(): Record<string, CommandFactory> {
+    return {
+      insertTikz: (): Command => (_state, dispatch) => {
+        if (dispatch) {
+          this.open({ src: "", source: DEFAULT_SOURCE });
+        }
+        return true;
+      },
+      editTikz: (): Command => (state, dispatch) => {
+        const node =
+          state.selection instanceof NodeSelection
+            ? state.selection.node
+            : undefined;
+        if (
+          node?.type.name !== "image" ||
+          node.attrs.source !== ImageSource.Tikz
+        ) {
+          return false;
+        }
+        if (dispatch) {
+          void this.openExisting(node.attrs.src);
+        }
+        return true;
+      },
+    };
+  }
+
+  widget = ({ readOnly }: WidgetProps) =>
+    this.session && !readOnly ? (
+      <React.Suspense fallback={null}>
+        <TikzEditor
+          initialSource={this.session.source}
+          onSave={this.handleSave}
+          onClose={this.close}
+        />
+      </React.Suspense>
+    ) : undefined;
+
+  /**
+   * Reads the TikZ source out of an existing diagram and opens the dialog.
+   *
+   * @param src - the URL of the SVG to edit.
+   */
+  private async openExisting(src: string) {
+    // See FileHelper.urlToBase64 for why the HTTP cache is skipped.
+    const response = await fetch(src, { cache: "no-store" });
+    const source = response.ok
+      ? extractSource(await response.text())
+      : undefined;
+    this.open({ src, source: source ?? DEFAULT_SOURCE });
+  }
+
+  /**
+   * Uploads the rendered SVG and inserts it, or replaces the image that was
+   * being edited.
+   *
+   * @param svg - the SVG markup with the TikZ source embedded.
+   */
+  private handleSave = async (svg: string) => {
+    const session = this.session;
+    const { uploadFile } = this.editor.props;
+    if (!session || !uploadFile) {
+      throw new Error("No upload handler configured");
+    }
+
+    const file = new File([svg], "diagram.svg", { type: "image/svg+xml" });
+    const [src, dimensions] = await Promise.all([
+      uploadFile(file),
+      FileHelper.getImageDimensions(file),
+    ]);
+
+    // Read fresh state, the document may have changed during the upload.
+    const { state, dispatch } = this.editor.view;
+    const attrs = { ...(dimensions ?? {}), src, source: ImageSource.Tikz };
+    const existing = session.src
+      ? findImageNodeBySrc(state.doc, session.src)
+      : undefined;
+
+    if (existing) {
+      dispatch(
+        state.tr.setNodeMarkup(existing.pos, undefined, {
+          ...existing.node.attrs,
+          ...attrs,
+        })
+      );
+    } else {
+      dispatch(
+        state.tr.replaceSelectionWith(
+          this.editor.schema.nodes.image.create(attrs)
+        )
+      );
+    }
+    this.close();
+  };
+
+  @action
+  private open(session: Session) {
+    this.session = session;
+  }
+
+  @action
+  private close = () => {
+    this.session = undefined;
+    this.editor.view.focus();
+  };
+
+  @observable
+  private session: Session | undefined;
+}
+```
+
+最后在 `app/editor/extensions/index.ts` 的 `withUIExtensions` 中，紧跟 `DiagramsExtension` 注册：
+
+```typescript
+import TikzExtension from "~/editor/extensions/Tikz";
+
+  CommentGutterExtension,
+  DiagramsExtension,
+  TikzExtension,
+  DragHandle,
+```
+
+### 设计说明
+
+- **为什么用 widget。** 与 `FindAndReplaceExtension` 一样：widget 会被自动 `observer` 包装，`session` 变化即重渲染。
+- **读者不加载任何东西。** `TikzEditor` 是 `React.lazy`，只有打开对话框时才下载它和 `threads`。
+- **每次保存都上传新附件。** 与 diagrams.net 相同；旧附件仍由文档历史引用，不要删除。
+
+## 第 7 步 —— TikZ 编辑对话框
+
+对话框左侧是代码，右侧是预览，下方是 TeX 错误信息。代码编辑器与插件 `src/editor.ts` 相同，用 CodeMirror 6 和 `codemirror-lang-latex`（第 0 步已安装）。因为整个文件通过 `React.lazy` 加载，CodeMirror 不会进入主包。
+
+新建 `app/editor/components/TikzEditor.tsx`：
+
+```tsx
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { EditorState } from "@codemirror/state";
+import { EditorView, keymap, lineNumbers } from "@codemirror/view";
+import { latex } from "codemirror-lang-latex";
+import * as React from "react";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import { s } from "@shared/styles";
+import Button from "~/components/Button";
+import Flex from "~/components/Flex";
+import Modal from "~/components/Modal";
+import { renderTikz } from "../lib/tikz/renderTikz";
+
+/** Delay between the last keystroke and the preview render. */
+const PREVIEW_DELAY_MS = 600;
+
+type Props = {
+  /** The TikZ source to start with. */
+  initialSource: string;
+  /** Called with the final SVG when the user saves. */
+  onSave: (svg: string) => Promise<void>;
+  /** Called when the dialog is dismissed. */
+  onClose: () => void;
+};
+
+/**
+ * A dialog with a TikZ code editor and a live preview rendered in a worker.
+ */
+export default function TikzEditor({ initialSource, onSave, onClose }: Props) {
+  const { t } = useTranslation();
+  const editorRef = React.useRef<HTMLDivElement>(null);
+  const [source, setSource] = React.useState(initialSource);
+  const [svg, setSvg] = React.useState<string>();
+  const [error, setError] = React.useState<string>();
+  const [rendering, setRendering] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+
+  // Mount CodeMirror once; it owns the text from then on.
+  React.useEffect(() => {
+    if (!editorRef.current) {
+      return;
+    }
+    const view = new EditorView({
+      parent: editorRef.current,
+      state: EditorState.create({
+        doc: initialSource,
+        extensions: [
+          lineNumbers(),
+          history(),
+          keymap.of([...defaultKeymap, ...historyKeymap]),
+          latex(),
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              setSource(update.state.doc.toString());
+            }
+          }),
+        ],
+      }),
+    });
+    view.focus();
+    return () => view.destroy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-render after typing stops, aborting any render still in flight.
+  React.useEffect(() => {
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setRendering(true);
+      const result = await renderTikz(source, controller.signal);
+      if (controller.signal.aborted) {
+        return;
+      }
+      setRendering(false);
+      if (result.ok) {
+        setSvg(result.svg);
+        setError(undefined);
+      } else {
+        setError(result.error);
+      }
+    }, PREVIEW_DELAY_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [source]);
+
+  const handleSave = async () => {
+    if (!svg) {
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave(svg);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal
+      isOpen
+      title={t("TikZ diagram")}
+      width="min(1100px, 90vw)"
+      onRequestClose={onClose}
+    >
+      <Flex gap={16}>
+        <Code ref={editorRef} />
+        <Preview align="center" justify="center">
+          {svg ? (
+            <img
+              src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`}
+              alt={t("Preview")}
+            />
+          ) : null}
+          {rendering && <Status>{t("Rendering…")}</Status>}
+        </Preview>
+      </Flex>
+      {error && <ErrorMessage role="alert">{error}</ErrorMessage>}
+      <Flex justify="flex-end" gap={8} style={{ marginTop: 16 }}>
+        <Button onClick={onClose} neutral>
+          {t("Cancel")}
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={!svg || !!error || rendering || saving}
+        >
+          {saving ? `${t("Saving")}…` : t("Save")}
+        </Button>
+      </Flex>
+    </Modal>
+  );
+}
+
+const Code = styled.div`
+  flex: 1;
+  min-width: 0;
+  height: 60vh;
+  overflow: auto;
+  border: 1px solid ${s("inputBorder")};
+  border-radius: 4px;
+  font-size: 14px;
+`;
+
+const Preview = styled(Flex)`
+  flex: 1;
+  position: relative;
+  height: 60vh;
+  overflow: auto;
+  border: 1px solid ${s("inputBorder")};
+  border-radius: 4px;
+  background: white;
+
+  img {
+    max-width: 100%;
+  }
+`;
+
+const Status = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 13px;
+  color: ${s("textTertiary")};
+`;
+
+const ErrorMessage = styled.pre`
+  margin: 12px 0 0;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: ${s("danger")};
+`;
+```
+
+### 设计说明
+
+- **预览用 `data:` URL。** 与最终显示方式一致（`<img>`），字体是否嵌入正确在预览里就能看出来。
+- **预览背景固定为白色。** TikZ 默认用黑色绘图，暗色主题下的显示在第 9 步单独处理。
+- **保存按钮在渲染中禁用。** 否则保存的 SVG 可能对应旧的代码。
+- **每次输入都中止上一次渲染。** `controller.abort()` 会触发 `renderTikz` 中的 `Thread.terminate`，同一时间最多只有一个 worker 在运行。
+
+## 第 8 步 —— 菜单入口
+
+三个入口都照着 diagrams.net 已有的位置放：斜杠菜单创建，图片工具栏和灯箱编辑。
+
+### 斜杠菜单 —— `app/editor/menus/block.tsx`
+
+把一个 64×64 的图标放到 `public/images/tikz.png`（`mermaidjs.png` 和 `diagrams.png` 也在这里），然后在 diagrams.net 一项后面加：
+
+```tsx
+    {
+      name: "insertTikz",
+      title: t("TikZ diagram"),
+      icon: <Img src="/images/tikz.png" alt="TikZ" />,
+      keywords: "tikz latex tex pgfplots circuitikz chemfig commutative",
+    },
+```
+
+与 diagrams.net 不同，这一项**不需要**在桌面端过滤掉：它不打开外部窗口，在 Electron 中同样可用。
+
+### 图片工具栏 —— `app/editor/menus/image.tsx`
+
+在 `isDiagram` 旁边定义查询：
+
+```typescript
+  const isTikz = isNodeActive(schema.nodes.image, {
+    source: ImageSource.Tikz,
+  });
+```
+
+在 `editDiagram` 一项后面加一项：
+
+```tsx
+    {
+      name: "editTikz",
+      tooltip: t("Edit TikZ"),
+      icon: <EditIcon />,
+      visible: isTikz(state),
+    },
+```
+
+并把「替换图片」的 `visible` 改为 `!isDiagram(state) && !isTikz(state)`。否则用户替换成普通图片后，节点仍带着 `source: "tikz"`，「编辑 TikZ」会打开一个只有默认模板的对话框。
+
+### 灯箱 —— `app/components/Lightbox.tsx`
+
+在 `handleEditDiagram` 旁边加一个处理函数。先关闭灯箱，因为 TikZ 对话框在同一个页面内，两个模态框叠在一起会抢焦点：
+
+```typescript
+  const handleEditTikz = () => {
+    const { state, dispatch: dispatchTransaction } = editor.view;
+    dispatchTransaction(
+      state.tr.setSelection(NodeSelection.create(state.doc, activeImage.pos))
+    );
+    close();
+    editor.commands.editTikz();
+  };
+```
+
+然后在 diagrams.net 的编辑按钮旁边加：
+
+```tsx
+            {activeImage.source === ImageSource.Tikz && !readOnly && (
+              <Tooltip content={t("Edit TikZ")} placement="bottom">
+                <ActionButton
+                  tabIndex={-1}
+                  disabled={status.image === ImageStatus.ERROR}
+                  onClick={handleEditTikz}
+                  aria-label={t("Edit TikZ")}
+                  size={32}
+                  icon={<EditIcon />}
+                  borderOnHover
+                  neutral
+                />
+              </Tooltip>
+            )}
+```
+
+`close` 是灯箱组件里已有的 `useCallback`（约第 659 行）。如果它带关闭动画，把 `editor.commands.editTikz()` 放到动画结束后再调用。
+
+## 第 9 步 —— 暗色模式与翻译
+
+### 暗色模式
+
+TikZ 默认用黑色绘图、背景透明，在暗色主题下几乎看不见。`<img>` 中的 SVG 无法读取页面的 CSS 变量，所以在外面用滤镜：`invert(1)` 把黑变白，`hue-rotate(180deg)` 把彩色大致转回原来的色相。
+
+先让图片带上来源。在 `shared/editor/components/Image.tsx` 中，给显示图片的 `<img className={EditorStyleHelper.imageHandle}>`（带链接和不带链接两个分支）加一个属性：
+
+```tsx
+              data-source={node.attrs.source}
+```
+
+然后在 `shared/editor/components/Styles.ts` 中、`.image .image-wrapper img` 规则附近加：
+
+```typescript
+.image img[data-source="tikz"] {
+  filter: ${(props) =>
+    props.theme.isDark ? "invert(1) hue-rotate(180deg)" : "none"};
+}
+```
+
+读者视图和编辑器用的是同一个组件和样式，一处修改即可。HTML/PDF 导出始终是浅色，不受影响。
+
+### 翻译
+
+所有面向用户的文字都已经用 `t()` 包裹。新增的字符串是 `TikZ diagram`、`Edit TikZ`、`Preview`、`Rendering…`；`Cancel`、`Save`、`Saving` 已存在。运行提取脚本，它会把新字符串写进 `shared/i18n/locales/en_US/translation.json`：
+
+```bash
+yarn build:i18n
+```
+
+- **提交到上游：** 只提交 `en_US`，其他语言由 Crowdin 同步，不要手动编辑。
+- **只在自己的 fork 中使用：** 可以直接在 `shared/i18n/locales/zh_CN/translation.json` 中加上中文：
+
+```json
+  "TikZ diagram": "TikZ 图表",
+  "Edit TikZ": "编辑 TikZ",
+  "Preview": "预览",
+  "Rendering…": "正在渲染…",
+```
+
+## 第 10 步 —— 粘贴完整的 LaTeX 文档

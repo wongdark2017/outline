@@ -25,6 +25,8 @@ type Props = {
   style?: React.CSSProperties;
   width?: number | string;
   height?: number | string;
+  /** Whether to use a bounded full-width content layout for editor dialogs. */
+  expanded?: boolean;
   onRequestClose: () => void;
 };
 
@@ -35,6 +37,7 @@ const Modal: React.FC<Props> = ({
   style,
   width,
   height,
+  expanded = false,
   onRequestClose,
 }: Props) => {
   const wasOpen = usePrevious(isOpen);
@@ -48,6 +51,15 @@ const Modal: React.FC<Props> = ({
     onRequestClose();
   }, [dialog, onRequestClose]);
 
+  const handlePointerDown = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (expanded && event.target === event.currentTarget) {
+        onClose();
+      }
+    },
+    [expanded, onClose]
+  );
+
   if (!isOpen && !wasOpen) {
     return null;
   }
@@ -57,11 +69,31 @@ const Modal: React.FC<Props> = ({
       <Dialog.Portal>
         <StyledOverlay />
         <StyledContent
+          onPointerDown={handlePointerDown}
           onEscapeKeyDown={onClose}
           onPointerDownOutside={onClose}
           aria-describedby={undefined}
         >
-          {isMobile ? (
+          {expanded ? (
+            <ExpandedWrapper $width={width} $height={height}>
+              <ExpandedHeader>
+                <Dialog.Title asChild>
+                  <Text size="large">{resolvedTitle}</Text>
+                </Dialog.Title>
+                <Tooltip content={t("Close")} shortcut="Esc">
+                  <NudeButton onClick={onClose} aria-label={t("Close")}>
+                    <CloseIcon />
+                  </NudeButton>
+                </Tooltip>
+              </ExpandedHeader>
+              <ExpandedContent
+                style={style}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </ExpandedContent>
+            </ExpandedWrapper>
+          ) : isMobile ? (
             <Mobile>
               <MobileContent>
                 <Centered onClick={(ev) => ev.stopPropagation()} column>
@@ -268,6 +300,51 @@ const Wrapper = styled.div<{
 
   ${Header} {
     align-items: start;
+  }
+`;
+
+const ExpandedWrapper = styled(Wrapper)`
+  width: ${(props) => props.$width || "75vw"};
+  min-width: 0;
+  max-width: calc(100vw - 32px);
+  height: ${(props) =>
+    props.$height || "min(calc(60vh + 144px), calc(100dvh - 32px))"};
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 736px) {
+    width: 100%;
+    max-width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+  }
+`;
+
+const ExpandedHeader = styled(Header)`
+  width: 100%;
+  min-height: 66px;
+
+  @media (max-width: 736px) {
+    min-height: 60px;
+    padding: 12px 16px;
+  }
+`;
+
+const ExpandedContent = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  padding: 0 24px;
+  overflow: hidden;
+
+  @media (max-width: 736px) {
+    padding: 0 14px;
   }
 `;
 

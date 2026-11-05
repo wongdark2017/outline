@@ -263,6 +263,11 @@ export default class DragHandle extends Extension {
           };
 
           const onScroll = () => {
+            if (!view.editable) {
+              hide();
+              return;
+            }
+
             // While a drag is in progress the handle is intentionally hidden;
             // don't let a scroll (trackpad / auto-scroll) reposition and
             // re-show it mid-drag.
@@ -277,6 +282,12 @@ export default class DragHandle extends Extension {
           };
 
           const onDragStart = (event: DragEvent) => {
+            if (!view.editable) {
+              event.preventDefault();
+              hide();
+              return;
+            }
+
             if (!target || !event.dataTransfer) {
               return;
             }
@@ -342,6 +353,11 @@ export default class DragHandle extends Extension {
           };
 
           const onClick = () => {
+            if (!view.editable) {
+              hide();
+              return;
+            }
+
             if (!target) {
               return;
             }
@@ -364,6 +380,11 @@ export default class DragHandle extends Extension {
 
           return {
             update: (_view, prevState) => {
+              if (!view.editable) {
+                hideHandle();
+                return;
+              }
+
               if (!target) {
                 return;
               }

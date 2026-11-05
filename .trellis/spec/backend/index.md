@@ -17,7 +17,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Directory Structure](./directory-structure.md) | API resource layout, policies, presenters, commands, plugin APIs | Populated (API) |
 | [Database Guidelines](./database-guidelines.md) | ORM, preference persistence, import retention; additive repair of applied schemas | Scenarios populated |
 | [Error Handling](./error-handling.md) | Email sign-in proof, attempt lifecycle, permanent unlimited sending and safe errors | Email sign-in populated |
-| [Quality Guidelines](./quality-guidelines.md) | API routes, auth, previews; private appearance assets and immutable script consent | Populated |
+| [Quality Guidelines](./quality-guidelines.md) | API routes, auth, previews; private appearance assets, immutable script consent, and development TikZ asset headers | Populated |
 | [Logging Guidelines](./logging-guidelines.md) | Logger API, levels, structured extra, production-only redaction; email scenario | Populated |
 
 ---

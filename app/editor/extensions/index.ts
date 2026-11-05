@@ -3,6 +3,7 @@ import BlockMenuExtension from "~/editor/extensions/BlockMenu";
 import ClipboardTextSerializer from "~/editor/extensions/ClipboardTextSerializer";
 import CommentGutterExtension from "~/editor/extensions/CommentGutter";
 import DiagramsExtension from "@shared/editor/extensions/Diagrams";
+import { TikzExtension } from "~/editor/extensions/Tikz";
 import DocumentMenuExtension from "~/editor/extensions/DocumentMenu";
 import DragHandle from "~/editor/extensions/DragHandle";
 import EmojiMenuExtension from "~/editor/extensions/EmojiMenu";
@@ -31,6 +32,7 @@ export const withUIExtensions = (nodes: Nodes) => [
   SelectionToolbarExtension,
   CommentGutterExtension,
   DiagramsExtension,
+  TikzExtension,
   DragHandle,
   // Order these default key handlers last
   PreventTab,

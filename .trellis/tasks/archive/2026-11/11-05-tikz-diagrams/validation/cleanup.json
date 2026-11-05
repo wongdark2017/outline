@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "isolatedTeamRemoved": true,
+  "attachmentDeletionHooksCompleted": true,
+  "remaining": {
+    "team": false,
+    "document": false,
+    "attachments": 0,
+    "shares": 0
+  },
+  "privateCredentialsRemoved": true
+}

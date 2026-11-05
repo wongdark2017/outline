@@ -6,6 +6,7 @@
     "public/**",
     "server/migrations/**",
     "server/scripts/**",
+    "server/static/tikzjax-*/**",
     "patches/**",
     "*.d.ts"
   ],

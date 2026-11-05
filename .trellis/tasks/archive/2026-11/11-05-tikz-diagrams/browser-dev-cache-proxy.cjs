@@ -1,0 +1,10 @@
+const {createRequire}=require('node:module');
+const {readFileSync,writeFileSync,appendFileSync}=require('node:fs');
+const {createServer}=require('node:http');
+const taskRequire=createRequire('/root/outline/package.json');
+(async()=>{
+await taskRequire('esbuild').build({entryPoints:['/root/outline/server/middlewares/vite.ts'],outfile:'/tmp/tikz-vite-middleware.cjs',bundle:true,platform:'node',format:'cjs',packages:'external',plugins:[{name:'existing-server-environment',setup(build){build.onResolve({filter:/^@server\/env$/},()=>({path:'/root/outline/build/server/env.js',external:true}));build.onResolve({filter:/^@server\/onupgrade$/},()=>({path:'/root/outline/build/server/onupgrade.js',external:true}));}}]});
+const {createViteMiddleware}=require('/tmp/tikz-vite-middleware.cjs');
+const Koa=taskRequire('koa');const helmet=taskRequire('koa-helmet');const app=new Koa();let oldMode=true;app.use(helmet());app.use(async(ctx,next)=>{if(ctx.path==='/__tikz_diagnostic_fixed'){oldMode=false;ctx.body='Fixed middleware enabled';return}const originalPolicy=ctx.response.get('Content-Security-Policy');await next();if(oldMode){if(ctx.path==='/static/tikzjax-e374921f/run-tex.js')ctx.set('Content-Security-Policy',originalPolicy);if(ctx.path.startsWith('/static/tikzjax-e374921f/')&&ctx.path.endsWith('.gz'))ctx.set('Content-Encoding','gzip')}if(ctx.path.startsWith('/static/tikzjax-e374921f/'))appendFileSync('/tmp/tikz-dev-hot-cache-http.jsonl',JSON.stringify({oldMode,path:ctx.path,status:ctx.status,ifNoneMatch:ctx.get('if-none-match'),contentEncoding:ctx.response.get('content-encoding'),csp:ctx.response.get('content-security-policy')})+'\n')});app.use(createViteMiddleware());app.use(ctx=>{ctx.body='Isolated development proxy diagnostic';});
+const server=createServer(app.callback());server.listen(0,'127.0.0.1',()=>{writeFileSync('/tmp/tikz-dev-hot-http-origin.txt','http://127.0.0.1:'+server.address().port);console.log('Isolated proxy listening on '+server.address().port)});
+})().catch(error=>{console.error(error);process.exitCode=1});

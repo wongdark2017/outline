@@ -1,0 +1,26 @@
+This directory contains an unmodified, pinned third-party TeX/TikZ engine.
+There is no single blanket license for every file.
+
+The immediate SiYuan wrapper is MIT (Yuxin Zhao), while its upstream engine
+includes GPL code (Jim Fowler, Glenn Rice and other contributors), TeX
+packages with their own GPL/LPPL terms, and BaKoMa fonts with their own
+permissive font license (Basil K. Malyshev). Preserve every LICENSE file,
+this notice, the original compressed TeX copyright headers and SOURCES.txt.
+
+GPL-3.0 text is in LICENSE-GPL-3.0.txt; LPPL-1.3c text is in
+LICENSE-LPPL-1.3c.txt. Package-specific headers and separate support-library
+license notices remain applicable. LICENSE-siyuan-MIT.txt applies to the
+wrapper and does not relicense the engine or fonts.
+
+The BaKoMa fonts were converted upstream to WOFF2. Original fonts:
+http://www.ctan.org/tex-archive/fonts/cm/ps-type1/bakoma
+Copyright (C) 1994, 1995, Basil K. Malyshev. All Rights Reserved.
+Author: Basil K. Malyshev, Institute for High Energy Physics, Protvino, Russia.
+See LICENSE-BaKoMa.txt for the full notice, including modification and
+embedding permissions.
+
+Known provenance gap: exact build-source commits, build inputs and complete
+corresponding source for the prebuilt worker/WebAssembly/core have not been
+verified. This directory is not a reproducibility claim or an assurance that
+all distribution obligations have been fulfilled. See SOURCES.txt for the
+pinned immediate source, upstream references and the precise limitation.

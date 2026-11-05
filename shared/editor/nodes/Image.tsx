@@ -26,6 +26,7 @@ import type { CommentAnchor } from "../commands/comment";
 import { addComment, addDraftCommentAnchor } from "../commands/comment";
 import { addLink } from "../commands/link";
 import { commentedImagePlugin } from "../plugins/CommentedImagePlugin";
+import { imageBlockPlugin } from "../plugins/ImageBlockPlugin";
 
 const imageSizeRegex = /\s=(\d+)?x(\d+)?$/;
 
@@ -196,7 +197,8 @@ export default class Image extends SimpleImage {
               src: img?.getAttribute("src"),
               alt: img?.getAttribute("alt"),
               title: img?.getAttribute("title"),
-              source: img?.getAttribute("source"),
+              source:
+                img?.getAttribute("source") ?? img?.getAttribute("data-source"),
               width: width ? parseInt(width, 10) : undefined,
               height: height ? parseInt(height, 10) : undefined,
               layoutClass,
@@ -235,6 +237,8 @@ export default class Image extends SimpleImage {
               src: dom.getAttribute("src"),
               alt: dom.getAttribute("alt"),
               title: dom.getAttribute("title"),
+              source:
+                dom.getAttribute("source") ?? dom.getAttribute("data-source"),
               width: width ? parseInt(width, 10) : undefined,
               height: height ? parseInt(height, 10) : undefined,
             };
@@ -247,10 +251,12 @@ export default class Image extends SimpleImage {
         const isInlineIcon = isInlineImageIcon({
           layoutClass: node.attrs.layoutClass,
           width: node.attrs.width,
+          source: node.attrs.source,
         });
         const className = imageClassName({
           layoutClass: node.attrs.layoutClass,
           width: node.attrs.width,
+          source: node.attrs.source,
         });
 
         // `marks` is held separately below and is not a valid DOM attribute.
@@ -259,6 +265,7 @@ export default class Image extends SimpleImage {
           "img",
           {
             ...attrs,
+            "data-source": node.attrs.source,
             src: sanitizeImageSrc(node.attrs.src),
             width: node.attrs.width,
             height: node.attrs.height,
@@ -307,6 +314,7 @@ export default class Image extends SimpleImage {
     return [
       ...super.plugins,
       commentedImagePlugin(),
+      imageBlockPlugin(),
       new Plugin({
         props: {
           handleDOMEvents: {

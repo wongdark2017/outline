@@ -194,6 +194,7 @@ export async function start(id: number, disconnect: () => void) {
   });
 
   // Handle shutdown signals
+  // once 表示对应信号的处理器只触发一次，避免重复执行
   process.once("SIGTERM", () => ShutdownHelper.execute());
   process.once("SIGINT", () => ShutdownHelper.execute());
 }

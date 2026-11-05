@@ -1,3 +1,5 @@
+import { NodeSelection } from "prosemirror-state";
+import { ImageSource } from "@shared/editor/lib/FileHelper";
 import {
   bulletList,
   createEditorState,
@@ -51,15 +53,128 @@ describe("DragTarget.resolvePos", () => {
     expect(DragTarget.resolvePos(state, 6)).toBeNull();
   });
 
-  it("returns null for a paragraph that holds a layout image", () => {
+  it.each([null, ImageSource.Tikz])(
+    "resolves every alignment of a %s image to its paragraph block",
+    (source) => {
+      for (const layoutClass of [null, "left-50", "right-50", "full-width"]) {
+        const image = schema.nodes.image.create({
+          src: "https://example.com/image.png",
+          source,
+          layoutClass,
+          width: 260,
+          height: 180,
+          alt: "Caption",
+        });
+        const paragraph = schema.nodes.paragraph.create(null, image);
+        const state = createEditorState(doc([p("one"), paragraph]));
+        const target = DragTarget.resolvePos(state, 6);
+
+        expect(target).toEqual({ pos: 5, kind: "block" });
+        expect(
+          NodeSelection.create(state.doc, 5).content().content.firstChild
+        ).toBe(paragraph);
+      }
+    }
+  );
+
+  it.each([null, ImageSource.Tikz])(
+    "keeps mixed text and a %s image together as one paragraph block",
+    (source) => {
+      const image = schema.nodes.image.create({
+        src: "https://example.com/image.png",
+        source,
+        layoutClass: "right-50",
+        width: 260,
+      });
+      const paragraph = schema.nodes.paragraph.create(null, [
+        schema.text("Before "),
+        image,
+        schema.text(" after"),
+      ]);
+      const state = createEditorState(doc([paragraph]));
+      const imagePos = 1 + "Before ".length;
+
+      expect(DragTarget.resolvePos(state, imagePos)).toEqual({
+        pos: 0,
+        kind: "block",
+      });
+      const slice = NodeSelection.create(state.doc, 0).content();
+      expect(slice.content.firstChild).toBe(paragraph);
+      expect(slice.content.textBetween(0, slice.content.size)).toBe(
+        "Before  after"
+      );
+    }
+  );
+
+  it("keeps an ordinary inline icon attached to its text paragraph", () => {
+    const icon = schema.nodes.image.create({
+      src: "https://example.com/icon.png",
+      width: 24,
+      layoutClass: "left-50",
+    });
+    const paragraph = schema.nodes.paragraph.create(null, [
+      schema.text("Status "),
+      icon,
+      schema.text(" ready"),
+    ]);
+    const state = createEditorState(doc([paragraph]));
+
+    expect(DragTarget.resolvePos(state, 8)).toEqual({ pos: 0, kind: "block" });
+    expect(
+      NodeSelection.create(state.doc, 0).content().content.firstChild
+    ).toBe(paragraph);
+  });
+
+  it("keeps an image inside a nested list attached to the nearest list item", () => {
     const image = schema.nodes.image.create({
       src: "https://example.com/image.png",
-      layoutClass: "full-width",
+      layoutClass: "right-50",
     });
-    const state = createEditorState(
-      doc([p("one"), schema.nodes.paragraph.create(null, image)])
+    const innerItem = schema.nodes.list_item.create(
+      null,
+      schema.nodes.paragraph.create(null, image)
     );
-    expect(DragTarget.resolvePos(state, 6)).toBeNull();
+    const innerList = schema.nodes.bullet_list.create(null, innerItem);
+    const outerItem = schema.nodes.list_item.create(null, [
+      p("Parent"),
+      innerList,
+    ]);
+    const state = createEditorState(
+      doc([schema.nodes.bullet_list.create(null, outerItem)])
+    );
+    let imagePos = 0;
+    let itemPos = 0;
+    state.doc.descendants((node, pos) => {
+      if (node === image) {
+        imagePos = pos;
+      }
+      if (node === innerItem) {
+        itemPos = pos;
+      }
+    });
+
+    expect(DragTarget.resolvePos(state, imagePos)).toEqual({
+      pos: itemPos,
+      kind: "listItem",
+    });
+  });
+
+  it("keeps images inside table cells attached to the table target", () => {
+    const image = schema.nodes.image.create({
+      src: "https://example.com/image.png",
+      layoutClass: "left-50",
+    });
+    const cell = schema.nodes.td.create(
+      null,
+      schema.nodes.paragraph.create(null, image)
+    );
+    const state = createEditorState(doc([table([tr([cell])])]));
+
+    expect(DragTarget.resolvePos(state, 4)).toEqual({ pos: 0, kind: "block" });
+    const target = new DragTarget(0, document.createElement("div"), "block");
+    expect(
+      target.hasOwnControls(createEditorStateWithSelection(state.doc, 4))
+    ).toBe(true);
   });
 
   it("resolves a position between top-level atoms to the adjacent atom", () => {

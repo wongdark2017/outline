@@ -1,0 +1,34 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "results": [
+        {
+          "name": "missing-package",
+          "ok": false,
+          "reason": "compile",
+          "error": "File `tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sty' not found.\n\nThis is e-TeX, Version 3.141592653-2.6 (preloaded format=latex 2025.6.13)\n**entering extended mode\n(input.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(TeXinputs:\"tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nx.) (\"l3backend-dvips.def\") (TeXinputs:\"input.aux\") [1] (input.aux) )\nOutput written on input.dvi (1 page, 912 bytes).\nTranscript written on input.log.",
+          "description": {
+            "detail": "File `tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sty' not found.\n\nThis is e-TeX, Version 3.141592653-2.6 (preloaded format=latex 2025.6.13)\n**entering extended mode\n(input.tex\nLaTeX2e <2023-11-01> patch level 1\nL3 programming layer <2024-01-22>\n(TeXinputs:\"tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\nx.) (\"l3backend-dvips.def\") (TeXinputs:\"input.aux\") [1] (input.aux) )\nOutput written on input.dvi (1 page, 912 bytes).\nTranscript written on input.log.",
+            "missingPackage": "tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "line": 1
+          }
+        }
+      ],
+      "violations": [],
+      "origin": "http://127.0.0.1:35383"
+    }
+  },
+  "requestCount": 11,
+  "requests": [
+    "/",
+    "/smoke.js",
+    "/static/tikzjax-e374921f/run-tex.js",
+    "/favicon.ico",
+    "/static/tikzjax-e374921f/tex.wasm.gz",
+    "/static/tikzjax-e374921f/core.dump.gz",
+    "/static/tikzjax-e374921f/tex_files/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sty.gz",
+    "/static/tikzjax-e374921f/tikz-missing-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.sty",
+    "/static/tikzjax-e374921f/tex_files/l3backend-dvips.def.gz"
+  ]
+}

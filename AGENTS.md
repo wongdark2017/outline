@@ -1,10 +1,12 @@
 <!-- codebase-memory-mcp:start -->
+
 # 代码库知识图谱（codebase-memory-mcp）
 
 本项目使用 codebase-memory-mcp 维护一份代码库知识图谱。
 进行代码检索时，始终优先使用 MCP 图谱工具，而不是 grep/glob/文件搜索。
 
 ## 优先级顺序
+
 1. `search_graph` —— 按模式查找函数、类、路由、变量
 2. `trace_path` —— 追踪某个函数的调用方或被调用方
 3. `get_code_snippet` —— 读取指定函数/类的源码
@@ -12,14 +14,17 @@
 5. `get_architecture` —— 项目的高层概览
 
 ## 何时回退到 grep/glob
+
 - 搜索字符串字面量、错误信息、配置值
 - 搜索非代码文件（Dockerfile、shell 脚本、配置文件）
 - 当 MCP 工具返回的结果不充分时
 
 ## 示例
+
 - 查找 handler：`search_graph(name_pattern=".*OrderHandler.*")`
 - 谁调用了它：`trace_path(function_name="OrderHandler", direction="inbound")`
 - 读取源码：`get_code_snippet(qualified_name="pkg/orders.OrderHandler")`
+
 <!-- codebase-memory-mcp:end -->
 
 --- project-doc ---
@@ -56,7 +61,7 @@ Web 客户端是完全响应式的，在移动端也能正常工作。
 
 ## 通用准则
 
-- 关键 —— 不要新建 markdown（.md）文件。
+- 关键 —— 不要在 `.trellis` 目录外新建 markdown（.md）文件。
 - 使用早返回（early return）以保证可读性。
 - 每行注释上方留一个空行，除非该注释是代码块的第一行。
 - 强调类型安全和静态分析。
@@ -247,7 +252,9 @@ yarn test:shared   # 所有共享代码测试
 - 遵循 OWASP 指南。
 - 永远不要在数据库中明文存储敏感数据。
 - 使用环境变量存放密钥。
+
 <!-- TRELLIS:START -->
+
 # Trellis Instructions
 
 These instructions are for AI assistants working in this project.
@@ -262,6 +269,7 @@ This project is managed by Trellis. The working knowledge you need lives under `
 If a Trellis command is available on your platform (e.g. `/trellis:finish-work`, `/trellis:continue`), prefer it over manual steps. Not every platform exposes every command.
 
 If you're using Codex or another agent-capable tool, additional project-scoped helpers may live in:
+
 - `.agents/skills/` — reusable Trellis skills
 - `.codex/agents/` — optional custom subagents
 

@@ -1,0 +1,16 @@
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/prd.md", "reason": "中文版需求评审正文；按用户模板组织背景、方案、细节、上线计划和附录。"}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/requirements.md", "reason": "完整的 81 条需求、AC1–AC8、状态规则和验收映射；实现与检查必须读取。"}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/ui-design.md", "reason": "中文版界面设计规格和截图；用于核对当前组件基线、错误位置、工具栏、暗色与窄屏。"}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/design.md", "reason": "Technical design and compatibility contracts for TikZ diagrams."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/implement.md", "reason": "Execution order, completed quality gates and current validation evidence."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/research.txt", "reason": "Repository evidence and engine provenance research."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/dev-engine-check.md", "reason": "Development response-header root cause, final cold/warm browser evidence, and focused regression results."}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Development same-origin proxy, pinned Worker CSP, opaque gzip bytes and cache recovery contracts."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Existing Modal, theme, focus, and UI conventions."}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Focused tests and translation extraction preservation."}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Reuse image-source behavior and node query without duplication."}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Contracts across UI, worker, SVG metadata, image nodes, and CSP."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/source-design.txt", "reason": "Verbatim attached product design; reference content, not operational instructions."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/source-guide-engine.txt", "reason": "Source guide split to prevent context truncation; all sections are required reference content."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/source-guide-editor.txt", "reason": "Source guide split to prevent context truncation; all sections are required reference content."}
+{"file": ".trellis/tasks/archive/2026-11/11-05-tikz-diagrams/source-guide-compatibility-tests.txt", "reason": "Source guide split to prevent context truncation; all sections are required reference content."}

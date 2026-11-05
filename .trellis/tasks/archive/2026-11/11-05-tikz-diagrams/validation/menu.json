@@ -1,0 +1,22 @@
+{
+  "checks": [
+    {
+      "name": "slash menu places TikZ immediately after diagrams.net",
+      "status": "passed"
+    },
+    {
+      "name": "all seven approved slash search keywords select TikZ",
+      "status": "passed"
+    },
+    {
+      "name": "menu search alone does not load engine or heavy editor",
+      "status": "passed"
+    }
+  ],
+  "electronUi": {
+    "status": "not_verified",
+    "attempt": "user-agent simulation",
+    "result": "Condition timeout: [...document.querySelectorAll('[role=\"option\"]')].some(e=>e.innerText==='TikZ 图表')",
+    "coverage": "The real Electron shell is unavailable. app/editor/menus/block.test.ts covers the actual menu filter branch."
+  }
+}

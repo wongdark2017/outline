@@ -3,6 +3,7 @@ import extract from "png-chunks-extract";
 
 export enum ImageSource {
   DiagramsNet = "diagrams.net",
+  Tikz = "tikz",
 }
 
 export default class FileHelper {
@@ -234,7 +235,52 @@ export default class FileHelper {
     if (await this.isDiagramsNetImage(file)) {
       return ImageSource.DiagramsNet;
     }
+    if (await this.isTikzSvg(file)) {
+      return ImageSource.Tikz;
+    }
     return undefined;
+  }
+
+  /**
+   * Checks whether an SVG contains editable TikZ source in its metadata.
+   *
+   * @param file - the image file to inspect.
+   * @returns whether SVG metadata contains a text/x-tikz script element.
+   */
+  private static async isTikzSvg(file: File): Promise<boolean> {
+    if (file.type !== "image/svg+xml") {
+      return false;
+    }
+
+    try {
+      const text = (await file.text())
+        .replace(/<!--[\s\S]*?-->/g, "")
+        .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+      if (!/<svg(?:\s[^>]*)?>[\s\S]*<\/svg\s*>/i.test(text)) {
+        return false;
+      }
+
+      const metadata = text.matchAll(
+        /<metadata(?:\s[^>]*)?>([\s\S]*?)<\/metadata\s*>/gi
+      );
+      for (const entry of metadata) {
+        const scripts = entry[1].matchAll(
+          /<script(\s[^>]*)?>[\s\S]*?<\/script\s*>/gi
+        );
+        for (const script of scripts) {
+          if (
+            /(?:^|\s)type\s*=\s*(["'])text\/x-tikz\1(?:\s|$)/i.test(
+              script[1] ?? ""
+            )
+          ) {
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   /**

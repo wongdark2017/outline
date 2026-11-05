@@ -397,3 +397,72 @@ User explicitly paused further email code sign-in development and rollout. Clean
 ### Status
 
 [OK] **Completed**
+
+
+## Session 12: Editable TikZ diagrams and development engine recovery
+<!-- trellis-session: v=2 fp=e495c33e3e7cc784 -->
+
+**Date**: 2026-11-05
+**Task**: Editable TikZ diagrams and development engine recovery
+**Branch**: `codex/tikz-diagrams`
+
+### Summary
+
+Implemented editable TikZ SVG diagrams with lazy same-origin rendering, original source metadata, guarded saves and localized errors. Fixed development Worker CSP, gzip transport headers and stale-cache recovery. Completed Trellis implementation, review, specs and archive.
+
+### Main Changes
+
+- Added the approved TikZ editor, image integration, vendored runtime and compatibility contracts.
+- Repaired the development proxy without changing ordinary asset caching or production behavior.
+- Preserved user-owned environment, AGENTS.md and server/main.ts changes; recovered the archive-only auto-commit path issue.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5e0c70609` | feat: add editable TikZ diagrams |
+
+### Testing
+
+- [OK] Feature suite: 153 passed and one environment skip; development regression suite: 44 passed. Counts overlap and are not summed.
+- [OK] Full TypeScript and lint, scoped formatting, production build, actual production UI and development cold/warm browser rendering passed.
+- [OK] Same-browser recovery changes engine -3 into a valid SVG; Worker revalidation remains 304 and opaque gzip entities return 200.
+
+### Status
+
+[OK] **Completed**
+
+
+## Session 13: Image block editing and drag fixes
+<!-- trellis-session: v=2 fp=ef0dbae53eb1a92e -->
+
+**Date**: 2026-11-06
+**Task**: Image block editing and drag fixes
+**Branch**: `codex/tikz-diagrams`
+
+### Summary
+
+Make standalone images occupy atomic rows, reuse text block drag handles, and direct text, paste, and IME input below images while retaining captions and inline icons. Commit current development settings and project guidance.
+
+### Main Changes
+
+- Keep non-inline figures on separate rows and restore existing block drag handles for aligned images.
+- Add view-only image paragraph boundaries and preserve images across keyboard, clipboard, and Chinese IME input.
+- Record source-aware inline icon behavior, selection handling, and genuine following-paragraph controls in frontend specs.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `a464009f3` | fix: keep image blocks atomic and draggable |
+| `f79819fb8` | chore: update development settings and project guidance |
+
+### Testing
+
+- [OK] 79 focused tests passed; 18 DOM-dependent project cases skipped in the node environment.
+- [OK] Real Chromium checks passed for blank-row clicks, text/IME/multiline paste, captions, resize, native dragging, readonly mode, and printing.
+- [OK] TypeScript, scoped Oxlint/Oxfmt, commit hooks, and stable locale extraction passed.
+
+### Status
+
+[OK] **Completed**

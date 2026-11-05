@@ -149,6 +149,10 @@ export default function createCSPMiddleware(options?: CSPOptions) {
           styleSrc: uniq([...styleSrc, ...(ctx.state.cspStyleSrc as string[])]),
           scriptSrc: uniq([
             ...scriptSrc,
+
+            // The local TikZ engine compiles WebAssembly inside its worker.
+            "'wasm-unsafe-eval'",
+
             // Allow the service worker to importScripts the workbox runtime,
             // which is served under /static on the document host.. Scoped to
             // the /static path so only immutable build assets are permitted,
