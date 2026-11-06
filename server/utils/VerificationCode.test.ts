@@ -1,140 +1,289 @@
+// @vitest-isolate true
+import { randomUUID } from "node:crypto";
+import { Day } from "@shared/utils/time";
+import Redis from "@server/storage/redis";
+import { EmailSigninRequest } from "./EmailSigninRequest";
+import type { EmailSigninRequestData } from "./EmailSigninRequest";
 import { VerificationCode } from "./VerificationCode";
 
+const redis = Redis.defaultClient;
+
 describe("VerificationCode", () => {
-  const teamId = "team-1";
-  const otherTeamId = "team-2";
-  const email = "user@example.com";
+  let request: EmailSigninRequestData;
+  let now: number;
+
+  beforeEach(async () => {
+    now = Date.now();
+    vi.spyOn(Date, "now").mockImplementation(() => now);
+
+    // Model one clock for ioredis-mock's rounded wall seconds and hrtime fraction.
+    vi.spyOn(Date.prototype, "getTime").mockImplementation(
+      () => Math.floor(now / 1000) * 1000
+    );
+    vi.spyOn(process, "hrtime").mockImplementation(() => [
+      0,
+      (now % 1000) * 1000000,
+    ]);
+    request = {
+      teamId: randomUUID(),
+      email: "User@Example.COM",
+      requestId: randomUUID(),
+      requestedAt: now,
+    };
+    await EmailSigninRequest.admit(request);
+  });
 
   afterEach(async () => {
-    await VerificationCode.delete(teamId, email);
-    await VerificationCode.delete(otherTeamId, email);
+    await redis.del(
+      ...Object.values(
+        EmailSigninRequest.getKeys(request.teamId, request.email)
+      )
+    );
+    vi.restoreAllMocks();
   });
 
-  describe("generate", () => {
-    it("should return a 6-digit string", () => {
-      const code = VerificationCode.generate();
-      expect(code).toMatch(/^\d{6}$/);
-    });
-
-    it("should always produce exactly six digits across many samples", () => {
-      for (let i = 0; i < 1000; i++) {
-        expect(VerificationCode.generate()).toMatch(/^\d{6}$/);
-      }
-    });
+  it("generates uniformly shaped six-digit strings", () => {
+    for (let i = 0; i < 1000; i++) {
+      expect(VerificationCode.generate()).toMatch(/^\d{6}$/);
+    }
   });
 
-  describe("store and retrieve", () => {
-    it("should store and retrieve a code", async () => {
-      const code = "123456";
-      await VerificationCode.store(teamId, email, code);
-      const retrieved = await VerificationCode.retrieve(teamId, email);
-      expect(retrieved).toBe(code);
+  it("sends only HMAC digests to Redis, including candidate arguments", async () => {
+    const spy = vi.spyOn(redis, "eval");
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: true,
     });
-
-    it("should return undefined for an unknown email", async () => {
-      const retrieved = await VerificationCode.retrieve(
-        teamId,
-        "unknown@example.com"
-      );
-      expect(retrieved).toBeUndefined();
-    });
-
-    it("should be case-insensitive for email", async () => {
-      const code = "654321";
-      await VerificationCode.store(teamId, "User@Example.COM", code);
-      const retrieved = await VerificationCode.retrieve(
-        teamId,
-        "user@example.com"
-      );
-      expect(retrieved).toBe(code);
-      await VerificationCode.delete(teamId, "user@example.com");
-    });
-
-    it("should isolate codes between teams for the same email", async () => {
-      await VerificationCode.store(teamId, email, "111111");
-      await VerificationCode.store(otherTeamId, email, "222222");
-
-      expect(await VerificationCode.retrieve(teamId, email)).toBe("111111");
-      expect(await VerificationCode.retrieve(otherTeamId, email)).toBe(
-        "222222"
-      );
-    });
-  });
-
-  describe("verify", () => {
-    it("should return true for a matching code", async () => {
-      const code = "123456";
-      await VerificationCode.store(teamId, email, code);
-      const result = await VerificationCode.verify(teamId, email, code);
-      expect(result).toBe(true);
-    });
-
-    it("should return false for an incorrect code", async () => {
-      await VerificationCode.store(teamId, email, "123456");
-      const result = await VerificationCode.verify(teamId, email, "000000");
-      expect(result).toBe(false);
-    });
-
-    it("should return false when no code is stored", async () => {
-      const result = await VerificationCode.verify(teamId, email, "123456");
-      expect(result).toBe(false);
-    });
-
-    it("should not verify a code issued for a different team", async () => {
-      await VerificationCode.store(teamId, email, "123456");
-      const result = await VerificationCode.verify(
-        otherTeamId,
-        email,
+    expect(
+      await VerificationCode.verify(
+        request.teamId,
+        " user@example.com ",
         "123456"
-      );
-      expect(result).toBe(false);
+      )
+    ).toBe(true);
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("123456");
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    expect(await redis.get(keys.verifier)).toBeNull();
+    expect(await redis.get(keys.latest)).toBeNull();
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "123456")
+    ).toBe(false);
+  });
+
+  it("stores a versioned HMAC with only the remaining request TTL", async () => {
+    now += 120000;
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: true,
     });
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    const stored = await redis.hgetall(keys.verifier);
+    expect(JSON.stringify(stored)).not.toContain("123456");
+    expect(stored).toEqual({
+      version: "1",
+      hmac: expect.stringMatching(/^[a-f0-9]{64}$/),
+      requestId: request.requestId,
+      deadline: String(request.requestedAt + 600000),
+    });
+    expect(await redis.pttl(keys.verifier)).toBe(480000);
+    now = request.requestedAt + 599999;
+    expect(await VerificationCode.publish(request, "654321")).toEqual({
+      published: true,
+    });
+    expect(await redis.pttl(keys.verifier)).toBe(1);
+    now += 1;
+    expect(await VerificationCode.publish(request, "654321")).toEqual({
+      published: false,
+      reason: "invalid_request",
+    });
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "654321")
+    ).toBe(false);
+  });
 
-    it("should delete the code after exceeding max attempts", async () => {
-      await VerificationCode.store(teamId, email, "123456");
+  it("consumes once and never authorizes a legacy plaintext record", async () => {
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    await redis.set(keys.verifier, "123456");
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "123456")
+    ).toBe(false);
+    await VerificationCode.publish(request, "123456");
+    expect(
+      await VerificationCode.verify("another-team", request.email, "123456")
+    ).toBe(false);
+    await redis.del(
+      ...Object.values(
+        EmailSigninRequest.getKeys("another-team", request.email)
+      )
+    );
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "123456")
+    ).toBe(true);
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "123456")
+    ).toBe(false);
+  });
 
-      // Exhaust all 10 allowed attempts with wrong codes
-      for (let i = 0; i < 10; i++) {
-        await VerificationCode.verify(teamId, email, "000000");
-      }
+  it("retains five-guess exhaustion across retries and gives an admitted resend a fresh budget", async () => {
+    await VerificationCode.publish(request, "123456");
+    for (let i = 0; i < 4; i++) {
+      expect(
+        await VerificationCode.verify(request.teamId, request.email, "000000")
+      ).toBe(false);
+    }
+    expect(await VerificationCode.publish(request, "654321")).toEqual({
+      published: true,
+    });
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "000000")
+    ).toBe(false);
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "654321")
+    ).toBe(false);
+    expect(await VerificationCode.publish(request, "222222")).toEqual({
+      published: false,
+      reason: "attempts_exhausted",
+    });
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    expect(await redis.get(keys.attempts)).toBe("5");
+    expect(await redis.get(keys.verifier)).toBeNull();
 
-      // 11th attempt should fail even with the correct code
-      const result = await VerificationCode.verify(teamId, email, "123456");
-      expect(result).toBe(false);
+    now += 60000;
+    const next = { ...request, requestId: randomUUID(), requestedAt: now };
+    expect(await EmailSigninRequest.admit(next)).toBe(true);
+    expect(await redis.get(keys.attempts)).toBeNull();
+    const previousFailures = Number(await redis.get(keys.failures));
+    expect(await VerificationCode.publish(next, "111111")).toEqual({
+      published: true,
+    });
+    for (let i = 0; i < 4; i++) {
+      expect(
+        await VerificationCode.verify(request.teamId, request.email, "000000")
+      ).toBe(false);
+    }
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "111111")
+    ).toBe(true);
+    expect(await redis.get(keys.attempts)).toBe("4");
+    expect(Number(await redis.get(keys.failures))).toBe(previousFailures + 4);
+  });
 
-      // Code should be deleted from storage
-      const stored = await VerificationCode.retrieve(teamId, email);
-      expect(stored).toBeUndefined();
+  it("keeps the same-request attempt TTL until its original deadline", async () => {
+    await VerificationCode.publish(request, "123456");
+    await VerificationCode.verify(request.teamId, request.email, "000000");
+    now += 590000;
+    expect(await VerificationCode.publish(request, "654321")).toEqual({
+      published: true,
+    });
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    expect(await redis.get(keys.attempts)).toBe("1");
+    expect(await redis.pttl(keys.attempts)).toBe(10000);
+    expect(await redis.pttl(keys.verifier)).toBe(10000);
+    for (let i = 0; i < 4; i++) {
+      await VerificationCode.verify(request.teamId, request.email, "000000");
+    }
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "654321")
+    ).toBe(false);
+    expect(await VerificationCode.publish(request, "111111")).toEqual({
+      published: false,
+      reason: "attempts_exhausted",
     });
   });
 
-  describe("delete", () => {
-    it("should remove the stored code", async () => {
-      await VerificationCode.store(teamId, email, "123456");
-      await VerificationCode.delete(teamId, email);
-      const retrieved = await VerificationCode.retrieve(teamId, email);
-      expect(retrieved).toBeUndefined();
+  it("reports atomic skip outcomes without extra Redis reads", async () => {
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    const get = vi.spyOn(redis, "get");
+    expect(
+      await VerificationCode.publish({ ...request, requestId: "" }, "123456")
+    ).toEqual({ published: false, reason: "invalid_request" });
+    expect(await VerificationCode.publish(request, "invalid")).toEqual({
+      published: false,
+      reason: "invalid_request",
     });
-
-    it("should reset the attempt counter", async () => {
-      await VerificationCode.store(teamId, email, "123456");
-
-      // Use some attempts
-      for (let i = 0; i < 5; i++) {
-        await VerificationCode.verify(teamId, email, "000000");
-      }
-
-      // Delete and re-store
-      await VerificationCode.delete(teamId, email);
-      await VerificationCode.store(teamId, email, "654321");
-
-      // Should have a fresh set of attempts
-      for (let i = 0; i < 9; i++) {
-        await VerificationCode.verify(teamId, email, "000000");
-      }
-
-      const result = await VerificationCode.verify(teamId, email, "654321");
-      expect(result).toBe(true);
+    await redis.set(keys.attempts, "5", "PX", 600000);
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: false,
+      reason: "attempts_exhausted",
     });
+    await redis.set(keys.failures, "30", "PX", Day.ms);
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: false,
+      reason: "daily_locked",
+    });
+    await redis.set(keys.latest, "superseded", "PX", 600000);
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: false,
+      reason: "superseded_or_expired",
+    });
+    expect(get).not.toHaveBeenCalled();
+  });
+
+  it("blocks thirty failures for the original fixed 24h window without extension", async () => {
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    for (let i = 0; i < 29; i++) {
+      expect(
+        await VerificationCode.verify(request.teamId, request.email, "000000")
+      ).toBe(false);
+    }
+    expect(await VerificationCode.isLocked(request.teamId, request.email)).toBe(
+      false
+    );
+    const deadline = now + (await redis.pttl(keys.failures));
+    now += 123000;
+    await VerificationCode.verify(request.teamId, request.email, "000000");
+    expect(await VerificationCode.isLocked(request.teamId, request.email)).toBe(
+      true
+    );
+    const next = { ...request, requestId: randomUUID(), requestedAt: now };
+    expect(await EmailSigninRequest.admit(next)).toBe(true);
+    expect(await redis.get(keys.attempts)).toBeNull();
+    expect(await VerificationCode.publish(next, "123456")).toEqual({
+      published: false,
+      reason: "daily_locked",
+    });
+    await VerificationCode.verify(request.teamId, request.email, "123456");
+    expect(await redis.get(keys.failures)).toBe("30");
+    expect(await redis.pttl(keys.failures)).toBe(deadline - now);
+    now = request.requestedAt + Day.ms;
+    expect(await VerificationCode.isLocked(request.teamId, request.email)).toBe(
+      false
+    );
+  });
+
+  it("refuses an old worker after resend and preserves newer pointer on consumption", async () => {
+    await VerificationCode.publish(request, "123456");
+    now += 60000;
+    const next = { ...request, requestId: randomUUID(), requestedAt: now };
+    await EmailSigninRequest.admit(next);
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "123456")
+    ).toBe(false);
+    expect(await VerificationCode.publish(request, "123456")).toEqual({
+      published: false,
+      reason: "superseded_or_expired",
+    });
+    await VerificationCode.publish(next, "654321");
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    await redis.set(keys.latest, "newer-request", "PX", 600000);
+    expect(
+      await VerificationCode.verify(request.teamId, request.email, "654321")
+    ).toBe(true);
+    expect(await redis.get(keys.latest)).toBe("newer-request");
+    expect(await VerificationCode.publish(next, "654321")).toEqual({
+      published: false,
+      reason: "superseded_or_expired",
+    });
+  });
+
+  it("delete preserves counters and Redis failures fail closed", async () => {
+    await VerificationCode.publish(request, "123456");
+    await VerificationCode.verify(request.teamId, request.email, "000000");
+    await VerificationCode.delete(request.teamId, request.email);
+    const keys = EmailSigninRequest.getKeys(request.teamId, request.email);
+    expect(await redis.get(keys.attempts)).toBe("1");
+    expect(await redis.get(keys.failures)).toBe("1");
+    vi.spyOn(redis, "eval").mockRejectedValueOnce(new Error("unavailable"));
+    await expect(
+      VerificationCode.verify(request.teamId, request.email, "123456")
+    ).rejects.toThrow("unavailable");
   });
 });
