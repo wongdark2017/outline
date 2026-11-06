@@ -88,6 +88,34 @@ choose workspace appearance only when `can.update` permits it.
 - Formula source editors forward undo/redo shortcuts to the enclosing editor's configured key handlers. Do not bind them directly to `prosemirror-history`: collaborative editors use Yjs history. Keep select-all confined to the formula source.
 - A sidebar's decorative accent rail must remain in every hover/focus/collapsed shadow branch. Use logical inline properties for active indicators and dividers.
 
+### Table column width rendering
+
+`prosemirror-tables` writes saved and actively dragged `colwidth` values to the
+table's `<colgroup>`. Keep `table-layout: fixed` in
+`shared/editor/components/Styles.ts`; with automatic table layout, long code
+paths can shrink a 278px column to about 43px even while its `<col>` changes to
+378px during a drag. Unspecified columns use the upstream 100px
+`defaultCellMinWidth` through `columnResizing({ View: TableView })`; this lets
+the existing scroll wrapper carry overflow on narrow viewports. Inside tables,
+allow `.code-word` spans to wrap with `white-space: break-spaces` and
+`overflow-wrap: anywhere`, since their desktop default is `nowrap`.
+
+```css
+table {
+  table-layout: fixed;
+}
+
+table .code-word {
+  white-space: break-spaces;
+  overflow-wrap: anywhere;
+}
+```
+
+When changing these styles, verify a stored width before and during a real
+drag, persistence after reload, a long inline-code path, and horizontal scroll
+at a narrow viewport. Also check tables with no stored widths and full-width
+mode.
+
 ## Historical contract: Appearance settings and script lifecycle
 
 The current product is background-only. CSS and script entry points, effective

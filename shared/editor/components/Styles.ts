@@ -2161,6 +2161,7 @@ pre {
 
 table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-radius: 2px;
   font-size: 90%;
@@ -2172,6 +2173,11 @@ table {
 
   * {
     box-sizing: border-box;
+  }
+
+  .${EditorStyleHelper.codeWord} {
+    white-space: break-spaces;
+    overflow-wrap: anywhere;
   }
 
   tr {

@@ -466,3 +466,25 @@ Make standalone images occupy atomic rows, reuse text block drag handles, and di
 ### Status
 
 [OK] **Completed**
+
+
+## Session 14: Table column resize hotfix
+<!-- trellis-session: v=2 fp=7d960c173b46549c -->
+
+**Date**: 2026-11-06
+**Task**: Table column resize hotfix
+**Branch**: `codex/hotfix-table-column-resize`
+
+### Summary
+
+Fixed table column rendering and inline code wrapping, restored the default minimum column width, and verified resize persistence and narrow viewport behavior in the browser.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `19cd47345` | fix: honor table column widths during resize |
+
+### Status
+
+[OK] **Completed**
