@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
+- **Total Sessions**: 14
 - **Last Active**: 2026-11-06
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~468 | Active |
+| `journal-1.md` | ~490 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-11-06 | Table column resize hotfix | `19cd47345` | `codex/hotfix-table-column-resize` |
 | 13 | 2026-11-06 | Image block editing and drag fixes | `a464009f3`, `f79819fb8` | `codex/tikz-diagrams` |
 | 12 | 2026-11-05 | Editable TikZ diagrams and development engine recovery | `5e0c70609` | `codex/tikz-diagrams` |
 | 11 | 2026-11-04 | 中文背景设置、背景遮挡修复与脚本暂停 | `8fa983344608608b5e474dec19b458debe8cc140` | `feat/custom-themes` |
