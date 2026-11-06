@@ -164,10 +164,7 @@ export default class Table extends Node {
   get plugins() {
     return [
       // Note: Important to register columnResizing before tableEditing
-      columnResizing({
-        View: TableView,
-        defaultCellMinWidth: 25,
-      }),
+      columnResizing({ View: TableView }),
       tableEditing(),
       new TableColumnResizePlugin(),
       new FixTablesPlugin(),
