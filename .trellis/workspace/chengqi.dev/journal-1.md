@@ -488,3 +488,25 @@ Fixed table column rendering and inline code wrapping, restored the default mini
 ### Status
 
 [OK] **Completed**
+
+
+## Session 15: Fix document bottom overscroll
+<!-- trellis-session: v=2 fp=5ba16da2cb6ccab6 -->
+
+**Date**: 2026-11-09
+**Task**: Fix document bottom overscroll
+**Branch**: `codex/hotfix-table-column-resize`
+
+### Summary
+
+Scoped root viewport overscroll behavior to screen document views, retained footer and background settings, passed format/lint/typecheck; live browser wheel effect remains unverified until deployment.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `74eb8dad1` | fix: prevent document bottom overscroll |
+
+### Status
+
+[OK] **Completed**
