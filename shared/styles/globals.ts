@@ -27,6 +27,12 @@ export default createGlobalStyle<Props>`
     --font-size-body: 16px;
   }
 
+  @media screen {
+    html:has([data-outline-part="document-surface"]) {
+      overscroll-behavior-y: none;
+    }
+  }
+
   html,
   body {
     width: 100%;

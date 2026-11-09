@@ -98,11 +98,13 @@ type ContentProps = {
 
 const Content = styled(Flex)<ContentProps>`
   margin: 0;
+  min-height: 100vh;
   transition: ${(props) =>
     props.$isResizing ? "none" : `margin-inline-start 100ms ease-out`};
 
   @media print {
     margin: 0 !important;
+    min-height: 0;
   }
 
   ${breakpoint("mobile", "tablet")`

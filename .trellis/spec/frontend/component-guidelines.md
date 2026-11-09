@@ -154,6 +154,18 @@ controls remain readable over light images in dark mode and dark images in light
 mode. Verify the composited
 text contrast in a real browser; jsdom does not calculate `color-mix()` pixels.
 
+Desktop document scrolling uses the root viewport. To stop the page from
+pulling past the document bottom and exposing a saved body background, set
+`overscroll-behavior-y` on `html` while the document surface is mounted; the
+body rule alone does not control viewport overscroll. Keep the selector scoped
+to `[data-outline-part="document-surface"]` and screen media so unrelated pages
+and print layout retain their behavior. Below the 737px tablet breakpoint,
+mobile's `PageScroll` is a separate 100vh `overflow: auto` scroll container;
+scope the same document-surface `overscroll-behavior-y` rule to that wrapper.
+Changing only `html` cannot contain the mobile scroll gesture. Check the
+bottom wheel or touch gesture in a real browser with and without a saved
+background; static CSS checks cannot verify the visual effect.
+
 Load native modules from the authenticated versioned endpoint. Never evaluate
 source text with `eval` or `new Function`. Match revision ID AND digest after
 revalidation; websocket invalidation, reconnect, visibility and fallback polling
