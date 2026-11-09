@@ -16,6 +16,10 @@ const StableWrapper = styled.div<{ $shouldApplyMobileStyles: boolean }>`
         height: 100vh;
         overflow: auto;
         -webkit-overflow-scrolling: touch;
+
+        &:has([data-outline-part="document-surface"]) {
+          overscroll-behavior-y: none;
+        }
       `
       : `
         display: contents;
