@@ -510,3 +510,25 @@ Scoped root viewport overscroll behavior to screen document views, retained foot
 ### Status
 
 [OK] **Completed**
+
+
+## Session 16: Contain mobile document overscroll
+<!-- trellis-session: v=2 fp=77220c11c5cc7c78 -->
+
+**Date**: 2026-11-09
+**Task**: Contain mobile document overscroll
+**Branch**: `codex/hotfix-table-column-resize`
+
+### Summary
+
+Identified 736px screenshot as mobile scroll-container case; scoped overscroll containment to PageScroll document views, passed format/lint/typecheck and styled-components SSR check; authenticated browser visual confirmation remains pending after deployment.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6787a1786` | fix: contain mobile document overscroll |
+
+### Status
+
+[OK] **Completed**
