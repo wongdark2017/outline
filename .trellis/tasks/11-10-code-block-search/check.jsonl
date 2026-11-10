@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Translation, tests, and quality requirements to verify."}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Theme, mobile, accessibility, and editor interaction review."}
+{"file": ".trellis/tasks/11-10-code-block-search/research/integration.md", "reason": "Known command and selection risks plus dependency audit scope."}
+{"file": ".trellis/spec/frontend/editor-controls.md", "reason": "Search and portaled editor control contracts."}

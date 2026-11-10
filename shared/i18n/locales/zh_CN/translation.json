@@ -2011,5 +2011,12 @@
   "The diagram could not be saved. Your code and preview are preserved.": "图表保存失败。代码和预览已保留。",
   "The diagram source could not be loaded. The original image is unchanged. Try opening it again later.": "图表源码加载失败。原图未修改，请稍后重新打开。",
   "This image does not contain editable TikZ source. The original image is unchanged.": "此图片不包含可编辑的 TikZ 源码。原图未修改。",
-  "No valid diagram was generated. Check the code and try again.": "未生成有效图表。请检查代码后重试。"
+  "No valid diagram was generated. Check the code and try again.": "未生成有效图表。请检查代码后重试。",
+  "Code language": "代码语言",
+  "Search language or extension": "搜索语言或扩展名",
+  "Clear search": "清空搜索",
+  "No languages match “{{ query }}”": "没有匹配“{{ query }}”的语言",
+  "Try a file extension, like py, yml or sh": "试试扩展名，比如 py、yml、sh",
+  "Recently used": "最近使用",
+  "All languages": "全部语言"
 }

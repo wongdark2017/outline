@@ -154,6 +154,12 @@ export function SelectionToolbar(props: Props) {
   React.useLayoutEffect(() => {
     const handleClickOutside = (ev: MouseEvent): void => {
       if (
+        ev.target instanceof Element &&
+        ev.target.closest("[data-code-language-picker]")
+      ) {
+        return;
+      }
+      if (
         ev.target instanceof HTMLElement &&
         menuRef.current &&
         menuRef.current.contains(ev.target)

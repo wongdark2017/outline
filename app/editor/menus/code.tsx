@@ -1,19 +1,15 @@
-import { CopyIcon, EditIcon, ExpandedIcon, TextWrapIcon } from "outline-icons";
-import type { Node as ProseMirrorNode } from "prosemirror-model";
+import { CopyIcon, EditIcon, TextWrapIcon } from "outline-icons";
 import { NodeSelection } from "prosemirror-state";
 import {
   pluginKey as mermaidPluginKey,
   type MermaidState,
 } from "@shared/editor/extensions/Mermaid";
-import {
-  getFrequentCodeLanguages,
-  codeLanguages,
-  getLabelForLanguage,
-} from "@shared/editor/lib/code";
+import { getLabelForLanguage } from "@shared/editor/lib/code";
 import { isMermaid } from "@shared/editor/lib/isCode";
 import { t } from "i18next";
 import type { MenuItem, SelectionContext } from "@shared/editor/types";
 import { metaDisplay } from "@shared/utils/keyboard";
+import { CodeLanguagePicker } from "../components/CodeLanguagePicker";
 
 /**
  * Returns menu items for the code block selection toolbar.
@@ -27,30 +23,6 @@ export default function codeMenuItems(ctx: SelectionContext): MenuItem[] {
     state.selection instanceof NodeSelection
       ? state.selection.node
       : state.selection.$from.node();
-
-  const frequentLanguages = getFrequentCodeLanguages();
-
-  const frequentLangMenuItems = frequentLanguages.map((value) => {
-    const label = codeLanguages[value]?.label;
-    return langToMenuItem({ node, value, label });
-  });
-
-  const remainingLangMenuItems = Object.entries(codeLanguages)
-    .filter(
-      ([value, item]) =>
-        !item.alias &&
-        !frequentLanguages.includes(value as keyof typeof codeLanguages)
-    )
-    .map(([value, item]) => langToMenuItem({ node, value, label: item.label }));
-
-  const getLanguageMenuItems = () =>
-    frequentLangMenuItems.length
-      ? [
-          ...frequentLangMenuItems,
-          { name: "separator" },
-          ...remainingLangMenuItems,
-        ]
-      : remainingLangMenuItems;
 
   const isEditingMermaid = !!(mermaidPluginKey.getState(state) as MermaidState)
     ?.editingId;
@@ -89,27 +61,8 @@ export default function codeMenuItems(ctx: SelectionContext): MenuItem[] {
     },
     {
       name: "code_block",
-      label: getLabelForLanguage(node.attrs.language ?? "none"),
-      icon: <ExpandedIcon />,
-      children: getLanguageMenuItems(),
+      content: <CodeLanguagePicker language={node.attrs.language ?? "none"} />,
       visible: !readOnly,
     },
   ];
 }
-
-const langToMenuItem = ({
-  node,
-  value,
-  label,
-}: {
-  node: ProseMirrorNode;
-  value: string;
-  label: string;
-}): MenuItem => ({
-  name: "code_block",
-  label,
-  active: () => (node.attrs.language ?? "none") === value,
-  attrs: {
-    language: value,
-  },
-});

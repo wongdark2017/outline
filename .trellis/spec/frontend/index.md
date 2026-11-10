@@ -16,6 +16,7 @@ This directory contains guidelines for frontend development. Fill in each file w
 |-------|-------------|--------|
 | [Directory Structure](./directory-structure.md) | Module organization and file layout | To fill |
 | [Component Guidelines](./component-guidelines.md) | Forms, theme styling; appearance; editable TikZ image and worker lifecycle | Forms + theme + customizations + TikZ populated |
+| [Editor Controls](./editor-controls.md) | Language search, selection safety and overlay focus callbacks | Populated |
 | [Hook Guidelines](./hook-guidelines.md) | Custom hooks, data fetching patterns | To fill |
 | [State Management](./state-management.md) | Local state, global state, server state; recoverable email sign-in and immediate resend/local expiry | Email sign-in documented; other topics to fill |
 | [Quality Guidelines](./quality-guidelines.md) | Testing scope; translation and CSRF scenarios | Testing + translation populated |
