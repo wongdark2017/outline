@@ -18,14 +18,12 @@ import i18next from "i18next";
 import { initReactI18next } from "react-i18next";
 import zh from "@shared/i18n/locales/zh_CN/translation.json";
 
-await i18next
-  .use(initReactI18next)
-  .init({
-    lng: "zh_CN",
-    fallbackLng: "en_US",
-    resources: { zh_CN: { translation: zh } },
-    interpolation: { escapeValue: false },
-  });
+await i18next.use(initReactI18next).init({
+  lng: "zh_CN",
+  fallbackLng: "en_US",
+  resources: { zh_CN: { translation: zh } },
+  interpolation: { escapeValue: false },
+});
 const schema = new Schema({
   nodes: {
     doc: { content: "block+" },

@@ -47,6 +47,8 @@
 
 Trellis 最终完整代码审查未发现待修复问题。用户查看效果并确认语言名单行修复后反馈「现在没啥问题了」，按已展示的提交清单进入本地提交与归档。验证限制仍如上所述。
 
+工作提交：`c7ca234a2`（`feat: add searchable code block language picker`）。正常 Husky 钩子通过，未推送。
+
 ## 远程预览
 
 已按用户要求在当前工作区启动真实开发服务，入口为 `https://localhost:3000`（经原有远程端口转发访问）。命令为 `FILE_STORAGE_LOCAL_ROOT_DIR=/root/outline/data OUTLINE_SERVER_ARGS=--no-migrate yarn dev:watch`。复用原开发环境的配置、数据和证书；配置链接与证书均为 Git 忽略文件。首页、Vite 客户端与新的语言选择器模块均返回 200，实际浏览器已渲染登录页。
