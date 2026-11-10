@@ -5,7 +5,78 @@ import {
   setRecentlyUsedCodeLanguage,
   getRecentlyUsedCodeLanguage,
   getFrequentCodeLanguages,
+  searchCodeLanguages,
 } from "./code";
+
+describe("searchCodeLanguages", () => {
+  it.each(["", "   "])("returns no matches for an empty query %j", (query) => {
+    expect(searchCodeLanguages(query, [])).toEqual([]);
+  });
+
+  it("ranks an exact keyword above a name prefix", () => {
+    expect(searchCodeLanguages("ts", [])).toEqual([
+      { value: "typescript", label: "TypeScript", keyword: "ts" },
+      { value: "tsx", label: "TSX", labelMatch: [0, 2] },
+    ]);
+  });
+
+  it("uses frequency to order ties and otherwise keeps registry order", () => {
+    expect(searchCodeLanguages("jav", []).map(({ value }) => value)).toEqual([
+      "java",
+      "javascript",
+    ]);
+    expect(
+      searchCodeLanguages("jav", ["javascript"]).map(({ value }) => value)
+    ).toEqual(["javascript", "java"]);
+  });
+
+  it("prioritizes the match tier over frequency", () => {
+    expect(
+      searchCodeLanguages("ts", ["tsx"]).map(({ value }) => value)
+    ).toEqual(["typescript", "tsx"]);
+  });
+
+  it("returns the keyword for prefix and substring matches", () => {
+    expect(searchCodeLanguages("terra", [])).toEqual([
+      { value: "hcl", label: "HCL", keyword: "terraform" },
+    ]);
+    expect(searchCodeLanguages("gres", [])).toEqual([
+      { value: "sql", label: "SQL", keyword: "postgres" },
+    ]);
+  });
+
+  it("returns the name match range at a word boundary", () => {
+    expect(searchCodeLanguages("basic", [])).toEqual([
+      { value: "vb", label: "Visual Basic", labelMatch: [7, 12] },
+    ]);
+    expect(searchCodeLanguages("tive", [])).toEqual([
+      { value: "objectivec", label: "Objective-C", labelMatch: [5, 9] },
+    ]);
+  });
+
+  it.each([
+    ["script", ["javascript", "typescript"]],
+    ["shell", ["bash", "powershell"]],
+    ["  PYTHON  ", ["python"]],
+    [" C# ", ["csharp"]],
+    ["jáva", ["java", "javascript"]],
+    ["正则", ["regex"]],
+    ["纯", ["none"]],
+    ["mermaid", ["mermaid"]],
+    ["cobol", []],
+  ])("matches %j", (query, expected) => {
+    expect(searchCodeLanguages(query, []).map(({ value }) => value)).toEqual(
+      expected
+    );
+  });
+
+  it("limits one-character queries to exact and prefix matches", () => {
+    const values = searchCodeLanguages("c", []).map(({ value }) => value);
+    expect(values[0]).toBe("clike");
+    expect(values).not.toContain("javascript");
+    expect(values).not.toContain("objectivec");
+  });
+});
 
 describe("getRefractorLangForLanguage", () => {
   it("should return the correct lang identifier for a given language", () => {

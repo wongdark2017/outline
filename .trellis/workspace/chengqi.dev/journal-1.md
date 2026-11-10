@@ -532,3 +532,39 @@ Identified 736px screenshot as mobile scroll-container case; scoped overscroll c
 ### Status
 
 [OK] **Completed**
+
+
+## Session 17: Code block language search
+<!-- trellis-session: v=2 fp=c7b1131858ccdeb9 -->
+
+**Date**: 2026-11-10
+**Task**: Code block language search
+**Branch**: `feat/code-block-search`
+
+### Summary
+
+Implemented and accepted the searchable code language picker on feat/code-block-search.
+
+### Main Changes
+
+- Added 38 keyword lists and six-tier search ranking, desktop Popover and mobile Drawer, selection/focus protection, and seven English/Chinese strings.
+- Added cmdk and deduped compatible Radix descriptors; fixed drawer title/focus forwarding and kept multiword language labels on one line.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c7ca234a2` | feat: add searchable code block language picker |
+
+### Testing
+
+- [OK] 48 focused search tests passed across both shared Vitest projects; TypeScript, changed-file type-aware lint, formatting and Husky passed.
+- [OK] 16 Chromium interaction checks and six desktop/mobile single-line layout checks passed; user accepted the final UI.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- Native Chinese IME, true-phone keyboard occlusion and complete application dialog regression remain outside the performed verification.

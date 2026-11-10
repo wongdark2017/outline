@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-11-09
+- **Total Sessions**: 17
+- **Last Active**: 2026-11-10
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~534 | Active |
+| `journal-1.md` | ~570 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 17 | 2026-11-10 | Code block language search | `c7ca234a2` | `feat/code-block-search` |
 | 16 | 2026-11-09 | Contain mobile document overscroll | `6787a1786` | `codex/hotfix-table-column-resize` |
 | 15 | 2026-11-09 | Fix document bottom overscroll | `74eb8dad1` | `codex/hotfix-table-column-resize` |
 | 14 | 2026-11-06 | Table column resize hotfix | `19cd47345` | `codex/hotfix-table-column-resize` |

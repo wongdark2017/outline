@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import breakpoint from "styled-components-breakpoint";
 import * as Toolbar from "@radix-ui/react-toolbar";
@@ -151,7 +158,13 @@ function ToolbarMenu(props: Props) {
               // would eat into the room for them.
               return isMobile ? null : <ToolbarSeparator key={index} />;
             }
-            if (item.visible === false || (!item.skipIcon && !item.icon)) {
+            if (item.visible === false) {
+              return null;
+            }
+            if (item.content) {
+              return <Fragment key={index}>{item.content}</Fragment>;
+            }
+            if (!item.skipIcon && !item.icon) {
               return null;
             }
             const isActive = item.active ? item.active(state) : false;

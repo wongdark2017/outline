@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "desktop opening highlights current language and focuses search",
+    "desktop popover exposes an accessible name",
+    "same language only closes and restores editor focus",
+    "ranked search, first result highlight, alias cue and label emphasis",
+    "Escape clears then closes",
+    "no-results state and clear button",
+    "keyboard navigation wraps at both ends",
+    "composition Enter does not select",
+    "pointer selection changes language while preserving ProseMirror selection",
+    "upgraded Radix dialog opens, dismisses and restores trigger focus",
+    "dark theme menu renders",
+    "read-only toolbar has no selector",
+    "mobile drawer stays open without autofocus and uses 16px input / 48px rows",
+    "mobile drawer aria-labelledby resolves to its visible title",
+    "mobile touch selection preserves editor selection and restores focus",
+    "mobile Escape clears then dismisses drawer"
+  ],
+  "status": "passed"
+}
