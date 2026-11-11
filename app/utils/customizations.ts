@@ -245,13 +245,16 @@ interface RootBackground {
 const backgroundStyles = `
   body[data-outline-customization-background] {
     --outline-customization-layout-background: transparent;
-    background-image: var(--outline-customization-background-image);
+    --outline-customization-background-overlay: color-mix(in srgb, var(--outline-customization-surface, Canvas) 92%, transparent);
+    background-image:
+      linear-gradient(var(--outline-customization-background-overlay), var(--outline-customization-background-overlay)),
+      var(--outline-customization-background-image);
     background-position: center;
     background-size: var(--outline-customization-background-size);
     background-repeat: var(--outline-customization-background-repeat);
     background-attachment: fixed;
   }
   :where(body[data-outline-customization-background]) [data-outline-part="content"] {
-    background: color-mix(in srgb, var(--outline-customization-surface, Canvas) 92%, transparent);
+    background: transparent;
   }
 `;
