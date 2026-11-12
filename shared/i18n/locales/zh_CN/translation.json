@@ -2028,6 +2028,8 @@
   "Draft saved at {{time}}": "草稿已于 {{time}} 保存",
   "Drawing ready": "绘图已就绪",
   "Excalidraw drawing": "Excalidraw 绘图",
+  "Excalidraw (Whiteboard)": "Excalidraw (Whiteboard)",
+  "Draw and sketch Excalidraw diagrams": "绘制和草绘 Excalidraw 图表",
   "Exit": "退出",
   "Save & exit": "保存并退出",
   "A local drawing draft is available": "有可恢复的本地绘图草稿",

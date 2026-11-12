@@ -33,6 +33,8 @@ describe("Excalidraw block menu entry", () => {
       const tikzIndex = items.findIndex((item) => item.name === "insertTikz");
       const drawing = items[tikzIndex + 1];
       expect(drawing.name).toBe("insertExcalidraw");
+      expect(drawing.title).toBe("Excalidraw (Whiteboard)");
+      expect(drawing.subtitle).toBe("Draw and sketch Excalidraw diagrams");
       for (let length = 1; length <= "excalidraw".length; length++) {
         expect(drawing.keywords?.includes("excalidraw".slice(0, length))).toBe(
           true

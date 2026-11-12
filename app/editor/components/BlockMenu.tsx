@@ -3,10 +3,15 @@ import { cloneDeep } from "es-toolkit/compat";
 import { observer } from "mobx-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import Icon from "@shared/components/Icon";
 import type { MenuItem } from "@shared/editor/types";
 import { ProsemirrorHelper } from "@shared/utils/ProsemirrorHelper";
 import { TextHelper } from "@shared/utils/TextHelper";
+import {
+  MenuButton,
+  MenuIconWrapper,
+} from "~/components/primitives/components/Menu";
 import useCurrentUser from "~/hooks/useCurrentUser";
 import useStores from "~/hooks/useStores";
 import getMenuItems from "../menus/block";
@@ -127,15 +132,36 @@ function BlockMenu(props: Props) {
   }, [t, elementRef, templateMenuItem]);
 
   const renderMenuItem = useCallback<SuggestionsMenuProps["renderMenuItem"]>(
-    (item, _index, options) => (
-      <SuggestionsMenuItem
-        {...options}
-        icon={item.icon}
-        title={item.title}
-        shortcut={item.shortcut}
-        disclosure={options.disclosure}
-      />
-    ),
+    (item, _index, options) => {
+      if (item.name === "insertExcalidraw") {
+        return (
+          <ExcalidrawMenuItem>
+            <SuggestionsMenuItem
+              {...options}
+              icon={item.icon}
+              title={
+                <ExcalidrawText>
+                  <ExcalidrawTitle>{item.title}</ExcalidrawTitle>
+                  <ExcalidrawDescription $selected={options.selected}>
+                    {item.subtitle}
+                  </ExcalidrawDescription>
+                </ExcalidrawText>
+              }
+            />
+          </ExcalidrawMenuItem>
+        );
+      }
+
+      return (
+        <SuggestionsMenuItem
+          {...options}
+          icon={item.icon}
+          title={item.title}
+          shortcut={item.shortcut}
+          disclosure={options.disclosure}
+        />
+      );
+    },
     []
   );
 
@@ -151,3 +177,43 @@ function BlockMenu(props: Props) {
 }
 
 export default observer(BlockMenu);
+
+const ExcalidrawMenuItem = styled.div`
+  ${MenuButton} {
+    min-height: 64px;
+    padding-block: 8px;
+  }
+
+  ${MenuIconWrapper} {
+    width: 40px;
+    height: 40px;
+    margin-inline-start: 0;
+    margin-inline-end: 12px;
+  }
+`;
+
+const ExcalidrawText = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+`;
+
+const ExcalidrawTitle = styled.span`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+`;
+
+const ExcalidrawDescription = styled.span<{ $selected: boolean }>`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: ${(props) =>
+    props.$selected ? props.theme.accentText : props.theme.textTertiary};
+  font-size: 12px;
+  line-height: 18px;
+`;
