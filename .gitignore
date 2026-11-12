@@ -1,6 +1,7 @@
 dist
 build
 node_modules/*
+server/static/excalidraw/
 .env
 .env.local
 .env.shared

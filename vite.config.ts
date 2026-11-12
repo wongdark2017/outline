@@ -11,6 +11,11 @@ import environment from "./server/utils/environment";
 let httpsConfig: ServerOptions["https"] | undefined;
 let host: string | undefined;
 let clientPort: number | undefined;
+const excalidrawFonts = path.resolve(
+  __dirname,
+  "node_modules/@excalidraw/excalidraw/dist/prod/fonts"
+);
+const excalidrawFontUrl = "/static/excalidraw/fonts/";
 
 if (environment.NODE_ENV === "development") {
   const appURL = new URL(environment.URL!);
@@ -64,6 +69,45 @@ export default ({ mode }: ConfigEnv) =>
     },
     plugins: [
       react(),
+      {
+        name: "excalidraw-fonts",
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const pathname = new URL(req.url ?? "/", "http://localhost")
+              .pathname;
+            if (!pathname.startsWith(excalidrawFontUrl)) {
+              return next();
+            }
+
+            const filename = path.resolve(
+              excalidrawFonts,
+              pathname.slice(excalidrawFontUrl.length)
+            );
+            if (
+              !filename.startsWith(`${excalidrawFonts}${path.sep}`) ||
+              path.extname(filename) !== ".woff2" ||
+              !fs.existsSync(filename)
+            ) {
+              return next();
+            }
+
+            res.setHeader("Content-Type", "font/woff2");
+            fs.createReadStream(filename).pipe(res);
+          });
+        },
+        writeBundle(options) {
+          if (!options.dir) {
+            throw new Error("Expected a Vite build output directory");
+          }
+          fs.cpSync(
+            excalidrawFonts,
+            path.join(options.dir, "excalidraw/fonts"),
+            {
+              recursive: true,
+            }
+          );
+        },
+      },
       // https://vite-pwa-org.netlify.app/
       VitePWA({
         injectRegister: "inline",
