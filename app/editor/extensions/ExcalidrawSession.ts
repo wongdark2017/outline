@@ -1,0 +1,196 @@
+import { action, makeObservable, observable } from "mobx";
+import type { Node as ProsemirrorNode } from "prosemirror-model";
+import type { Transaction } from "prosemirror-state";
+import { ReplaceAroundStep } from "prosemirror-transform";
+import { ImageSource } from "@shared/editor/lib/FileHelper";
+
+/** The entry from which a drawing editor was opened. */
+export type DrawingEntry = "slash" | "toolbar" | "double_click" | "enter";
+
+/** The outcome of checking the exact original image before a save. */
+export type DrawingConflict = "none" | "modified" | "missing";
+
+/** Location and identity for one drawing editor session. */
+export interface ExcalidrawSessionOptions {
+  entry: DrawingEntry;
+  documentId?: string;
+  imageSrc?: string;
+  imagePosition?: number;
+  insertPosition?: number;
+  paragraphPosition?: number;
+}
+
+/**
+ * Tracks one drawing's insertion point or exact saved image through editor edits.
+ */
+export class ExcalidrawSession {
+  readonly key = ++nextSessionKey;
+
+  readonly entry: DrawingEntry;
+
+  readonly documentId: string | undefined;
+
+  readonly imageSrc: string | undefined;
+
+  @observable
+  insertionLost = false;
+
+  @observable
+  active = true;
+
+  /**
+   * Creates a session tied to the editor state at the time it opened.
+   *
+   * @param options - the original insertion or image position.
+   */
+  constructor(options: ExcalidrawSessionOptions) {
+    this.entry = options.entry;
+    this.documentId = options.documentId;
+    this.imageSrc = options.imageSrc;
+    this.currentSrc = options.imageSrc;
+    this.imagePosition = options.imagePosition;
+    this.insertPosition = options.insertPosition;
+    this.paragraphPosition = options.paragraphPosition;
+    makeObservable(this);
+  }
+
+  /** The currently mapped position of the original image. */
+  get targetPosition(): number | undefined {
+    return this.imagePosition;
+  }
+
+  /** The currently mapped cursor position for a new image. */
+  get insertionPosition(): number | undefined {
+    return this.insertionLost ? undefined : this.insertPosition;
+  }
+
+  /**
+   * Checks whether the exact original image still carries its opening scene.
+   *
+   * @param doc - the current editor document.
+   * @returns none, modified, or missing.
+   */
+  conflict(doc: ProsemirrorNode): DrawingConflict {
+    if (!this.imageSrc) {
+      return "none";
+    }
+    const node =
+      this.imagePosition === undefined
+        ? undefined
+        : doc.nodeAt(this.imagePosition);
+    if (
+      !node ||
+      node.type.name !== "image" ||
+      node.attrs.source !== ImageSource.Excalidraw
+    ) {
+      return "missing";
+    }
+    if (node.attrs.src !== this.imageSrc) {
+      return "modified";
+    }
+    return "none";
+  }
+
+  /**
+   * Maps the target through one ProseMirror transaction without retargeting.
+   *
+   * @param transaction - the applied editor transaction.
+   */
+  @action
+  map(transaction: Transaction): void {
+    if (!transaction.docChanged || !this.active) {
+      return;
+    }
+
+    if (this.imageSrc && this.imagePosition !== undefined) {
+      let position = this.imagePosition;
+      for (const [index, step] of transaction.steps.entries()) {
+        const original = transaction.docs[index].nodeAt(position);
+        const result = step.getMap().mapResult(position, 1);
+        const nextDoc = transaction.docs[index + 1] ?? transaction.doc;
+        const next = nextDoc.nodeAt(result.pos);
+        const attrUpdate =
+          original?.type.name === "image" &&
+          original.attrs.src === this.currentSrc &&
+          original.attrs.source === ImageSource.Excalidraw &&
+          step instanceof ReplaceAroundStep &&
+          step.from === position &&
+          step.to === position + original.nodeSize &&
+          step.gapFrom === position + 1 &&
+          step.gapTo === position + original.nodeSize - 1 &&
+          step.insert === 1 &&
+          step.slice.openStart === 0 &&
+          step.slice.openEnd === 0 &&
+          step.slice.content.childCount === 1 &&
+          next?.type === original.type;
+        if (
+          (result.deleted && !attrUpdate) ||
+          next?.type.name !== "image" ||
+          next.attrs.source !== ImageSource.Excalidraw
+        ) {
+          this.imagePosition = undefined;
+          break;
+        }
+        position = result.pos;
+        this.imagePosition = position;
+        this.currentSrc = next.attrs.src;
+      }
+    }
+
+    if (
+      this.imageSrc ||
+      this.insertPosition === undefined ||
+      this.paragraphPosition === undefined
+    ) {
+      return;
+    }
+
+    let insertPosition = this.insertPosition;
+    let paragraphPosition = this.paragraphPosition;
+    for (const [index, step] of transaction.steps.entries()) {
+      const paragraph = transaction.docs[index].nodeAt(paragraphPosition);
+      const mappedParagraph = step.getMap().mapResult(paragraphPosition, 1);
+      const mappedInsert = step.getMap().mapResult(insertPosition, -1);
+      const nextDoc = transaction.docs[index + 1] ?? transaction.doc;
+      const next = nextDoc.nodeAt(mappedParagraph.pos);
+      if (
+        mappedParagraph.deleted ||
+        next?.type !== paragraph?.type ||
+        next?.type.name !== "paragraph"
+      ) {
+        this.insertionLost = true;
+        this.insertPosition = undefined;
+        this.paragraphPosition = undefined;
+        return;
+      }
+      paragraphPosition = mappedParagraph.pos;
+      insertPosition = mappedInsert.pos;
+    }
+    this.insertPosition = insertPosition;
+    this.paragraphPosition = paragraphPosition;
+  }
+
+  /** Invalidates pending loads and saves when the dialog closes. */
+  @action
+  close(): void {
+    this.active = false;
+    this.controller.abort();
+  }
+
+  /** The abort signal for reads bound to this session. */
+  get signal(): AbortSignal {
+    return this.controller.signal;
+  }
+
+  private imagePosition: number | undefined;
+
+  private currentSrc: string | undefined;
+
+  private insertPosition: number | undefined;
+
+  private paragraphPosition: number | undefined;
+
+  private controller = new AbortController();
+}
+
+let nextSessionKey = 0;

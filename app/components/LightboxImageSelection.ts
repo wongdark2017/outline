@@ -15,6 +15,24 @@ export function getTikzImageSelection(
   src: string,
   element: Element | null | undefined
 ): NodeSelection | undefined {
+  return getEditableImageSelection(view, src, element, ImageSource.Tikz);
+}
+
+/**
+ * Resolves the exact editable image shown by a lightbox from its editor DOM.
+ *
+ * @param view - the editor containing the image.
+ * @param src - the image URL captured by the lightbox.
+ * @param element - the original image element in the editor.
+ * @param source - the expected editable image source.
+ * @returns a selection for the matching image, if it still exists.
+ */
+export function getEditableImageSelection(
+  view: EditorView,
+  src: string,
+  element: Element | null | undefined,
+  source: ImageSource
+): NodeSelection | undefined {
   if (view.isDestroyed || !element || !view.dom.contains(element)) {
     return;
   }
@@ -25,7 +43,7 @@ export function getTikzImageSelection(
   const node = doc.nodeAt(pos);
   if (
     node?.type.name !== "image" ||
-    node.attrs.source !== ImageSource.Tikz ||
+    node.attrs.source !== source ||
     node.attrs.src !== src
   ) {
     return;

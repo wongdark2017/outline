@@ -881,7 +881,8 @@ iframe.embed {
 }
 
 @media screen {
-  .image img[data-source="${ImageSource.Tikz}"] {
+  .image img[data-source="${ImageSource.Tikz}"],
+  .image img[data-source="${ImageSource.Excalidraw}"] {
     filter: ${
       props.theme.isDark && !props.staticHTML
         ? "invert(1) hue-rotate(180deg)"

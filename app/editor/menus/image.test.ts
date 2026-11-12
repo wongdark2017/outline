@@ -8,6 +8,7 @@ describe("image alignment controls", () => {
   it.each([
     { source: ImageSource.Tikz, width: 38, visible: true },
     { source: ImageSource.Tikz, width: 260, visible: true },
+    { source: ImageSource.Excalidraw, width: 38, visible: true },
     { source: null, width: 38, visible: false },
     { source: null, width: 48, visible: true },
   ])("uses the image layout for $source at $width px", (testCase) => {
@@ -46,6 +47,15 @@ describe("image alignment controls", () => {
     }
     expect(items.find((item) => item.name === "editTikz")?.visible).toBe(
       testCase.source === ImageSource.Tikz
+    );
+    expect(items.find((item) => item.name === "editExcalidraw")?.visible).toBe(
+      testCase.source === ImageSource.Excalidraw
+    );
+    expect(
+      items.find((item) => item.tooltip === "Replace image")?.visible
+    ).toBe(
+      testCase.source !== ImageSource.Excalidraw &&
+        testCase.source !== ImageSource.Tikz
     );
   });
 });

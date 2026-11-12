@@ -507,6 +507,23 @@ export default class Image extends SimpleImage {
       commands.editDiagram();
     };
 
+  handleEditExcalidraw =
+    ({ getPos, view }: ComponentProps) =>
+    () => {
+      const { commands } = this.editor;
+      if (!commands.editExcalidraw || !view.editable) {
+        return;
+      }
+      const pos = getPos();
+      if (pos === undefined) {
+        return;
+      }
+      view.dispatch(
+        view.state.tr.setSelection(NodeSelection.create(view.state.doc, pos))
+      );
+      commands.editExcalidraw({ source: "double_click" });
+    };
+
   component = (props: ComponentProps) => {
     if (
       props.node.attrs.source === ImageSource.DiagramsNet &&
@@ -526,6 +543,11 @@ export default class Image extends SimpleImage {
         onClick={this.handleClick(props)}
         onDownload={this.handleDownload(props)}
         onZoomIn={this.handleZoomIn(props)}
+        onDoubleClick={
+          props.node.attrs.source === ImageSource.Excalidraw && props.isEditable
+            ? this.handleEditExcalidraw(props)
+            : undefined
+        }
         onChangeSize={this.handleChangeSize(props)}
       >
         <Caption
@@ -596,6 +618,20 @@ export default class Image extends SimpleImage {
   keys(): Record<string, Command> {
     return {
       ...super.keys(),
+      Enter: (state, dispatch) => {
+        if (
+          !(state.selection instanceof NodeSelection) ||
+          state.selection.node.type.name !== "image" ||
+          state.selection.node.attrs.source !== ImageSource.Excalidraw ||
+          !this.editor.commands.editExcalidraw
+        ) {
+          return false;
+        }
+        if (dispatch) {
+          this.editor.commands.editExcalidraw({ source: "enter" });
+        }
+        return true;
+      },
       "Mod-Alt-m": this.commentCommand,
     };
   }

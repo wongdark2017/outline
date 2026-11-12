@@ -2,7 +2,10 @@ import { Schema } from "prosemirror-model";
 import { EditorState, NodeSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { ImageSource } from "@shared/editor/lib/FileHelper";
-import { getTikzImageSelection } from "./LightboxImageSelection";
+import {
+  getEditableImageSelection,
+  getTikzImageSelection,
+} from "./LightboxImageSelection";
 
 const schema = new Schema({
   nodes: {
@@ -38,6 +41,7 @@ describe("getTikzImageSelection", () => {
           paragraph("first"),
           paragraph("second"),
           paragraph("ordinary", ImageSource.DiagramsNet),
+          paragraph("excalidraw", ImageSource.Excalidraw),
         ]),
       }),
     });
@@ -52,6 +56,17 @@ describe("getTikzImageSelection", () => {
     const selection = getTikzImageSelection(view, src, second);
     expect(selection?.node.attrs.alt).toBe("second");
     expect(selection?.from).toBe(4);
+  });
+
+  it("selects only the exact Excalidraw image in the lightbox", () => {
+    const images = view.dom.querySelectorAll("img[src]");
+    expect(
+      getEditableImageSelection(view, src, images[3], ImageSource.Excalidraw)
+        ?.node.attrs.alt
+    ).toBe("excalidraw");
+    expect(
+      getEditableImageSelection(view, src, images[1], ImageSource.Excalidraw)
+    ).toBeUndefined();
   });
 
   it("resolves the current position after preceding content changes", () => {

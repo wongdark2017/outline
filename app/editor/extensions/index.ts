@@ -4,6 +4,7 @@ import ClipboardTextSerializer from "~/editor/extensions/ClipboardTextSerializer
 import CommentGutterExtension from "~/editor/extensions/CommentGutter";
 import DiagramsExtension from "@shared/editor/extensions/Diagrams";
 import { TikzExtension } from "~/editor/extensions/Tikz";
+import { ExcalidrawExtension } from "~/editor/extensions/Excalidraw";
 import DocumentMenuExtension from "~/editor/extensions/DocumentMenu";
 import DragHandle from "~/editor/extensions/DragHandle";
 import EmojiMenuExtension from "~/editor/extensions/EmojiMenu";
@@ -33,6 +34,7 @@ export const withUIExtensions = (nodes: Nodes) => [
   CommentGutterExtension,
   DiagramsExtension,
   TikzExtension,
+  ExcalidrawExtension,
   DragHandle,
   // Order these default key handlers last
   PreventTab,

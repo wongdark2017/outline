@@ -72,8 +72,8 @@ export default ({ mode }: ConfigEnv) =>
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           globPatterns: ["**/*.{css,ico,png,svg}"],
 
-          // Engine assets are fetched only when a user opens the TikZ editor.
-          globIgnores: ["**/tikzjax-*/**"],
+          // Drawing engine assets are fetched only when their editor opens.
+          globIgnores: ["**/tikzjax-*/**", "**/ExcalidrawEditor.*.css"],
           navigateFallback: null,
           modifyURLPrefix: {
             "": `${environment.CDN_URL ?? ""}/static/`,

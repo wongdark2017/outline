@@ -11,6 +11,28 @@ const findImageNode = (doc: ReturnType<typeof parser.parse>) => {
 };
 
 describe("Image node source attribute round-trip", () => {
+  it("round-trips an Excalidraw image through Markdown and static HTML", () => {
+    const original = `![Drawing](https://example.com/drawing.svg "source=${ImageSource.Excalidraw} right-50 =480x320")`;
+    const doc = parser.parse(serializer.serialize(parser.parse(original)));
+    expect(findImageNode(doc).attrs).toMatchObject({
+      source: ImageSource.Excalidraw,
+      src: "https://example.com/drawing.svg",
+      layoutClass: "right-50",
+      width: 480,
+      height: 320,
+      alt: "Drawing",
+    });
+    if (typeof document !== "undefined") {
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(
+        DOMSerializer.fromSchema(schema).serializeFragment(doc.content)
+      );
+      expect(wrapper.querySelector("img")?.getAttribute("data-source")).toBe(
+        ImageSource.Excalidraw
+      );
+    }
+  });
+
   it("round-trips TikZ source, layout, dimensions, and caption", () => {
     const original = `![Caption](https://example.com/tikz.svg "source=${ImageSource.Tikz} left-50 =640x360")`;
     const doc = parser.parse(serializer.serialize(parser.parse(original)));

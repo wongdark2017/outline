@@ -61,6 +61,9 @@ export default function imageMenuItems(
   const isTikz = isNodeActive(schema.nodes.image, {
     source: ImageSource.Tikz,
   });
+  const isExcalidraw = isNodeActive(schema.nodes.image, {
+    source: ImageSource.Excalidraw,
+  });
   const isEmptyDiagram = isNodeActive(schema.nodes.image, {
     source: ImageSource.DiagramsNet,
     src: "",
@@ -136,6 +139,12 @@ export default function imageMenuItems(
       visible: isTikz(state),
     },
     {
+      name: "editExcalidraw",
+      tooltip: t("Edit drawing"),
+      icon: <EditIcon />,
+      visible: isExcalidraw(state),
+    },
+    {
       name: "downloadImage",
       tooltip: t("Download image"),
       icon: <DownloadIcon />,
@@ -144,7 +153,7 @@ export default function imageMenuItems(
     {
       tooltip: t("Replace image"),
       icon: <ReplaceIcon />,
-      visible: !isDiagram(state) && !isTikz(state),
+      visible: !isDiagram(state) && !isTikz(state) && !isExcalidraw(state),
       children: [
         {
           name: "replaceImage",

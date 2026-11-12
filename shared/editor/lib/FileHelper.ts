@@ -4,6 +4,7 @@ import extract from "png-chunks-extract";
 export enum ImageSource {
   DiagramsNet = "diagrams.net",
   Tikz = "tikz",
+  Excalidraw = "excalidraw",
 }
 
 export default class FileHelper {

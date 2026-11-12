@@ -81,6 +81,13 @@ describe("FileHelper", () => {
       expect(await FileHelper.getImageSourceAttr(file)).toBeUndefined();
     });
 
+    it("treats a user-uploaded Excalidraw SVG as an ordinary image", async () => {
+      const file = svgFile(
+        '<svg xmlns="http://www.w3.org/2000/svg"><metadata><excalidraw-json>scene</excalidraw-json></metadata></svg>'
+      );
+      expect(await FileHelper.getImageSourceAttr(file)).toBeUndefined();
+    });
+
     it("requires an SVG file rather than a metadata marker alone", async () => {
       const content =
         '<metadata><script type="text/x-tikz">x</script></metadata>';

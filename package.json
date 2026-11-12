@@ -74,6 +74,7 @@
     "@dotenvx/dotenvx": "^1.75.1",
     "@emoji-mart/data": "^1.2.1",
     "@emotion/is-prop-valid": "^1.4.0",
+    "@excalidraw/excalidraw": "0.18.1",
     "@fast-csv/parse": "^5.0.7",
     "@firecrawl/pdf-inspector": "^1.11.2",
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
