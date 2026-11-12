@@ -11,7 +11,16 @@ import Button from "~/components/Button";
 import Analytics from "~/utils/Analytics";
 import { toastNotice } from "../toastNotice";
 import type { ExcalidrawEditorProps } from "../components/ExcalidrawEditor";
-import { ExcalidrawSession, type DrawingEntry } from "./ExcalidrawSession";
+import {
+  ExcalidrawSession,
+  type DrawingEntry,
+  type DrawingTarget,
+} from "./ExcalidrawSession";
+
+interface TrackedDrawingState {
+  session: ExcalidrawSession;
+  target: DrawingTarget;
+}
 
 /** How a saved drawing should be committed after a concurrent edit. */
 export type DrawingSaveChoice = "normal" | "duplicate" | "overwrite";
@@ -122,15 +131,28 @@ export class ExcalidrawExtension extends Extension {
 
   /** Maps one active target through document changes and editor teardown. */
   get plugins() {
-    return [
-      new Plugin<null>({
-        state: {
-          init: () => null,
-          apply: (transaction) => {
-            this.session?.map(transaction);
+    const plugin = new Plugin<TrackedDrawingState | null>({
+      state: {
+        init: () => null,
+        apply: (transaction, previous) => {
+          const session = this.session;
+          if (!session?.active) {
+            return null;
+          }
+          const target =
+            previous?.session === session ? previous.target : session.target;
+          return { session, target: session.map(transaction, target) };
+        },
+      },
+      view: () => ({
+        update: (view) => {
+          const tracked = plugin.getState(view.state);
+          const session = this.session;
+          if (tracked && session && tracked.session === session) {
+            session.setTarget(tracked.target);
             if (
-              this.session?.imageSrc === "" &&
-              this.session.targetPosition === undefined
+              session.imageSrc === "" &&
+              tracked.target.position === undefined
             ) {
               this.close(true);
               toastNotice(
@@ -138,19 +160,15 @@ export class ExcalidrawExtension extends Extension {
                 "error"
               );
             }
-            return null;
-          },
+          }
+          if (!view.editable) {
+            this.close(false);
+          }
         },
-        view: () => ({
-          update: (view) => {
-            if (!view.editable) {
-              this.close(false);
-            }
-          },
-          destroy: () => this.close(false),
-        }),
+        destroy: () => this.close(false),
       }),
-    ];
+    });
+    return [plugin];
   }
 
   @observable.ref
