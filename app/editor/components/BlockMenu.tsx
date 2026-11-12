@@ -8,10 +8,6 @@ import Icon from "@shared/components/Icon";
 import type { MenuItem } from "@shared/editor/types";
 import { ProsemirrorHelper } from "@shared/utils/ProsemirrorHelper";
 import { TextHelper } from "@shared/utils/TextHelper";
-import {
-  MenuButton,
-  MenuIconWrapper,
-} from "~/components/primitives/components/Menu";
 import useCurrentUser from "~/hooks/useCurrentUser";
 import useStores from "~/hooks/useStores";
 import getMenuItems from "../menus/block";
@@ -135,20 +131,18 @@ function BlockMenu(props: Props) {
     (item, _index, options) => {
       if (item.name === "insertExcalidraw") {
         return (
-          <ExcalidrawMenuItem>
-            <SuggestionsMenuItem
-              {...options}
-              icon={item.icon}
-              title={
-                <ExcalidrawText>
-                  <ExcalidrawTitle>{item.title}</ExcalidrawTitle>
-                  <ExcalidrawDescription $selected={options.selected}>
-                    {item.subtitle}
-                  </ExcalidrawDescription>
-                </ExcalidrawText>
-              }
-            />
-          </ExcalidrawMenuItem>
+          <SuggestionsMenuItem
+            {...options}
+            icon={item.icon}
+            title={
+              <ExcalidrawText>
+                <ExcalidrawTitle>{item.title}</ExcalidrawTitle>
+                <ExcalidrawDescription $selected={options.selected}>
+                  {item.subtitle}
+                </ExcalidrawDescription>
+              </ExcalidrawText>
+            }
+          />
         );
       }
 
@@ -178,20 +172,6 @@ function BlockMenu(props: Props) {
 
 export default observer(BlockMenu);
 
-const ExcalidrawMenuItem = styled.div`
-  ${MenuButton} {
-    min-height: 64px;
-    padding-block: 8px;
-  }
-
-  ${MenuIconWrapper} {
-    width: 40px;
-    height: 40px;
-    margin-inline-start: 0;
-    margin-inline-end: 12px;
-  }
-`;
-
 const ExcalidrawText = styled.span`
   display: flex;
   flex-direction: column;
@@ -203,9 +183,7 @@ const ExcalidrawTitle = styled.span`
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 20px;
+  line-height: 18px;
 `;
 
 const ExcalidrawDescription = styled.span<{ $selected: boolean }>`
@@ -214,6 +192,6 @@ const ExcalidrawDescription = styled.span<{ $selected: boolean }>`
   text-overflow: ellipsis;
   color: ${(props) =>
     props.$selected ? props.theme.accentText : props.theme.textTertiary};
-  font-size: 12px;
-  line-height: 18px;
+  font-size: 11px;
+  line-height: 12px;
 `;

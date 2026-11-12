@@ -43,16 +43,6 @@ const Img = styled(Image)`
   height: 18px;
 `;
 
-const ExcalidrawIcon = styled(Image)`
-  box-sizing: border-box;
-  width: 40px;
-  height: 40px;
-  padding: 6px;
-  border: 1px solid ${(props) => props.theme.inputBorder};
-  border-radius: 6px;
-  background: #fff;
-`;
-
 export default function blockMenuItems(
   t: TFunction,
   documentRef: React.RefObject<HTMLDivElement | null>
@@ -304,7 +294,7 @@ export default function blockMenuItems(
       name: "insertExcalidraw",
       title: t("Excalidraw (Whiteboard)"),
       subtitle: t("Draw and sketch Excalidraw diagrams"),
-      icon: <ExcalidrawIcon src="/images/excalidraw.svg" alt="" />,
+      icon: <Img src="/images/excalidraw.svg" alt="" />,
       keywords: "excalidraw",
     },
   ];
