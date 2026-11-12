@@ -21,6 +21,7 @@ import { setPostLoginPath } from "~/hooks/useLastVisitedPath";
 import { client } from "~/utils/ApiClient";
 import Desktop from "~/utils/Desktop";
 import { deleteAllDatabases } from "~/utils/developer";
+import { clearDrawingDrafts } from "~/editor/lib/excalidraw/scene";
 import Logger from "~/utils/Logger";
 import isCloudHosted from "~/utils/isCloudHosted";
 import Store from "./base/Store";
@@ -349,6 +350,8 @@ export default class AuthStore extends Store<Team> {
     savePath?: boolean;
     userInitiated?: boolean;
   }) => {
+    clearDrawingDrafts();
+
     // if this logout was forced from an authenticated route then
     // save the current path so we can go back there once signed in
     if (savePath) {
@@ -394,6 +397,9 @@ export default class AuthStore extends Store<Team> {
     this.currentTeamId = null;
     this.collaborationToken = null;
     this.rootStore.clear();
+
+    // Remove drafts rewritten while asynchronous logout steps were running.
+    clearDrawingDrafts();
 
     // Tell the host application we logged out, if any – allows window cleanup.
     if (Desktop.isElectron()) {

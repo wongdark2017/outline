@@ -734,6 +734,7 @@ export class Environment {
   /**
    * Set max allowed upload size for file attachments.
    */
+  @Public
   @IsNumber()
   public FILE_STORAGE_UPLOAD_MAX_SIZE =
     this.toOptionalNumber(environment.FILE_STORAGE_UPLOAD_MAX_SIZE) ??

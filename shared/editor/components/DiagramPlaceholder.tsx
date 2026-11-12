@@ -15,12 +15,11 @@ type Props = ComponentProps & {
 export const DiagramPlaceholder = ({
   node,
   isSelected,
-  isEditable,
   onDoubleClick,
 }: Props) => {
   const { t } = useTranslation();
   const isExcalidraw = node.attrs.source === ImageSource.Excalidraw;
-  const canEdit = !!onDoubleClick && (!isExcalidraw || isEditable);
+  const canEdit = !!onDoubleClick;
 
   return (
     <Placeholder

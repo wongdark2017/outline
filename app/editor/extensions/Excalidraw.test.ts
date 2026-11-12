@@ -465,6 +465,32 @@ describe("ExcalidrawExtension", () => {
     expect(toastNotice).not.toHaveBeenCalled();
   });
 
+  it("does not upload an overwrite when the drawing was deleted", async () => {
+    const harness = createHarness([drawing("Selected")]);
+
+    remoteReplace(harness, [schema.nodes.paragraph.create()]);
+
+    expect(await harness.extension["handleSave"]("<svg/>", "overwrite")).toBe(
+      "conflict"
+    );
+    expect(harness.uploadCallCount).toBe(0);
+  });
+
+  it("does not upload an overwrite when another image replaced the drawing", async () => {
+    const harness = createHarness([drawing("Selected")]);
+    const replacement = schema.nodes.paragraph.create(
+      null,
+      schema.nodes.image.create({ src: "/regular.svg" })
+    );
+
+    remoteReplace(harness, [replacement]);
+
+    expect(await harness.extension["handleSave"]("<svg/>", "overwrite")).toBe(
+      "conflict"
+    );
+    expect(harness.uploadCallCount).toBe(0);
+  });
+
   it("does not retarget a different drawing moved into the same remote path", () => {
     const selected = drawing("Selected");
     const other = drawing("Other");

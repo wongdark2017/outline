@@ -33,6 +33,7 @@ export interface DrawingAutosaveResult {
 }
 
 const DRAFT_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const DRAFT_PREFIX = "excalidraw-draft:";
 
 /**
  * Fingerprints the exact live elements and embedded files of a drawing.
@@ -68,7 +69,21 @@ export function hasDrawingContent(scene: DrawingScene): boolean {
  * @returns the local storage key.
  */
 export function drawingDraftKey(documentId: string, src: string): string {
-  return `excalidraw-draft:${documentId}:${src}`;
+  return `${DRAFT_PREFIX}${documentId}:${src}`;
+}
+
+/** Removes all locally stored drawing drafts when the user signs out. */
+export function clearDrawingDrafts(): void {
+  try {
+    for (let index = localStorage.length - 1; index >= 0; index--) {
+      const key = localStorage.key(index);
+      if (key?.startsWith(DRAFT_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch {
+    // Browsers can deny storage access; signing out must still continue.
+  }
 }
 
 /**

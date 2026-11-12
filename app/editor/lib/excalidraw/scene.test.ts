@@ -1,6 +1,7 @@
 import type { DrawingScene } from "./scene";
 import {
   autosaveDrawingDraft,
+  clearDrawingDrafts,
   drawingDraftKey,
   drawingFingerprint,
   hasDrawingContent,
@@ -47,6 +48,20 @@ describe("Excalidraw local drafts", () => {
     expect(readDrawingDraft(key, drawingFingerprint(original))).toEqual(edited);
     removeDrawingDraft(key);
     expect(readDrawingDraft(key, drawingFingerprint(original))).toBeUndefined();
+  });
+
+  it("clears drawing drafts on sign-out while preserving the library", () => {
+    const first = drawingDraftKey("first", "/one.svg");
+    const second = drawingDraftKey("second", "/two.svg");
+    localStorage.setItem(first, "first draft");
+    localStorage.setItem(second, "second draft");
+    localStorage.setItem("excalidraw-library", "saved library");
+
+    clearDrawingDrafts();
+
+    expect(localStorage.getItem(first)).toBeNull();
+    expect(localStorage.getItem(second)).toBeNull();
+    expect(localStorage.getItem("excalidraw-library")).toBe("saved library");
   });
 
   it("expires drafts older than seven days", () => {

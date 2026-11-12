@@ -2,10 +2,7 @@ import { Schema } from "prosemirror-model";
 import { EditorState, NodeSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { ImageSource } from "@shared/editor/lib/FileHelper";
-import {
-  getEditableImageSelection,
-  getTikzImageSelection,
-} from "./LightboxImageSelection";
+import { getEditableImageSelection } from "./LightboxImageSelection";
 
 const schema = new Schema({
   nodes: {
@@ -25,7 +22,7 @@ const schema = new Schema({
 });
 const src = "https://example.com/diagram.svg";
 
-describe("getTikzImageSelection", () => {
+describe("getEditableImageSelection for TikZ", () => {
   let view: EditorView;
 
   beforeEach(() => {
@@ -53,7 +50,12 @@ describe("getTikzImageSelection", () => {
 
   it("selects the displayed instance when images reuse a source URL", () => {
     const second = view.dom.querySelectorAll("img[src]")[1];
-    const selection = getTikzImageSelection(view, src, second);
+    const selection = getEditableImageSelection(
+      view,
+      src,
+      second,
+      ImageSource.Tikz
+    );
     expect(selection?.node.attrs.alt).toBe("second");
     expect(selection?.from).toBe(4);
   });
@@ -72,14 +74,24 @@ describe("getTikzImageSelection", () => {
   it("resolves the current position after preceding content changes", () => {
     const second = view.dom.querySelectorAll("img[src]")[1];
     view.dispatch(view.state.tr.insertText("Introduction", 1));
-    const selection = getTikzImageSelection(view, src, second);
+    const selection = getEditableImageSelection(
+      view,
+      src,
+      second,
+      ImageSource.Tikz
+    );
     expect(selection?.node.attrs.alt).toBe("second");
     expect(selection?.from).toBe(4 + "Introduction".length);
   });
 
   it("keeps that NodeSelection mapped while the close animation runs", () => {
     const second = view.dom.querySelectorAll("img[src]")[1];
-    const selection = getTikzImageSelection(view, src, second);
+    const selection = getEditableImageSelection(
+      view,
+      src,
+      second,
+      ImageSource.Tikz
+    );
     if (!selection) {
       throw new Error("Expected a TikZ image selection");
     }
@@ -88,33 +100,55 @@ describe("getTikzImageSelection", () => {
 
     expect(view.state.selection).toBeInstanceOf(NodeSelection);
     expect(view.state.selection.from).toBe(4 + "New text".length);
-    expect(getTikzImageSelection(view, src, second)?.node.attrs.alt).toBe(
-      "second"
-    );
+    expect(
+      getEditableImageSelection(view, src, second, ImageSource.Tikz)?.node.attrs
+        .alt
+    ).toBe("second");
   });
 
   it("does not retarget a duplicate after the displayed image was deleted", () => {
     const second = view.dom.querySelectorAll("img[src]")[1];
-    const selection = getTikzImageSelection(view, src, second);
+    const selection = getEditableImageSelection(
+      view,
+      src,
+      second,
+      ImageSource.Tikz
+    );
     if (!selection) {
       throw new Error("Expected a TikZ image selection");
     }
     view.dispatch(view.state.tr.setSelection(selection).deleteSelection());
-    expect(getTikzImageSelection(view, src, second)).toBeUndefined();
+    expect(
+      getEditableImageSelection(view, src, second, ImageSource.Tikz)
+    ).toBeUndefined();
   });
 
   it("rejects mismatched source URLs and non-TikZ nodes", () => {
     const images = view.dom.querySelectorAll("img[src]");
     expect(
-      getTikzImageSelection(view, "https://example.com/other.svg", images[0])
+      getEditableImageSelection(
+        view,
+        "https://example.com/other.svg",
+        images[0],
+        ImageSource.Tikz
+      )
     ).toBeUndefined();
-    expect(getTikzImageSelection(view, src, images[2])).toBeUndefined();
+    expect(
+      getEditableImageSelection(view, src, images[2], ImageSource.Tikz)
+    ).toBeUndefined();
   });
 
   it("rejects elements outside the editor", () => {
     expect(
-      getTikzImageSelection(view, src, document.createElement("img"))
+      getEditableImageSelection(
+        view,
+        src,
+        document.createElement("img"),
+        ImageSource.Tikz
+      )
     ).toBeUndefined();
-    expect(getTikzImageSelection(view, src, null)).toBeUndefined();
+    expect(
+      getEditableImageSelection(view, src, null, ImageSource.Tikz)
+    ).toBeUndefined();
   });
 });

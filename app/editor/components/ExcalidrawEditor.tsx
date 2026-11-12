@@ -15,6 +15,7 @@ import styled, { useTheme } from "styled-components";
 import { s } from "@shared/styles";
 import { cdnPath } from "@shared/utils/urls";
 import Button from "~/components/Button";
+import env from "~/env";
 import Analytics from "~/utils/Analytics";
 import type {
   DrawingSaveChoice,
@@ -308,11 +309,12 @@ export function ExcalidrawEditor({
           files: scene.files,
         });
         const serialized = new XMLSerializer().serializeToString(svg);
-        const restored = await loadFromBlob(
-          new Blob([serialized], { type: "image/svg+xml" }),
-          null,
-          null
-        );
+        const blob = new Blob([serialized], { type: "image/svg+xml" });
+        if (blob.size > Number(env.FILE_STORAGE_UPLOAD_MAX_SIZE)) {
+          failure = "size";
+          throw new Error("Drawing exceeds the attachment upload limit");
+        }
+        const restored = await loadFromBlob(blob, null, null);
         const restoredIds = new Set(
           restored.elements.map((element) => element.id)
         );
@@ -340,11 +342,7 @@ export function ExcalidrawEditor({
         }
         Analytics.track("excalidraw", "save_success", { mode });
         onClose();
-      } catch (cause) {
-        const message = cause instanceof Error ? cause.message : "";
-        if (/too large|size limit|maximum size|413/i.test(message)) {
-          failure = "size";
-        }
+      } catch {
         setError(
           failure === "size"
             ? t("Drawing is too large; remove or compress embedded images")

@@ -219,9 +219,10 @@ export class ExcalidrawExtension extends Extension {
     ) {
       return "cancelled";
     }
+    const conflict = session.conflict(this.editor.view.state.doc);
     if (
-      choice === "normal" &&
-      session.conflict(this.editor.view.state.doc) !== "none"
+      (choice === "normal" && conflict !== "none") ||
+      (choice === "overwrite" && conflict === "missing")
     ) {
       return "conflict";
     }
