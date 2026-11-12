@@ -5,6 +5,43 @@ import { schema } from "@shared/test/editor";
 import imageMenuItems from "./image";
 
 describe("image alignment controls", () => {
+  it("keeps only valid actions for an empty Excalidraw placeholder", () => {
+    const image = schema.nodes.image.create({
+      src: "",
+      source: ImageSource.Excalidraw,
+    });
+    const doc = schema.nodes.doc.create(
+      null,
+      schema.nodes.paragraph.create(null, image)
+    );
+    const state = EditorState.create({
+      schema,
+      doc,
+      selection: NodeSelection.create(doc, 1),
+    });
+    const items = imageMenuItems(
+      buildSelectionContext(state, {
+        readOnly: false,
+        isTemplate: false,
+        rtl: false,
+      }),
+      false
+    );
+    expect(items.find((item) => item.name === "editExcalidraw")?.visible).toBe(
+      true
+    );
+    expect(items.find((item) => item.name === "deleteImage")).toBeDefined();
+    for (const name of [
+      "alignLeft",
+      "alignCenter",
+      "alignRight",
+      "alignFullWidth",
+      "downloadImage",
+    ]) {
+      expect(items.find((item) => item.name === name)?.visible).toBe(false);
+    }
+  });
+
   it.each([
     { source: ImageSource.Tikz, width: 38, visible: true },
     { source: ImageSource.Tikz, width: 260, visible: true },

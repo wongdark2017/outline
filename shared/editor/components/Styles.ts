@@ -880,6 +880,21 @@ iframe.embed {
   width: var(--image-width, auto);
 }
 
+.image.excalidraw-placeholder {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  padding: 16px;
+  border: 2px solid ${props.theme.inputBorder};
+  border-radius: ${EditorStyleHelper.blockRadius};
+  background: ${props.theme.backgroundSecondary};
+  color: ${props.theme.textSecondary};
+  font-size: 16px;
+  line-height: normal;
+}
+
 @media screen {
   .image img[data-source="${ImageSource.Tikz}"],
   .image img[data-source="${ImageSource.Excalidraw}"] {

@@ -14,14 +14,12 @@ export type DrawingConflict = "none" | "modified" | "missing";
 export interface ExcalidrawSessionOptions {
   entry: DrawingEntry;
   documentId?: string;
-  imageSrc?: string;
-  imagePosition?: number;
-  insertPosition?: number;
-  paragraphPosition?: number;
+  imageSrc: string;
+  imagePosition: number;
 }
 
 /**
- * Tracks one drawing's insertion point or exact saved image through editor edits.
+ * Tracks one exact drawing image, including an empty placeholder, through edits.
  */
 export class ExcalidrawSession {
   readonly key = ++nextSessionKey;
@@ -30,10 +28,7 @@ export class ExcalidrawSession {
 
   readonly documentId: string | undefined;
 
-  readonly imageSrc: string | undefined;
-
-  @observable
-  insertionLost = false;
+  readonly imageSrc: string;
 
   @observable
   active = true;
@@ -41,7 +36,7 @@ export class ExcalidrawSession {
   /**
    * Creates a session tied to the editor state at the time it opened.
    *
-   * @param options - the original insertion or image position.
+   * @param options - the original image position and source.
    */
   constructor(options: ExcalidrawSessionOptions) {
     this.entry = options.entry;
@@ -49,19 +44,12 @@ export class ExcalidrawSession {
     this.imageSrc = options.imageSrc;
     this.currentSrc = options.imageSrc;
     this.imagePosition = options.imagePosition;
-    this.insertPosition = options.insertPosition;
-    this.paragraphPosition = options.paragraphPosition;
     makeObservable(this);
   }
 
   /** The currently mapped position of the original image. */
   get targetPosition(): number | undefined {
     return this.imagePosition;
-  }
-
-  /** The currently mapped cursor position for a new image. */
-  get insertionPosition(): number | undefined {
-    return this.insertionLost ? undefined : this.insertPosition;
   }
 
   /**
@@ -71,9 +59,6 @@ export class ExcalidrawSession {
    * @returns none, modified, or missing.
    */
   conflict(doc: ProsemirrorNode): DrawingConflict {
-    if (!this.imageSrc) {
-      return "none";
-    }
     const node =
       this.imagePosition === undefined
         ? undefined
@@ -102,7 +87,7 @@ export class ExcalidrawSession {
       return;
     }
 
-    if (this.imageSrc && this.imagePosition !== undefined) {
+    if (this.imagePosition !== undefined) {
       let position = this.imagePosition;
       for (const [index, step] of transaction.steps.entries()) {
         const original = transaction.docs[index].nodeAt(position);
@@ -136,38 +121,6 @@ export class ExcalidrawSession {
         this.currentSrc = next.attrs.src;
       }
     }
-
-    if (
-      this.imageSrc ||
-      this.insertPosition === undefined ||
-      this.paragraphPosition === undefined
-    ) {
-      return;
-    }
-
-    let insertPosition = this.insertPosition;
-    let paragraphPosition = this.paragraphPosition;
-    for (const [index, step] of transaction.steps.entries()) {
-      const paragraph = transaction.docs[index].nodeAt(paragraphPosition);
-      const mappedParagraph = step.getMap().mapResult(paragraphPosition, 1);
-      const mappedInsert = step.getMap().mapResult(insertPosition, -1);
-      const nextDoc = transaction.docs[index + 1] ?? transaction.doc;
-      const next = nextDoc.nodeAt(mappedParagraph.pos);
-      if (
-        mappedParagraph.deleted ||
-        next?.type !== paragraph?.type ||
-        next?.type.name !== "paragraph"
-      ) {
-        this.insertionLost = true;
-        this.insertPosition = undefined;
-        this.paragraphPosition = undefined;
-        return;
-      }
-      paragraphPosition = mappedParagraph.pos;
-      insertPosition = mappedInsert.pos;
-    }
-    this.insertPosition = insertPosition;
-    this.paragraphPosition = paragraphPosition;
   }
 
   /** Invalidates pending loads and saves when the dialog closes. */
@@ -185,10 +138,6 @@ export class ExcalidrawSession {
   private imagePosition: number | undefined;
 
   private currentSrc: string | undefined;
-
-  private insertPosition: number | undefined;
-
-  private paragraphPosition: number | undefined;
 
   private controller = new AbortController();
 }

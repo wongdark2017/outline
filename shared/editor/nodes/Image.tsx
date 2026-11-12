@@ -1,6 +1,7 @@
 import { t } from "i18next";
 import type Token from "markdown-it/lib/token.mjs";
 import { InputRule } from "prosemirror-inputrules";
+import { Fragment } from "prosemirror-model";
 import type {
   Node as ProsemirrorNode,
   NodeSpec,
@@ -172,6 +173,11 @@ export default class Image extends SimpleImage {
       atom: true,
       parseDOM: [
         {
+          tag: 'div.image.excalidraw-placeholder[data-source="excalidraw"]',
+          getAttrs: () => ({ src: "", source: ImageSource.Excalidraw }),
+          getContent: () => Fragment.empty,
+        },
+        {
           // `span` covers inline icons, which use a phrasing-content wrapper.
           tag: "div[class~=image], span[class~=image]",
           getAttrs: (dom: HTMLElement) => {
@@ -258,6 +264,20 @@ export default class Image extends SimpleImage {
           width: node.attrs.width,
           source: node.attrs.source,
         });
+
+        if (node.attrs.source === ImageSource.Excalidraw && !node.attrs.src) {
+          // Static HTML can be serialized before i18next is initialized.
+          const label =
+            t("Empty Excalidraw drawing") || "Empty Excalidraw drawing";
+          return [
+            "div",
+            {
+              class: `${className} excalidraw-placeholder`,
+              "data-source": ImageSource.Excalidraw,
+            },
+            label,
+          ];
+        }
 
         // `marks` is held separately below and is not a valid DOM attribute.
         const { marks, ...attrs } = node.attrs;
@@ -526,15 +546,17 @@ export default class Image extends SimpleImage {
 
   component = (props: ComponentProps) => {
     if (
-      props.node.attrs.source === ImageSource.DiagramsNet &&
-      !props.node.attrs.src
+      !props.node.attrs.src &&
+      (props.node.attrs.source === ImageSource.DiagramsNet ||
+        props.node.attrs.source === ImageSource.Excalidraw)
     ) {
-      return (
-        <DiagramPlaceholder
-          onDoubleClick={this.handleEditDiagram(props)}
-          {...props}
-        />
-      );
+      const onDoubleClick =
+        props.node.attrs.source === ImageSource.Excalidraw
+          ? props.isEditable
+            ? this.handleEditExcalidraw(props)
+            : undefined
+          : this.handleEditDiagram(props);
+      return <DiagramPlaceholder onDoubleClick={onDoubleClick} {...props} />;
     }
 
     return (
@@ -572,7 +594,9 @@ export default class Image extends SimpleImage {
       "![" +
       state.esc((node.attrs.alt || "").replace("\n", "") || "", false) +
       "](" +
-      state.esc(node.attrs.src || "", false);
+      (node.attrs.source === ImageSource.Excalidraw && !node.attrs.src
+        ? "<>"
+        : state.esc(node.attrs.src || "", false));
 
     // Build the title attribute payload. The source tag (e.g. diagrams.net)
     // must round-trip so API-driven edits preserve draw.io editability.

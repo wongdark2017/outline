@@ -68,6 +68,12 @@ export default function imageMenuItems(
     source: ImageSource.DiagramsNet,
     src: "",
   });
+  const isEmptyExcalidraw = isNodeActive(schema.nodes.image, {
+    source: ImageSource.Excalidraw,
+    src: "",
+  });
+  const isEmptyDrawing = (state: typeof ctx.state) =>
+    isEmptyDiagram(state) || isEmptyExcalidraw(state);
 
   // Ordinary small images render as inline icons without alignment controls.
   const selectedNode =
@@ -86,7 +92,7 @@ export default function imageMenuItems(
       tooltip: t("Align left"),
       icon: <AlignImageLeftIcon />,
       active: isLeftAligned,
-      visible: !isEmptyDiagram(state) && !isInlineIcon,
+      visible: !isEmptyDrawing(state) && !isInlineIcon,
     },
     {
       name: "alignCenter",
@@ -97,21 +103,21 @@ export default function imageMenuItems(
         !isLeftAligned(state) &&
         !isRightAligned(state) &&
         !isFullWidthAligned(state),
-      visible: !isEmptyDiagram(state) && !isInlineIcon,
+      visible: !isEmptyDrawing(state) && !isInlineIcon,
     },
     {
       name: "alignRight",
       tooltip: t("Align right"),
       icon: <AlignImageRightIcon />,
       active: isRightAligned,
-      visible: !isEmptyDiagram(state) && !isInlineIcon,
+      visible: !isEmptyDrawing(state) && !isInlineIcon,
     },
     {
       name: "alignFullWidth",
       tooltip: t("Full width"),
       icon: <AlignFullWidthIcon />,
       active: isFullWidthAligned,
-      visible: !isEmptyDiagram(state) && !isInlineIcon,
+      visible: !isEmptyDrawing(state) && !isInlineIcon,
     },
     {
       name: "separator",
@@ -120,7 +126,7 @@ export default function imageMenuItems(
     {
       name: "dimensions",
       tooltip: `${t("Width")} × ${t("Height")}`,
-      visible: !isFullWidthAligned(state) && !isEmptyDiagram(state),
+      visible: !isFullWidthAligned(state) && !isEmptyDrawing(state),
       skipIcon: true,
     },
     {
@@ -148,7 +154,7 @@ export default function imageMenuItems(
       name: "downloadImage",
       tooltip: t("Download image"),
       icon: <DownloadIcon />,
-      visible: !!fetch && !isEmptyDiagram(state),
+      visible: !!fetch && !isEmptyDrawing(state),
     },
     {
       tooltip: t("Replace image"),

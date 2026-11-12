@@ -1,10 +1,13 @@
 import type { Node } from "prosemirror-model";
-import { EditorState, NodeSelection } from "prosemirror-state";
+import { EditorState, NodeSelection, TextSelection } from "prosemirror-state";
 import type { Transaction } from "prosemirror-state";
 import { schema } from "@shared/test/editor";
 import FileHelper, { ImageSource } from "@shared/editor/lib/FileHelper";
+import { toastNotice } from "../toastNotice";
 import { ExcalidrawExtension } from "./Excalidraw";
 import { ExcalidrawSession } from "./ExcalidrawSession";
+
+vi.mock("../toastNotice", () => ({ toastNotice: vi.fn() }));
 
 const originalSrc = "/drawing.svg";
 
@@ -21,7 +24,12 @@ function drawing(alt: string) {
   );
 }
 
-function createHarness(content: Node[], imagePosition = 1) {
+function createHarness(
+  content: Node[],
+  imagePosition = 1,
+  imageSrc = originalSrc,
+  open = true
+) {
   const extension = new ExcalidrawExtension();
   let state = EditorState.create({
     schema,
@@ -59,10 +67,12 @@ function createHarness(content: Node[], imagePosition = 1) {
   });
   const session = new ExcalidrawSession({
     entry: "toolbar",
-    imageSrc: originalSrc,
+    imageSrc,
     imagePosition,
   });
-  extension["open"](session);
+  if (open) {
+    extension["open"](session);
+  }
   return {
     extension,
     session,
@@ -78,6 +88,7 @@ function createHarness(content: Node[], imagePosition = 1) {
 }
 
 beforeEach(() => {
+  vi.mocked(toastNotice).mockClear();
   vi.spyOn(FileHelper, "getImageDimensions").mockResolvedValue({
     width: 400,
     height: 300,
@@ -87,18 +98,103 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks());
 
 describe("ExcalidrawExtension", () => {
-  it("closes a new drawing when its original paragraph is deleted", () => {
-    const paragraph = schema.nodes.paragraph.create(null, schema.text("hello"));
-    const doc = schema.nodes.doc.create(null, [paragraph]);
-    const state = EditorState.create({ schema, doc });
-    const session = new ExcalidrawSession({
-      entry: "slash",
-      insertPosition: 3,
-      paragraphPosition: 0,
+  it("tracks an empty placeholder inserted inside existing text", () => {
+    const harness = createHarness(
+      [schema.nodes.paragraph.create(null, schema.text("hello"))],
+      3,
+      "",
+      false
+    );
+    harness.dispatch(
+      harness.state.tr.setSelection(TextSelection.create(harness.state.doc, 3))
+    );
+
+    const insert = harness.extension.commands().insertExcalidraw();
+    expect(insert(harness.state, harness.dispatch)).toBe(true);
+    expect(harness.extension["session"]?.targetPosition).toBe(3);
+    expect(harness.state.doc.nodeAt(3)?.attrs).toMatchObject({
+      src: "",
+      source: ImageSource.Excalidraw,
     });
-    session.map(state.tr.delete(0, paragraph.nodeSize));
-    expect(session.insertionLost).toBe(true);
-    expect(session.insertionPosition).toBeUndefined();
+    expect(harness.state.doc.textContent).toBe("hello");
+  });
+
+  it("inserts a persistent empty drawing and reopens it after exit", () => {
+    const harness = createHarness(
+      [schema.nodes.paragraph.create()],
+      1,
+      "",
+      false
+    );
+    const insert = harness.extension.commands().insertExcalidraw();
+    expect(insert(harness.state, harness.dispatch)).toBe(true);
+    expect(harness.state.doc.nodeAt(1)?.attrs).toMatchObject({
+      src: "",
+      source: ImageSource.Excalidraw,
+    });
+    expect(harness.extension["session"]?.targetPosition).toBe(1);
+
+    harness.extension["handleClose"]();
+    expect(harness.state.doc.nodeAt(1)?.attrs.src).toBe("");
+
+    harness.dispatch(
+      harness.state.tr.setSelection(NodeSelection.create(harness.state.doc, 1))
+    );
+    const reopen = harness.extension.commands().editExcalidraw({
+      source: "double_click",
+    });
+    expect(reopen(harness.state, harness.dispatch)).toBe(true);
+    expect(harness.extension["session"]?.imageSrc).toBe("");
+    expect(harness.extension["session"]?.targetPosition).toBe(1);
+  });
+
+  it("replaces the exact empty placeholder after the first save", async () => {
+    const placeholder = schema.nodes.paragraph.create(
+      null,
+      schema.nodes.image.create({ src: "", source: ImageSource.Excalidraw })
+    );
+    const harness = createHarness([placeholder], 1, "");
+    const saving = harness.extension["handleSave"]("<svg/>", "normal");
+    harness.finishUpload("/first.svg");
+    expect(await saving).toBe("saved");
+    expect(harness.state.doc.firstChild?.content.childCount).toBe(1);
+    expect(harness.state.doc.nodeAt(1)?.attrs.src).toBe("/first.svg");
+  });
+
+  it("saves only the selected one of two empty placeholders", async () => {
+    const placeholder = () =>
+      schema.nodes.paragraph.create(
+        null,
+        schema.nodes.image.create({ src: "", source: ImageSource.Excalidraw })
+      );
+    const first = placeholder();
+    const harness = createHarness(
+      [first, placeholder()],
+      first.nodeSize + 1,
+      ""
+    );
+    const saving = harness.extension["handleSave"]("<svg/>", "normal");
+    harness.finishUpload("/second.svg");
+    expect(await saving).toBe("saved");
+    expect(harness.state.doc.nodeAt(1)?.attrs.src).toBe("");
+    expect(harness.state.doc.nodeAt(first.nodeSize + 1)?.attrs.src).toBe(
+      "/second.svg"
+    );
+  });
+
+  it("closes a new drawing when its placeholder is deleted", () => {
+    const placeholder = schema.nodes.paragraph.create(
+      null,
+      schema.nodes.image.create({ src: "", source: ImageSource.Excalidraw })
+    );
+    const harness = createHarness([placeholder], 1, "");
+    harness.dispatch(harness.state.tr.delete(1, 2));
+    expect(harness.session.targetPosition).toBeUndefined();
+    expect(harness.session.active).toBe(false);
+    expect(toastNotice).toHaveBeenCalledWith(
+      "The drawing placeholder is no longer available",
+      "error"
+    );
   });
 
   it("updates only the mapped target and preserves its latest layout", async () => {

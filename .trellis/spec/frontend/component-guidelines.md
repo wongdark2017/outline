@@ -566,12 +566,13 @@ Use this contract when changing drawing creation, editing, saving or loading.
 
 ### 2. Signatures
 
-- `insertExcalidraw()` opens a new session at the mapped cursor;
-  `editExcalidraw({ source? })` requires a selected `source=excalidraw` image,
-  an editable view and an upload callback.
-- `ExcalidrawSession.map(transaction)` maps the original image or insertion
-  paragraph through every ProseMirror step. `conflict(doc)` returns `none`,
-  `modified` or `missing` for the exact image opened by the session.
+- `insertExcalidraw()` inserts an image with `source=excalidraw` and `src=""`
+  at the cursor, then opens a session bound to that node;
+  `editExcalidraw({ source? })` accepts a selected saved or empty
+  `source=excalidraw` image, an editable view and an upload callback.
+- `ExcalidrawSession.map(transaction)` maps the exact image or empty
+  placeholder through every ProseMirror step. `conflict(doc)` returns `none`,
+  `modified` or `missing` for that mapped node.
 - `onSave(svg, choice)` returns `saved`, `conflict` or `cancelled`, where choice is
   `normal`, `duplicate` or `overwrite`.
 - `autosaveDrawingDraft(key, scene, baseline, state)` returns a write result
@@ -586,20 +587,28 @@ reach the document before the dialog mounts. Set `EXCALIDRAW_ASSET_PATH` to
 `cdnPath("/static/excalidraw/")` when the lazy module loads. Keep its fonts in
 `server/static/excalidraw/fonts`; exclude the lazy CSS from Workbox precaching.
 
-New drawings do not create a document node or local draft before saving.
-Existing drawings load their attachment with `fetch(src, { cache: "no-store" })`
-and `loadFromBlob`. Only images bearing `ImageSource.Excalidraw` are editable;
-uploaded or pasted Excalidraw SVGs remain ordinary images. Persist the source
-attribute through image HTML and Markdown serialization for linked and unlinked
-images. Export with `exportEmbedScene: true` and `exportWithDarkMode: false`,
-and verify that element IDs and embedded image files survive `loadFromBlob`
-before uploading the `image/svg+xml` attachment.
+The slash command immediately inserts an empty image node; exiting without
+drawing leaves it in the document, and double-clicking it opens an empty
+canvas. The empty node survives collaboration and document reload. Do not
+persist an unsaved canvas scene as a draft for this node. Saved drawings load
+their attachment with `fetch(src, { cache: "no-store" })` and `loadFromBlob`;
+an empty `src` must never be fetched. Only images bearing
+`ImageSource.Excalidraw` are editable; uploaded or pasted Excalidraw SVGs remain
+ordinary images. Persist the source attribute through image HTML and Markdown
+serialization for linked and unlinked images. An empty Excalidraw node uses
+`<>` for the empty Markdown destination; do not change diagrams.net's
+serialization. Static HTML and read-only views show a non-interactive text
+placeholder without an empty `img src`. Export with `exportEmbedScene: true`
+and `exportWithDarkMode: false`, and verify that element IDs and embedded image
+files survive `loadFromBlob` before uploading the `image/svg+xml` attachment.
 
 The existing `/attachments.create` validates `size` against
 `FILE_STORAGE_UPLOAD_MAX_SIZE` before transferring bytes. Upload success alone
 does not change the document: recheck the session, permission and exact target
-before dispatching one image transaction. Preserve the edited image's current
-width and other attributes, and recompute height from the new SVG aspect ratio.
+before dispatching one image transaction. First save replaces the exact mapped
+empty placeholder in place; it must not insert a second image. Preserve an
+edited saved image's current width and other attributes, and recompute height
+from the new SVG aspect ratio.
 An `overwrite` may target only the mapped existing image; a `duplicate` inserts
 at the current selection without replacing the selected original.
 
@@ -614,27 +623,32 @@ fixed Excalidraw actions and enum metadata; never send scene or document data.
 
 | Condition | Required behavior |
 | --- | --- |
-| Empty canvas or loading | Disable Save & exit; leave the document unchanged. |
+| Empty canvas or loading | Disable Save & exit; keep the already inserted empty placeholder when the user exits. |
 | Browser draft quota exceeded | Show the draft autosave error; keep drawing and manual document save available. |
 | Attachment size rejected or upload failed | Keep the dialog and scene; show the size-specific or general save error. |
-| New drawing's insertion paragraph deleted | Close immediately, discard the unsaved scene and do not insert an image. |
+| New drawing's empty placeholder deleted | Close immediately, discard the unsaved scene and do not insert an image elsewhere. |
 | Original image modified or deleted | Keep the scene and show a conflict before commit; offer a copy, and overwrite only while the image still exists. |
 | Lazy module load failed | Show an exit control over a full-window blocker; do not expose the document to pointer input. |
 
 ### 5. Good / Base / Bad Cases
 
 Good: edit the second of two same-URL drawings while another user resizes it;
-save only that mapped image and retain its width. Base: save a new drawing,
-reopen its SVG attachment and recover its elements and embedded image files.
-Bad: search by URL after a target was deleted, clear an unchosen draft on a
-timer, or let two rapid saves upload and insert twice.
+save only that mapped image and retain its width. Base: insert an empty
+placeholder, exit, reopen it by double click, then save a drawing into that
+same node and recover its elements and embedded files from the SVG. Bad:
+search by URL after a target was deleted, render an empty placeholder as a
+broken image, clear an unchosen draft on a timer, or let two rapid saves create
+duplicate images.
 
 ### 6. Tests Required
 
 Test scene SVG round trips in a real browser, including embedded image files;
-test exact target mapping, concurrent attribute changes, copy insertion,
-duplicate save suppression, draft expiry/quota/candidate protection, source
-serialization and uploaded-SVG ordinary-image behavior. Run the focused editor
+test empty placeholder insertion, exit/reopen, deletion, exact in-place save
+with two empty placeholders, concurrent attribute changes, copy insertion,
+duplicate save suppression, draft expiry/quota/candidate protection, Markdown
+and HTML round trips, read-only rendering without an empty `img src`,
+diagrams.net serialization preservation, and uploaded-SVG ordinary-image
+behavior. Run the focused editor
 tests, type-check, lint and Vite build. Inspect the build's service worker list
 for zero Excalidraw JS/CSS precache entries. Full environment acceptance needs
 an authenticated attachment upload/reopen, document first-load network capture,
@@ -647,3 +661,6 @@ candidate is pending; its clean branch can remove that candidate. Correct:
 lock editing until the candidate is resolved and skip autosave while pending.
 Wrong: render a `Suspense` fallback with no overlay; correct: cover the window
 until the lazy dialog loads or its exit error UI is displayed.
+Wrong: save the first drawing by inserting another image after an empty
+placeholder; correct: map that placeholder through transactions and replace
+the same node once the SVG upload succeeds.

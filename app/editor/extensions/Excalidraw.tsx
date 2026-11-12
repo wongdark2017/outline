@@ -1,6 +1,6 @@
 import { action, makeObservable, observable } from "mobx";
 import type { Command } from "prosemirror-state";
-import { NodeSelection, Plugin, TextSelection } from "prosemirror-state";
+import { NodeSelection, Plugin } from "prosemirror-state";
 import { lazy, Suspense } from "react";
 import { t } from "i18next";
 import styled from "styled-components";
@@ -73,13 +73,20 @@ export class ExcalidrawExtension extends Extension {
           return false;
         }
         if (dispatch) {
-          const $from = state.doc.resolve(state.selection.from);
+          const position = state.selection.from;
+          const image = this.editor.schema.nodes.image.create({
+            src: "",
+            source: ImageSource.Excalidraw,
+          });
+          const transaction = state.tr.replaceSelectionWith(image);
+          const imagePosition = transaction.mapping.map(position, -1);
+          dispatch(transaction);
           this.open(
             new ExcalidrawSession({
               entry: "slash",
               documentId: this.editor.props.id,
-              insertPosition: state.selection.from,
-              paragraphPosition: $from.start() - 1,
+              imageSrc: "",
+              imagePosition,
             })
           );
         }
@@ -94,8 +101,7 @@ export class ExcalidrawExtension extends Extension {
           const node = state.selection.node;
           if (
             node.type.name !== "image" ||
-            node.attrs.source !== ImageSource.Excalidraw ||
-            !node.attrs.src
+            node.attrs.source !== ImageSource.Excalidraw
           ) {
             return false;
           }
@@ -122,10 +128,13 @@ export class ExcalidrawExtension extends Extension {
           init: () => null,
           apply: (transaction) => {
             this.session?.map(transaction);
-            if (this.session?.insertionLost) {
+            if (
+              this.session?.imageSrc === "" &&
+              this.session.targetPosition === undefined
+            ) {
               this.close(true);
               toastNotice(
-                t("The drawing insertion point is no longer available"),
+                t("The drawing placeholder is no longer available"),
                 "error"
               );
             }
@@ -194,7 +203,6 @@ export class ExcalidrawExtension extends Extension {
     }
     if (
       choice === "normal" &&
-      session.imageSrc &&
       session.conflict(this.editor.view.state.doc) !== "none"
     ) {
       return "conflict";
@@ -210,15 +218,11 @@ export class ExcalidrawExtension extends Extension {
         return "cancelled";
       }
       const { state, dispatch } = this.editor.view;
-      if (
-        choice === "normal" &&
-        session.imageSrc &&
-        session.conflict(state.doc) !== "none"
-      ) {
+      if (choice === "normal" && session.conflict(state.doc) !== "none") {
         return "conflict";
       }
       const image = this.editor.schema.nodes.image;
-      if (session.imageSrc && choice !== "duplicate") {
+      if (choice !== "duplicate") {
         const position = session.targetPosition;
         const node =
           position === undefined ? undefined : state.doc.nodeAt(position);
@@ -251,19 +255,6 @@ export class ExcalidrawExtension extends Extension {
         dispatch(
           state.tr.insert(
             position,
-            image.create({ ...dimensions, src, source: ImageSource.Excalidraw })
-          )
-        );
-      } else {
-        const position = session.insertionPosition;
-        if (position === undefined) {
-          return "cancelled";
-        }
-        const tr = state.tr.setSelection(
-          TextSelection.create(state.doc, position)
-        );
-        dispatch(
-          tr.replaceSelectionWith(
             image.create({ ...dimensions, src, source: ImageSource.Excalidraw })
           )
         );

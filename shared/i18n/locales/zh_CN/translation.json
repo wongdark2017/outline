@@ -2030,6 +2030,8 @@
   "Excalidraw drawing": "Excalidraw 绘图",
   "Excalidraw (Whiteboard)": "Excalidraw (Whiteboard)",
   "Draw and sketch Excalidraw diagrams": "绘制和草绘 Excalidraw 图表",
+  "Double click to edit Excalidraw drawing": "双击以编辑 Excalidraw 图表",
+  "Empty Excalidraw drawing": "空白 Excalidraw 图表",
   "Exit": "退出",
   "Save & exit": "保存并退出",
   "A local drawing draft is available": "有可恢复的本地绘图草稿",
@@ -2042,6 +2044,6 @@
   "This drawing changed while you were editing": "你编辑期间，这张绘图已被修改",
   "Insert as copy": "插入为副本",
   "Overwrite": "覆盖",
-  "The drawing insertion point is no longer available": "绘图插入位置已失效",
+  "The drawing placeholder is no longer available": "绘图占位块已失效",
   "The drawing editor could not be loaded": "无法加载绘图编辑器"
 }

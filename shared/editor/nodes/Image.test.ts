@@ -11,6 +11,53 @@ const findImageNode = (doc: ReturnType<typeof parser.parse>) => {
 };
 
 describe("Image node source attribute round-trip", () => {
+  it("round-trips an empty Excalidraw placeholder through Markdown and HTML", () => {
+    const image = schema.nodes.image.create({
+      src: "",
+      source: ImageSource.Excalidraw,
+    });
+    const doc = schema.nodes.doc.create(
+      null,
+      schema.nodes.paragraph.create(null, image)
+    );
+    const markdown = serializer.serialize(doc);
+    expect(markdown).toContain("![](<>");
+    expect(findImageNode(parser.parse(markdown)).attrs).toMatchObject({
+      src: "",
+      source: ImageSource.Excalidraw,
+    });
+
+    if (typeof document !== "undefined") {
+      const wrapper = document.createElement("div");
+      wrapper.appendChild(
+        DOMSerializer.fromSchema(schema).serializeFragment(doc.content)
+      );
+      expect(
+        wrapper.querySelector(".excalidraw-placeholder")?.textContent
+      ).toBe("Empty Excalidraw drawing");
+      expect(wrapper.querySelector("img")).toBeNull();
+      const parsed = findImageNode(DOMParser.fromSchema(schema).parse(wrapper));
+      expect(parsed.attrs).toMatchObject({
+        src: "",
+        source: ImageSource.Excalidraw,
+      });
+      expect(parsed.content).toBeUndefined();
+    }
+  });
+
+  it("preserves the existing Markdown form for an empty diagrams.net image", () => {
+    const image = schema.nodes.image.create({
+      src: "",
+      source: ImageSource.DiagramsNet,
+    });
+    const doc = schema.nodes.doc.create(
+      null,
+      schema.nodes.paragraph.create(null, image)
+    );
+
+    expect(serializer.serialize(doc)).not.toContain("![](<>");
+  });
+
   it("round-trips an Excalidraw image through Markdown and static HTML", () => {
     const original = `![Drawing](https://example.com/drawing.svg "source=${ImageSource.Excalidraw} right-50 =480x320")`;
     const doc = parser.parse(serializer.serialize(parser.parse(original)));
