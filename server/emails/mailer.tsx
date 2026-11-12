@@ -8,9 +8,8 @@ import env from "@server/env";
 import { InternalError } from "@server/errors";
 import Logger from "@server/logging/Logger";
 import { trace } from "@server/logging/tracing";
+import { createEmailSigninError } from "@server/utils/emailSigninRedaction";
 import { baseStyles } from "./templates/components/EmailLayout";
-
-const useTestEmailService = env.isDevelopment && !env.SMTP_USERNAME;
 
 type SendMailOptions = {
   /** The email address being sent to. */
@@ -59,7 +58,7 @@ export class Mailer {
     if (env.SMTP_HOST || env.SMTP_SERVICE) {
       this.transporter = nodemailer.createTransport(this.getOptions());
     }
-    if (useTestEmailService) {
+    if (this.useTestEmailService) {
       Logger.info(
         "email",
         "SMTP_USERNAME not provided, generating test account…"
@@ -139,14 +138,17 @@ export class Mailer {
   };
 
   /**
+   * Sends a rendered email, keeping sign-in credentials out of application logs.
    *
-   * @param data Email headers and body
-   * @returns Message ID header from SMTP server
+   * @param data the email headers, tags and rendered body.
+   * @returns a promise resolving after delivery.
+   * @throws a safe retryable error when sign-in delivery fails.
    */
   sendMail = async (data: SendMailOptions): Promise<void> => {
     const transporter = this.transporter;
+    const isSigninEmail = data.tags?.template === "SigninEmail";
 
-    if (env.isDevelopment) {
+    if (env.isDevelopment && !isSigninEmail) {
       Logger.debug(
         "email",
         [
@@ -164,21 +166,31 @@ export class Mailer {
       );
     }
     if (!transporter) {
+      if (isSigninEmail) {
+        throw createEmailSigninError("transport");
+      }
+
       Logger.warn("No mail transport available");
       return;
     }
 
-    const html = Oy.renderTemplate(
-      data.component,
-      {
-        title: data.subject,
-        headCSS: [baseStyles, data.headCSS].join(" "),
-      } as Oy.RenderOptions,
-      this.template
-    );
-
     try {
-      Logger.info("email", `Sending email "${data.subject}" to ${data.to}`);
+      const html = Oy.renderTemplate(
+        data.component,
+        {
+          title: data.subject,
+          headCSS: [baseStyles, data.headCSS].join(" "),
+        } as Oy.RenderOptions,
+        this.template
+      );
+
+      if (isSigninEmail) {
+        Logger.info("email", "Sending sign-in email", {
+          templateName: "SigninEmail",
+        });
+      } else {
+        Logger.info("email", `Sending email "${data.subject}" to ${data.to}`);
+      }
 
       const info = await transporter.sendMail({
         from: data.from,
@@ -210,17 +222,32 @@ export class Mailer {
             ],
       });
 
-      if (useTestEmailService) {
-        Logger.info(
-          "email",
-          `Preview Url: ${nodemailer.getTestMessageUrl(info)}`
-        );
+      if (this.useTestEmailService) {
+        const previewUrl = nodemailer.getTestMessageUrl(info);
+        if (
+          typeof previewUrl === "string" &&
+          /^https:\/\/ethereal\.email\/message\/[\w.-]+$/.test(previewUrl)
+        ) {
+          Logger.info("email", `Preview Url: ${previewUrl}`);
+        }
       }
     } catch (err) {
+      if (isSigninEmail) {
+        const safeError = createEmailSigninError("transport", err);
+        Logger.error("Error sending sign-in email", safeError, {
+          templateName: "SigninEmail",
+        });
+        throw safeError;
+      }
+
       Logger.error(`Error sending email to ${data.to}`, toError(err));
       throw err; // Re-throw for queue to re-try
     }
   };
+
+  /** Whether development mail is delivered to the existing Ethereal inbox. */
+  private readonly useTestEmailService =
+    env.isDevelopment && !env.SMTP_USERNAME;
 
   /**
    * Builds the provider-specific headers used to tag a message for reporting.

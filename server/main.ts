@@ -20,6 +20,7 @@ import services from "./services";
 import { sequelize } from "./storage/database";
 import { getArg } from "./utils/args";
 import { CacheHelper } from "./utils/CacheHelper";
+import { redactEmailSigninUrl } from "./utils/emailSigninRedaction";
 import { PluginManager } from "./utils/PluginManager";
 import { redirectOnClient } from "./utils/redirectOnClient";
 import { RedisPrefixHelper } from "./utils/RedisPrefixHelper";
@@ -61,7 +62,7 @@ export async function start(id: number, disconnect: () => void) {
 
   // install basic middleware shared by all services
   if (env.DEBUG.includes("http")) {
-    app.use(logger((str) => Logger.info("http", str)));
+    app.use(logger((str) => Logger.info("http", redactEmailSigninUrl(str))));
   }
 
   app.use(helmet());
