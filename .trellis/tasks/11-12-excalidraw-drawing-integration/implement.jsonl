@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"可编辑图片生命周期、SVG 存储、目标映射、焦点和静态渲染规范。"}
+{"file":".trellis/spec/frontend/editor-controls.md","reason":"图片编辑控件在选区工具栏中的焦点与浮层行为。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"前端聚焦测试与翻译提取规范。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"核对场景及来源元数据在编辑器、附件和导出之间的传递。"}
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"复用现有图片和 TikZ 生命周期模式，避免重复基础设施。"}
