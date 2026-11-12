@@ -290,6 +290,13 @@ export default function blockMenuItems(
       icon: <Img src="/images/tikz.svg" alt="TikZ" />,
       keywords: "tikz latex tex pgfplots circuitikz chemfig commutative",
     },
+    {
+      name: "insertExcalidraw",
+      title: t("Excalidraw (Whiteboard)"),
+      subtitle: t("Draw and sketch Excalidraw diagrams"),
+      icon: <Img src="/images/excalidraw.svg" alt="" />,
+      keywords: "excalidraw",
+    },
   ];
 
   // Filter out diagrams.net in desktop app

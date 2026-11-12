@@ -3,6 +3,7 @@ import { cloneDeep } from "es-toolkit/compat";
 import { observer } from "mobx-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 import Icon from "@shared/components/Icon";
 import type { MenuItem } from "@shared/editor/types";
 import { ProsemirrorHelper } from "@shared/utils/ProsemirrorHelper";
@@ -127,15 +128,34 @@ function BlockMenu(props: Props) {
   }, [t, elementRef, templateMenuItem]);
 
   const renderMenuItem = useCallback<SuggestionsMenuProps["renderMenuItem"]>(
-    (item, _index, options) => (
-      <SuggestionsMenuItem
-        {...options}
-        icon={item.icon}
-        title={item.title}
-        shortcut={item.shortcut}
-        disclosure={options.disclosure}
-      />
-    ),
+    (item, _index, options) => {
+      if (item.name === "insertExcalidraw") {
+        return (
+          <SuggestionsMenuItem
+            {...options}
+            icon={item.icon}
+            title={
+              <ExcalidrawText>
+                <ExcalidrawTitle>{item.title}</ExcalidrawTitle>
+                <ExcalidrawDescription $selected={options.selected}>
+                  {item.subtitle}
+                </ExcalidrawDescription>
+              </ExcalidrawText>
+            }
+          />
+        );
+      }
+
+      return (
+        <SuggestionsMenuItem
+          {...options}
+          icon={item.icon}
+          title={item.title}
+          shortcut={item.shortcut}
+          disclosure={options.disclosure}
+        />
+      );
+    },
     []
   );
 
@@ -151,3 +171,27 @@ function BlockMenu(props: Props) {
 }
 
 export default observer(BlockMenu);
+
+const ExcalidrawText = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+`;
+
+const ExcalidrawTitle = styled.span`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 18px;
+`;
+
+const ExcalidrawDescription = styled.span<{ $selected: boolean }>`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: ${(props) =>
+    props.$selected ? props.theme.accentText : props.theme.textTertiary};
+  font-size: 11px;
+  line-height: 12px;
+`;

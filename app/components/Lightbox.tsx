@@ -74,7 +74,7 @@ import {
   initialStatus,
   reducer,
 } from "./LightboxState";
-import { getTikzImageSelection } from "./LightboxImageSelection";
+import { getEditableImageSelection } from "./LightboxImageSelection";
 
 type Animation = {
   fadeIn?: { apply: () => Keyframes; duration: number };
@@ -264,7 +264,9 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const pendingTikzSrc = useRef<string | undefined>(undefined);
+  const pendingDrawing = useRef<
+    { src: string; source: ImageSource } | undefined
+  >(undefined);
   const [status, dispatch] = useReducer(reducer, initialStatus);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [commentsRendered, setCommentsRendered] = useState(false);
@@ -767,21 +769,22 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
     editor.commands.editDiagram();
   };
 
-  const handleEditTikz = () => {
+  const handleEditDrawing = (source: ImageSource) => {
     const { view } = editor;
     if (
       readOnly ||
       editor.props.readOnly ||
       view.isDestroyed ||
-      activeImage.source !== ImageSource.Tikz
+      activeImage.source !== source
     ) {
       return;
     }
 
-    const selection = getTikzImageSelection(
+    const selection = getEditableImageSelection(
       view,
       activeImage.src,
-      activeImage.getElement()
+      activeImage.getElement(),
+      source
     );
     if (!selection) {
       return;
@@ -790,20 +793,24 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
     // ProseMirror maps this selection through changes during the close animation,
     // preserving the selected instance even when another image has the same URL.
     view.dispatch(view.state.tr.setSelection(selection));
-    pendingTikzSrc.current = activeImage.src;
+    pendingDrawing.current = { src: activeImage.src, source };
     close();
   };
+
+  const handleEditTikz = () => handleEditDrawing(ImageSource.Tikz);
+
+  const handleEditExcalidraw = () => handleEditDrawing(ImageSource.Excalidraw);
 
   const handleCloseAutoFocus: ComponentProps<
     typeof Dialog.Content
   >["onCloseAutoFocus"] = (event) => {
-    const src = pendingTikzSrc.current;
-    if (src === undefined) {
+    const pending = pendingDrawing.current;
+    if (!pending) {
       return;
     }
 
     event.preventDefault();
-    pendingTikzSrc.current = undefined;
+    pendingDrawing.current = undefined;
 
     const { view } = editor;
     if (readOnly || editor.props.readOnly || view.isDestroyed) {
@@ -816,13 +823,17 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
     if (
       !(selection instanceof NodeSelection) ||
       selection.node.type.name !== "image" ||
-      selection.node.attrs.source !== ImageSource.Tikz ||
-      selection.node.attrs.src !== src
+      selection.node.attrs.source !== pending.source ||
+      selection.node.attrs.src !== pending.src
     ) {
       return;
     }
 
-    editor.commands.editTikz();
+    if (pending.source === ImageSource.Tikz) {
+      editor.commands.editTikz();
+    } else {
+      editor.commands.editExcalidraw({ source: "toolbar" });
+    }
   };
 
   return (
@@ -942,6 +953,23 @@ function Lightbox({ images, activeImage, onUpdate, onClose, readOnly }: Props) {
                   }
                   onClick={handleEditTikz}
                   aria-label={t("Edit TikZ")}
+                  size={32}
+                  icon={<EditIcon />}
+                  borderOnHover
+                  neutral
+                />
+              </Tooltip>
+            )}
+            {activeImage.source === ImageSource.Excalidraw && !readOnly && (
+              <Tooltip content={t("Edit drawing")} placement="bottom">
+                <ActionButton
+                  tabIndex={-1}
+                  disabled={
+                    status.image === ImageStatus.ERROR ||
+                    status.lightbox !== LightboxStatus.OPENED
+                  }
+                  onClick={handleEditExcalidraw}
+                  aria-label={t("Edit drawing")}
                   size={32}
                   icon={<EditIcon />}
                   borderOnHover
@@ -1236,7 +1264,8 @@ const StyledImg = styled.img<{
   object-fit: contain;
 
   @media screen {
-    &[data-source="${ImageSource.Tikz}"] {
+    &[data-source="${ImageSource.Tikz}"],
+    &[data-source="${ImageSource.Excalidraw}"] {
       filter: ${(props) =>
         props.theme.isDark ? "invert(1) hue-rotate(180deg)" : "none"};
     }

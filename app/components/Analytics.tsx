@@ -88,7 +88,6 @@ const Analytics: React.FC<Props> = ({ children }: Props) => {
         return;
       }
 
-      // @ts-expect-error - Matomo global variable
       const _paq = (window._paq = window._paq || []);
       _paq.push(["trackPageView"]);
       _paq.push(["enableLinkTracking"]);

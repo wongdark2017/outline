@@ -555,3 +555,112 @@ only the spawned thread. Correct: retain a same-origin worker before startup,
 race the complete operation against timeout/abort, and release the thread or raw
 worker in `finally`. Wrong: embed `prepareSource(source).tex`; correct:
 `embedSource(renderedSvg, source)` preserves the user's original text.
+
+## Scenario: Editable Excalidraw SVG lifecycle
+
+### 1. Scope / Trigger
+
+Excalidraw crosses the lazy editor widget, shared image serialization, local
+draft storage, the existing document attachment API, static fonts and Workbox.
+Use this contract when changing drawing creation, editing, saving or loading.
+
+### 2. Signatures
+
+- `insertExcalidraw()` inserts an image with `source=excalidraw` and `src=""`
+  at the cursor, then opens a session bound to that node;
+  `editExcalidraw({ source? })` accepts a selected saved or empty
+  `source=excalidraw` image, an editable view and an upload callback.
+- `ExcalidrawSession.map(transaction)` maps the exact image or empty
+  placeholder through every ProseMirror step. `conflict(doc)` returns `none`,
+  `modified` or `missing` for that mapped node.
+- `onSave(svg, choice)` returns `saved`, `conflict` or `cancelled`, where choice is
+  `normal`, `duplicate` or `overwrite`.
+- `autosaveDrawingDraft(key, scene, baseline, state)` returns a write result
+  and the last saved fingerprint. Its state includes `pendingCandidate` and
+  `savedFingerprint`.
+
+### 3. Contracts
+
+Open the Excalidraw JS and CSS only for an active writable session. The lazy
+loading and error states must cover the complete window so pointer input cannot
+reach the document before the dialog mounts. Set `EXCALIDRAW_ASSET_PATH` to
+`cdnPath("/static/excalidraw/")` when the lazy module loads. Keep its fonts in
+`server/static/excalidraw/fonts`; exclude the lazy CSS from Workbox precaching.
+
+The slash command immediately inserts an empty image node; exiting without
+drawing leaves it in the document, and double-clicking it opens an empty
+canvas. The empty node survives collaboration and document reload. Do not
+persist an unsaved canvas scene as a draft for this node. Saved drawings load
+their attachment with `fetch(src, { cache: "no-store" })` and `loadFromBlob`;
+an empty `src` must never be fetched. Only images bearing
+`ImageSource.Excalidraw` are editable; uploaded or pasted Excalidraw SVGs remain
+ordinary images. Persist the source attribute through image HTML and Markdown
+serialization for linked and unlinked images. An empty Excalidraw node uses
+`<>` for the empty Markdown destination; do not change diagrams.net's
+serialization. Static HTML and read-only views show a non-interactive text
+placeholder without an empty `img src`. Export with `exportEmbedScene: true`
+and `exportWithDarkMode: false`, and verify that element IDs and embedded image
+files survive `loadFromBlob` before uploading the `image/svg+xml` attachment.
+
+The existing `/attachments.create` validates `size` against
+`FILE_STORAGE_UPLOAD_MAX_SIZE` before transferring bytes. Upload success alone
+does not change the document: recheck the session, permission and exact target
+before dispatching one image transaction. First save replaces the exact mapped
+empty placeholder in place; it must not insert a second image. Preserve an
+edited saved image's current width and other attributes, and recompute height
+from the new SVG aspect ratio.
+An `overwrite` may target only the mapped existing image; a `duplicate` inserts
+at the current selection without replacing the selected original.
+
+Only edits of a saved drawing receive a local draft, keyed by document ID and
+original attachment URL, retained for seven days. An unresolved restore
+candidate locks the canvas and save action until the user restores or discards
+it. The 30-second timer and `pagehide` must not clear or replace that candidate.
+After a successful document save, remove its draft. Analytics accepts only the
+fixed Excalidraw actions and enum metadata; never send scene or document data.
+
+### 4. Validation & Error Matrix
+
+| Condition | Required behavior |
+| --- | --- |
+| Empty canvas or loading | Disable Save & exit; keep the already inserted empty placeholder when the user exits. |
+| Browser draft quota exceeded | Show the draft autosave error; keep drawing and manual document save available. |
+| Attachment size rejected or upload failed | Keep the dialog and scene; show the size-specific or general save error. |
+| New drawing's empty placeholder deleted | Close immediately, discard the unsaved scene and do not insert an image elsewhere. |
+| Original image modified or deleted | Keep the scene and show a conflict before commit; offer a copy, and overwrite only while the image still exists. |
+| Lazy module load failed | Show an exit control over a full-window blocker; do not expose the document to pointer input. |
+
+### 5. Good / Base / Bad Cases
+
+Good: edit the second of two same-URL drawings while another user resizes it;
+save only that mapped image and retain its width. Base: insert an empty
+placeholder, exit, reopen it by double click, then save a drawing into that
+same node and recover its elements and embedded files from the SVG. Bad:
+search by URL after a target was deleted, render an empty placeholder as a
+broken image, clear an unchosen draft on a timer, or let two rapid saves create
+duplicate images.
+
+### 6. Tests Required
+
+Test scene SVG round trips in a real browser, including embedded image files;
+test empty placeholder insertion, exit/reopen, deletion, exact in-place save
+with two empty placeholders, concurrent attribute changes, copy insertion,
+duplicate save suppression, draft expiry/quota/candidate protection, Markdown
+and HTML round trips, read-only rendering without an empty `img src`,
+diagrams.net serialization preservation, and uploaded-SVG ordinary-image
+behavior. Run the focused editor
+tests, type-check, lint and Vite build. Inspect the build's service worker list
+for zero Excalidraw JS/CSS precache entries. Full environment acceptance needs
+an authenticated attachment upload/reopen, document first-load network capture,
+fixed-scene timing, analytics provider events, and target browser/Electron runs.
+
+### 7. Wrong vs Correct
+
+Wrong: call `writeDrawingDraft` on an unchanged baseline while a restore
+candidate is pending; its clean branch can remove that candidate. Correct:
+lock editing until the candidate is resolved and skip autosave while pending.
+Wrong: render a `Suspense` fallback with no overlay; correct: cover the window
+until the lazy dialog loads or its exit error UI is displayed.
+Wrong: save the first drawing by inserting another image after an empty
+placeholder; correct: map that placeholder through transactions and replace
+the same node once the SVG upload succeeds.

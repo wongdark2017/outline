@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"审查可编辑图片、SVG、布局与只读状态的回归。"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"核对聚焦测试、本地化和 UI 检查。"}
+{"file":".trellis/spec/backend/quality-guidelines.md","reason":"若后端发生变化，检查现有附件 API 和授权路径。"}
+{"file":".trellis/spec/guides/cross-layer-thinking-guide.md","reason":"端到端检查场景持久化、导出和协作者兼容性。"}

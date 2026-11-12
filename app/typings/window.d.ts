@@ -13,6 +13,13 @@ declare global {
   interface Window {
     dataLayer: any[];
     gtag: (...args: any[]) => void;
+    _paq?: Array<Array<string | undefined>>;
+    umami?: {
+      track: (
+        event: string,
+        data?: Record<string, string>
+      ) => void | Promise<void>;
+    };
 
     stores: RootStore;
 

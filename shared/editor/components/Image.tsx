@@ -23,6 +23,8 @@ import useDragResize from "./hooks/useDragResize";
 type Props = ComponentProps & {
   /** Callback triggered when the image is clicked */
   onClick: () => void;
+  /** Opens an editable drawing on double click. */
+  onDoubleClick?: () => void;
   /** Callback triggered when the download button is clicked */
   onDownload?: (event: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   /** Callback triggered when the zoom in button is clicked */
@@ -63,6 +65,7 @@ export function isInlineImageIcon({
 }: ImageClassNameOptions): boolean {
   return (
     source !== ImageSource.Tikz &&
+    source !== ImageSource.Excalidraw &&
     layoutClass !== "full-width" &&
     !!width &&
     width < InlineIconMaxWidth &&
@@ -147,6 +150,9 @@ const Image = (props: Props) => {
   };
 
   const handleImageClick = (ev: React.MouseEvent<HTMLDivElement>) => {
+    if (source === ImageSource.Excalidraw && isEditable) {
+      return;
+    }
     if (!isEditable || isSelected) {
       ev.preventDefault();
       onClick();
@@ -260,6 +266,7 @@ const Image = (props: Props) => {
                 setLoaded(true);
               }}
               onClick={handleImageClick}
+              onDoubleClick={props.onDoubleClick}
               onTouchStart={handleImageTouchStart}
             />
           </a>
